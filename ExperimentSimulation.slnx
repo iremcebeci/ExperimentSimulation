@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/backend/">
+    <Project Path="backend/ExperimentSimulation.BusinessLayer/ExperimentSimulation.BusinessLayer.csproj" />
+    <Project Path="backend/ExperimentSimulation.DataAccessLayer/ExperimentSimulation.DataAccessLayer.csproj" />
+    <Project Path="backend/ExperimentSimulation.DtoLayer/ExperimentSimulation.DtoLayer.csproj" />
+    <Project Path="backend/ExperimentSimulation.EntityLayer/ExperimentSimulation.EntityLayer.csproj" />
+    <Project Path="backend/ExperimentSimulation.WebApi/ExperimentSimulation.WebApi.csproj" />
+  </Folder>
+</Solution>

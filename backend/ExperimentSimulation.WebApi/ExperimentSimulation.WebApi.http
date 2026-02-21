@@ -1,0 +1,6 @@
+@ExperimentSimulation.WebApi_HostAddress = http://localhost:5156
+
+GET {{ExperimentSimulation.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

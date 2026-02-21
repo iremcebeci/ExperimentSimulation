@@ -1,0 +1,17 @@
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DataAccessLayer\bin\Debug\net8.0\ExperimentSimulation.DataAccessLayer.deps.json
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DataAccessLayer\bin\Debug\net8.0\ExperimentSimulation.DataAccessLayer.runtimeconfig.json
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DataAccessLayer\bin\Debug\net8.0\ExperimentSimulation.DataAccessLayer.dll
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DataAccessLayer\bin\Debug\net8.0\ExperimentSimulation.DataAccessLayer.pdb
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DataAccessLayer\bin\Debug\net8.0\ExperimentSimulation.EntityLayer.dll
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DataAccessLayer\bin\Debug\net8.0\ExperimentSimulation.EntityLayer.pdb
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DataAccessLayer\obj\Debug\net8.0\ExperimentSimulation.DataAccessLayer.csproj.AssemblyReference.cache
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DataAccessLayer\obj\Debug\net8.0\ExperimentSimulation.DataAccessLayer.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DataAccessLayer\obj\Debug\net8.0\ExperimentSimulation.DataAccessLayer.AssemblyInfoInputs.cache
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DataAccessLayer\obj\Debug\net8.0\ExperimentSimulation.DataAccessLayer.AssemblyInfo.cs
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DataAccessLayer\obj\Debug\net8.0\ExperimentSimulation.DataAccessLayer.csproj.CoreCompileInputs.cache
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DataAccessLayer\obj\Debug\net8.0\Experime.A4CF5C6A.Up2Date
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DataAccessLayer\obj\Debug\net8.0\ExperimentSimulation.DataAccessLayer.dll
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DataAccessLayer\obj\Debug\net8.0\refint\ExperimentSimulation.DataAccessLayer.dll
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DataAccessLayer\obj\Debug\net8.0\ExperimentSimulation.DataAccessLayer.pdb
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DataAccessLayer\obj\Debug\net8.0\ExperimentSimulation.DataAccessLayer.genruntimeconfig.cache
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DataAccessLayer\obj\Debug\net8.0\ref\ExperimentSimulation.DataAccessLayer.dll

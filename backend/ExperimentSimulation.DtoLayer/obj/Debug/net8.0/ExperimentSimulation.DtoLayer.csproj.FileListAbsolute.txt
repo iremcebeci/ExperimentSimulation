@@ -1,0 +1,17 @@
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DtoLayer\bin\Debug\net8.0\ExperimentSimulation.DtoLayer.deps.json
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DtoLayer\bin\Debug\net8.0\ExperimentSimulation.DtoLayer.runtimeconfig.json
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DtoLayer\bin\Debug\net8.0\ExperimentSimulation.DtoLayer.dll
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DtoLayer\bin\Debug\net8.0\ExperimentSimulation.DtoLayer.pdb
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DtoLayer\bin\Debug\net8.0\ExperimentSimulation.EntityLayer.dll
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DtoLayer\bin\Debug\net8.0\ExperimentSimulation.EntityLayer.pdb
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DtoLayer\obj\Debug\net8.0\ExperimentSimulation.DtoLayer.csproj.AssemblyReference.cache
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DtoLayer\obj\Debug\net8.0\ExperimentSimulation.DtoLayer.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DtoLayer\obj\Debug\net8.0\ExperimentSimulation.DtoLayer.AssemblyInfoInputs.cache
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DtoLayer\obj\Debug\net8.0\ExperimentSimulation.DtoLayer.AssemblyInfo.cs
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DtoLayer\obj\Debug\net8.0\ExperimentSimulation.DtoLayer.csproj.CoreCompileInputs.cache
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DtoLayer\obj\Debug\net8.0\Experime.D380C441.Up2Date
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DtoLayer\obj\Debug\net8.0\ExperimentSimulation.DtoLayer.dll
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DtoLayer\obj\Debug\net8.0\refint\ExperimentSimulation.DtoLayer.dll
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DtoLayer\obj\Debug\net8.0\ExperimentSimulation.DtoLayer.pdb
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DtoLayer\obj\Debug\net8.0\ExperimentSimulation.DtoLayer.genruntimeconfig.cache
+C:\Users\iremm\Desktop\yonlendirilmiscalisma\ExperimentSimulation\backend\ExperimentSimulation.DtoLayer\obj\Debug\net8.0\ref\ExperimentSimulation.DtoLayer.dll
