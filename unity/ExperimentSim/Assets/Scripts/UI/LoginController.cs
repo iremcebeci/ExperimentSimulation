@@ -32,6 +32,17 @@ public class LoginController : MonoBehaviour
         if (emailTf == null) Debug.LogWarning("Email TextField not found (name=\"email\").");
         if (passwordTf == null) Debug.LogWarning("Password TextField not found (name=\"password\").");
 
+
+        // Şifre alanlarını gizleme kodu
+
+        if (passwordTf != null)
+        {
+            passwordTf.isPasswordField = true;
+            passwordTf.maskChar = '•';
+        }
+
+
+
         statusLabel = new Label("");
         statusLabel.name = "login-status";
         statusLabel.style.marginTop = 8;

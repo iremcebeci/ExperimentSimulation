@@ -34,7 +34,7 @@
 
                         <ui:VisualElement class="input-group">
                             <ui:Label text="Parola"/>
-                            <ui:TextField name="password" isPasswordField="true" class="custom-input"/>
+                            <ui:TextField name="password" is-password-field="true" class="custom-input"/>
                         </ui:VisualElement>
 
                         <ui:VisualElement class="form-options">
