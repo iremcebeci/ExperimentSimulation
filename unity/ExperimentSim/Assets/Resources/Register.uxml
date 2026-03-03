@@ -1,0 +1,79 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+
+<ui:Style src="project://database/Assets/Resources/Style.uss" />
+    <Style src="project://database/Assets/Resources/Style.uss?fileID=7433441132597879392&amp;guid=176c8f81e15ba524ab6fcf080e3cee47&amp;type=3#Style"/>
+    <ui:VisualElement class="container signup-page">
+        <ui:VisualElement class="left-side">
+            <ui:VisualElement class="logo-row">
+                <ui:Image name="logo-image" class="logo-img"/>
+                <ui:Label text="Scienyx" class="logo-text"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement class="right-side">
+            <ui:VisualElement class="content-box-signup">
+                <ui:VisualElement class="login-top">
+                    <ui:Label text="Zaten bir hesabınız var mı?"/>
+                    <ui:Button name="go-login" text="Giriş Yap" class="to-login-btn"/>
+                </ui:VisualElement>
+                <ui:VisualElement class="login-content">
+                    <ui:VisualElement class="login-form">
+                        <ui:Label text="Hesap Oluştur" class="title"/>
+                        <ui:Label text="Yıldız (*) ile belirtilen alanların doldurulması zorunludur." class="subtitle"/>
+                        <ui:ScrollView horizontal-scroller-visibility="Hidden" vertical-scroller-visibility="Auto" class="form-scroll">
+                            <ui:VisualElement class="form-grid">
+                                <ui:VisualElement class="input-group">
+                                    <ui:Label text="İsim *"/>
+                                    <ui:TextField name="firstName" class="custom-input"/>
+                                </ui:VisualElement>
+                                <ui:VisualElement class="input-group">
+                                    <ui:Label text="Soyisim *"/>
+                                    <ui:TextField name="lastName" class="custom-input"/>
+                                </ui:VisualElement>
+                                <ui:VisualElement class="input-group">
+                                    <ui:Label text="E-posta *"/>
+                                    <ui:TextField name="email" class="custom-input"/>
+                                </ui:VisualElement>
+                                <ui:VisualElement class="input-group">
+                                    <ui:Label text="Doğum Tarihi *"/>
+                                    <ui:TextField name="birthDate" class="custom-input"/>
+                                </ui:VisualElement>
+                                <ui:VisualElement class="input-group">
+                                    <ui:Label text="Telefon Numarası"/>
+                                    <ui:TextField name="phone" class="custom-input"/>
+                                </ui:VisualElement>
+                                <ui:VisualElement class="input-group class-code-group">
+                                    <ui:VisualElement class="label-with-tooltip">
+                                        <ui:Label text="Sınıf Kodu"/>
+                                        <ui:VisualElement class="info-wrapper">
+                                            <ui:Label text="?" class="info-icon"/>
+                                        </ui:VisualElement>
+                                    </ui:VisualElement>
+                                    <ui:TextField name="classCode" class="custom-input"/>
+                                    <ui:Label text="Sınıf Kodu, öğretmeniniz tarafından size verilen özel koddur. Bu kod ile sınıfınıza otomatik olarak dahil olursunuz." class="custom-tooltip"/>
+                                </ui:VisualElement>
+                                <ui:VisualElement class="input-group">
+                                    <ui:Label text="Parola *"/>
+                                    <ui:TextField name="password" is-password-field="true" class="custom-input"/>
+                                </ui:VisualElement>
+                                <ui:VisualElement class="input-group">
+                                    <ui:Label text="Parola (Tekrar) *"/>
+                                    <ui:TextField name="password2" is-password-field="true" class="custom-input"/>
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="actions-inline">
+                                <ui:Button name="signup-submit" text="Hesap Oluştur" class="signup-btn"/>
+                                <ui:Label text="ya da" class="or-text"/>
+                                <ui:Button class="google-btn-half">
+                                    <ui:VisualElement class="google-content">
+                                        <ui:Image class="google-icon"/>
+                                        <ui:Label text="Google ile devam et"/>
+                                    </ui:VisualElement>
+                                </ui:Button>
+                            </ui:VisualElement>
+                        </ui:ScrollView>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

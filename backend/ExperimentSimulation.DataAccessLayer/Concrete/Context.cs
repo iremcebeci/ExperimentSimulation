@@ -10,15 +10,18 @@ namespace ExperimentSimulation.DataAccessLayer.Concrete
 {
     public class Context:DbContext
     {
+        public Context(DbContextOptions<Context> options) : base(options)
+        {
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            var str = $"Server=localhost;" +
-             $"Database=ExperimentSimulation;" +
-             $"Uid=root;" +
-             $"Pwd=0000";
-            optionsBuilder.UseMySql(str
-                , ServerVersion.AutoDetect(str)
-            );
+            // Eğer options DI'dan gelmemişse, default connection string'i kullan
+            if (!optionsBuilder.IsConfigured)
+            {
+                var connectionString = "Server=localhost;Database=ExperimentSimulation;Uid=root;Pwd=0000;";
+                optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+            }
         }
 
         public DbSet<User> Users { get; set; } = null!;
@@ -45,6 +48,23 @@ namespace ExperimentSimulation.DataAccessLayer.Concrete
                 new Role { Id = 4, Name = "ContentCreator", Description = "Creates content" },
                 new Role { Id = 5, Name = "Admin", Description = "System admin" }
             );
+
+            modelBuilder.Entity<UserClass>()
+                .HasKey(uc => new { uc.UserId, uc.ClassId });
+
+            modelBuilder.Entity<UserClass>()
+                .HasOne(uc => uc.User)
+                .WithMany(u => u.UserClasses)
+                .HasForeignKey(uc => uc.UserId);
+
+            modelBuilder.Entity<UserClass>()
+                .HasOne(uc => uc.Class)
+                .WithMany(c => c.UserClasses)
+                .HasForeignKey(uc => uc.ClassId);
+
+            modelBuilder.Entity<Class>()
+                .HasIndex(c => c.Code)
+                .IsUnique();
         }
     }
 }

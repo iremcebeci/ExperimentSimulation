@@ -22,6 +22,29 @@ namespace ExperimentSimulation.DataAccessLayer.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.Class", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("Class");
+                });
+
             modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.Role", b =>
                 {
                     b.Property<int>("Id")
@@ -82,6 +105,9 @@ namespace ExperimentSimulation.DataAccessLayer.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime?>("BirthDate")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
@@ -101,6 +127,13 @@ namespace ExperimentSimulation.DataAccessLayer.Migrations
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PasswordSalt")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Phone")
                         .HasColumnType("longtext");
 
                     b.Property<string>("ProfilePictureUrl")
@@ -123,6 +156,24 @@ namespace ExperimentSimulation.DataAccessLayer.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.UserClass", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ClassId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("JoinedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("UserId", "ClassId");
+
+                    b.HasIndex("ClassId");
+
+                    b.ToTable("UserClass");
+                });
+
             modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.User", b =>
                 {
                     b.HasOne("ExperimentSimulation.EntityLayer.Concrete.Role", "Role")
@@ -134,9 +185,38 @@ namespace ExperimentSimulation.DataAccessLayer.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.UserClass", b =>
+                {
+                    b.HasOne("ExperimentSimulation.EntityLayer.Concrete.Class", "Class")
+                        .WithMany("UserClasses")
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ExperimentSimulation.EntityLayer.Concrete.User", "User")
+                        .WithMany("UserClasses")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Class");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.Class", b =>
+                {
+                    b.Navigation("UserClasses");
+                });
+
             modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.Role", b =>
                 {
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.User", b =>
+                {
+                    b.Navigation("UserClasses");
                 });
 #pragma warning restore 612, 618
         }

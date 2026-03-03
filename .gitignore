@@ -51,3 +51,7 @@ x86/
 *.VC.db
 sysinfo.txt
 mono_crash.*
+
+# Unity IDE generated (project root inside unity/ExperimentSim)
+unity/**/UIElementsSchema/
+unity/**/*.slnx

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="ScienyxDashboard.uss" />
+
+    <ui:VisualElement name="Root" class="root">
+
+        <ui:VisualElement name="Sidebar" class="sidebar">
+
+            <ui:ScrollView name="Menu" class="menu" vertical-scroller-visibility="Hidden" horizontal-scroller-visibility="Hidden">
+
+                <ui:VisualElement name="SidebarHeaderItem" class="sidebar-header-item">
+                    <ui:Label name="LogoLabel" class="logo" text="Scienyx" />
+                    <ui:Button name="ToggleButton" class="toggle-btn">
+                        <ui:VisualElement name="ToggleIcon" class="menu-icon icon-chevron" />
+                    </ui:Button>
+                </ui:VisualElement>
+
+                <!-- anasayfa -->
+                <ui:Button name="HomeBtn" class="menu-item active">
+                    <ui:VisualElement name="HomeIcon" class="menu-icon icon-home" />
+                    <ui:Label name="HomeLabel" class="menu-text" text="Anasayfa" />
+                </ui:Button>
+
+            </ui:ScrollView>
+
+            <!-- çıkış yap -->
+            <ui:VisualElement name="SidebarFooter" class="sidebar-footer">
+                <ui:Button name="LogoutBtn" class="menu-item btnLogout">
+                    <ui:VisualElement name="LogoutIcon" class="menu-icon icon-logout" />
+                    <ui:Label name="LogoutLabel" class="menu-text" text="Çıkış Yap" />
+                </ui:Button>
+
+                <ui:Image name="BrandLogo" class="brand-logo-img" />
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+
+
+
+
+        <ui:VisualElement name="Main" class="main">
+            <ui:VisualElement name="MainContent" class="main-content">
+
+                <ui:VisualElement name="HomePage" class="page active">
+                    <ui:Label text="Öğretmen Paneli" class="main-title" />
+                    <ui:Label text="İçerik daha sonra eklenecek." class="main-subtitle" />
+                </ui:VisualElement>
+
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>

@@ -16,8 +16,10 @@ namespace ExperimentSimulation.EntityLayer.Concrete
         public string Email { get; set; } = null!;
         public string PasswordHash { get; set; } = null!;
 
+        public string PasswordSalt { get; set; } = null!;
+
         public int RoleId { get; set; }
-        public Role Role { get; set; } = null!;
+        public Role? Role { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? LastLogin { get; set; }
@@ -25,5 +27,10 @@ namespace ExperimentSimulation.EntityLayer.Concrete
         public bool IsActive { get; set; } = true;
 
         public string? ProfilePictureUrl { get; set; }
+
+        public string? Phone { get; set; }
+        public DateTime? BirthDate { get; set; }
+
+        public ICollection<UserClass> UserClasses { get; set; } = new List<UserClass>();
     }
 }

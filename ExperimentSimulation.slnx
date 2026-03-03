@@ -6,4 +6,5 @@
     <Project Path="backend/ExperimentSimulation.EntityLayer/ExperimentSimulation.EntityLayer.csproj" />
     <Project Path="backend/ExperimentSimulation.WebApi/ExperimentSimulation.WebApi.csproj" />
   </Folder>
+  <Folder Name="/unity/" />
 </Solution>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:Style src="ScienyxDashboard.uss" />
+    <ui:VisualElement name="Root" class="root">
+
+        <ui:VisualElement name="Sidebar" class="sidebar">
+            <ui:VisualElement class="sidebar-header">
+                <ui:Label name="LogoLabel" class="logo-label" text="Scienyx" />
+                <ui:Button name="ToggleButton" class="toggle-btn">
+                    <ui:Label name="ToggleLabel" class="toggle-btn-label" text="⟩" />
+                </ui:Button>
+            </ui:VisualElement>
+
+            <ui:ScrollView name="Menu" class="menu" vertical-scroller-visibility="Hidden" horizontal-scroller-visibility="Hidden">
+
+            <ui:Button name="HomeBtn" class="menu-item">
+                <ui:VisualElement class="menu-item-icon" />
+                <ui:Label class="menu-item-text" text="Anasayfa" />
+            </ui:Button>
+
+            <ui:VisualElement>
+                <ui:Button name="UserMgmtBtn" class="menu-item dropdown-btn">
+                    <ui:VisualElement class="menu-item-icon" />
+                    <ui:Label class="menu-item-text" text="Kullanıcı Yönetimi" />
+                    <ui:Label class="dropdown-caret" text="▾" />
+                </ui:Button>
+                <ui:VisualElement name="UserMgmtBtn_Submenu" class="submenu">
+                <ui:Button name="UserAddBtn" class="submenu-item"><ui:Label text="Kullanıcı Ekle"/></ui:Button>
+                <ui:Button name="UserListBtn" class="submenu-item"><ui:Label text="Kullanıcıları Listele"/></ui:Button>
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:VisualElement>
+                <ui:Button name="RolePermBtn" class="menu-item dropdown-btn">
+                    <ui:VisualElement class="menu-item-icon" />
+                    <ui:Label class="menu-item-text" text="Rol/İzin Yönetimi" />
+                    <ui:Label class="dropdown-caret" text="▾" />
+                </ui:Button>
+                <ui:VisualElement name="RolePermBtn_Submenu" class="submenu">
+                <ui:Button name="RolesBtn" class="submenu-item"><ui:Label text="Roller"/></ui:Button>
+                <ui:Button name="PermsBtn" class="submenu-item"><ui:Label text="İzinler"/></ui:Button>
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:Button name="DbOpsBtn" class="menu-item">
+                <ui:VisualElement class="menu-item-icon" />
+                <ui:Label class="menu-item-text" text="Veritabanı İşlemleri" />
+            </ui:Button>
+
+            <ui:Button name="SystemBtn" class="menu-item">
+                <ui:VisualElement class="menu-item-icon" />
+                <ui:Label class="menu-item-text" text="Sistem" />
+            </ui:Button>
+
+            <ui:Button name="SimStartBtn" class="menu-item active">
+                <ui:VisualElement class="menu-item-icon" />
+                <ui:Label class="menu-item-text" text="Simülasyonu Başlat" />
+            </ui:Button>
+</ui:ScrollView>
+
+            <ui:VisualElement class="footer">
+                <ui:Button name="LogoutBtn" class="menu-item logout-btn">
+                    <ui:VisualElement class="menu-item-icon" />
+                    <ui:Label class="menu-item-text" text="Çıkış Yap" />
+                </ui:Button>
+
+                <ui:VisualElement style="align-items: center; justify-content: center;">
+                    <ui:VisualElement name="BrandLogo" style="width:50px; height:50px; background-color: rgba(36,53,103,0.10); border-radius: 12px;" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="Main" class="main">
+            <ui:VisualElement name="SimulationContainer" class="simulation-container">
+                <ui:VisualElement class="simulation-box">
+                    <ui:VisualElement name="SimLogo" style="width:200px; height:200px; background-color: rgba(255,255,255,0.10); border-radius: 24px;" />
+                    <ui:Label class="sim-title" text="Scienyx" />
+                    <ui:Button name="StartSimBtn" class="primary-btn">
+                        <ui:Label text="Simülasyonu Başlat" />
+                    </ui:Button>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>    </ui:VisualElement>
+</ui:UXML>

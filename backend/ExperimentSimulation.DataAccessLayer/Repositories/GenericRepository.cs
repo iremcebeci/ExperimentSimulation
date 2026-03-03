@@ -24,7 +24,7 @@ namespace ExperimentSimulation.DataAccessLayer.Repositories
 
         public T GetByID(int id)
         {
-            return _context.Set<T>().Find(id);
+            return _context.Set<T>().Find(id) ?? throw new InvalidOperationException($"Entity with id {id} not found");
         }
 
         public List<T> GetList()

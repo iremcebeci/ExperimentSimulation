@@ -1,0 +1,351 @@
+#Root {
+  flex-direction: row;
+  width: 100%;
+  height: 100%;
+}
+
+.container {
+    flex-direction: row;
+    height: 100%;
+    background-image: url(../Images/2.jpg);
+}
+
+.left-side {
+    flex: 1;
+    padding: 40px;
+    justify-content: space-between;
+    background-size: cover;
+    background-position: center;
+    border-radius: 20px;
+}
+
+.logo-row {
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+}
+
+.logo-img {
+    background-image: url(../Images/logo_dark.png);
+    width: 60px;
+    height: 60px;
+}
+
+.logo-text {
+    font-size: 32px;
+    -unity-font-style: bold;
+    color: white;
+}
+
+.right-side {
+    flex: 1.2;
+    justify-content: center;
+    align-items: center;
+}
+
+.content-box {
+    width: 600px;
+    padding: 60px;
+    margin: 20px;
+    background-color: white;
+    border-radius: 20px;
+}
+
+/* kayıt yönlendirme */
+.signup-top {
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.to-signup-btn {
+    border-width: 1px;
+    border-style: solid;
+    border-color: #1E1E1E;
+    border-radius: 6px;
+    padding: 6px 14px;
+    background-color: transparent;
+    color: #1E1E1E;
+    cursor: pointer;
+}
+
+.to-signup-btn:hover {
+    background-color: #000000;
+    color: #ffffff;
+    border-color: #000000;
+}
+
+/* giriş Form */
+.login-form {
+    flex-direction: column;
+}
+
+.title {
+    font-size: 36px;
+    -unity-font-style: bold;
+    font-weight: bold;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: #666666;
+    margin-bottom: 20px;
+}
+
+.input-group {
+    flex-direction: column;
+    margin-bottom: 15px;
+}
+
+TextField {
+    height: 40px;
+}
+
+.unity-text-field__input {
+    border-width: 0;
+}
+
+.custom-input {
+    border-width: 1px;
+    border-style: solid;
+    border-color: #cccccc;
+    border-radius: 8px;
+}
+
+
+.form-options {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.link-button {
+    background-color: transparent;
+    border-width: 0;
+    padding: 0;
+    color: #1e1e1e;
+    -unity-font-style: normal;
+}
+
+.remember-wrapper {
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+}
+
+.login-btn {
+    height: 45px;
+    background-color: #243567;
+    color: white;
+    border-radius: 8px;
+    -unity-font-style: bold;
+    transition-property: background-color, translate;
+    transition-duration: 0.15s;
+}
+
+.login-btn:hover {
+    background-color: #304688;
+    translate: 0 -2px;
+}
+
+.divider-row {
+    flex-direction: row;
+    align-items: center;
+    margin: 20px 0;
+    gap: 10px;
+}
+
+.divider {
+    flex: 1;
+    height: 1px;
+    background-color: #dddddd;
+}
+
+.divider-text {
+    font-size: 12px;
+    color: #666666;
+}
+
+.google-btn {
+    height: 45px;
+    border-width: 1px;
+    border-color: #dddddd;
+    border-radius: 8px;
+    background-color: white;
+    transition-property: background-color, translate;
+    transition-duration: 0.15s;
+}
+
+.google-btn:hover {
+    background-color: #f5f5f5;
+    translate: 0 -2px;
+}
+
+.google-content {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.google-icon {
+    width: 18px;
+    height: 18px;
+    background-image: url(../Images/logo_google.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+
+/* kayıt sayfasi */
+
+.signup-page .left-side { flex: 1; }
+.signup-page .right-side { flex: 1.6; }
+
+.content-box-signup {
+    width: 700px;
+    padding: 60px;
+    margin: 20px;
+    background-color: white;
+    border-radius: 20px;
+}
+
+/* Giriş yönlendirme */
+
+.login-top {
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.to-login-btn {
+    border-width: 1px;
+    border-style: solid;
+    border-color: #1E1E1E;
+    border-radius: 6px;
+    padding: 6px 10px;
+    background-color: transparent;
+    color: #1E1E1E;
+    cursor: pointer;
+}
+
+.to-login-btn:hover {
+    background-color: #000000;
+    color: #ffffff;
+    border-color: #000000;
+}
+
+/* Kayıt ol Form */
+
+.form-grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.form-grid .input-group { width: 50%; }
+
+.input-group {
+    margin-bottom: 6px;
+}
+
+.label-with-tooltip {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+.info-wrapper {
+    position: relative;
+}
+
+.info-icon {
+    width: 17px;
+    height: 17px;
+    border-radius: 999px;
+    background-color: #243567;
+    color: white;
+    -unity-text-align: middle-center;
+    font-size: 12px;
+}
+
+.class-code-group {
+    position: relative;
+    overflow: visible;
+}
+
+.class-code-group:hover .custom-tooltip {
+    display: flex;
+}
+
+.custom-tooltip {
+    display: none;
+    position: absolute;
+    top: 24px;
+    left: 30px;
+    width: 240px;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: rgba(30, 30, 30, 0.95);
+    color: white;
+    font-size: 12px;
+    -unity-text-align: upper-left;
+    white-space: normal;
+    z-index: 1000;
+}
+
+.info-wrapper:hover .custom-tooltip { display: flex; }
+
+.actions-inline {
+    flex-direction: row;
+    gap: 30px;
+    width: 100%;
+    justify-content: space-around;
+}
+
+.signup-btn {
+    height: 45px;
+    background-color: #243567;
+    color: white;
+    border-radius: 8px;
+    -unity-font-style: bold;
+    transition-property: background-color, translate;
+    transition-duration: 0.15s;
+    flex: 1;
+}
+
+.signup-btn:hover {
+    background-color: #304688;
+    translate: 0 -2px;
+}
+
+.or-text {
+    font-size: 14px;
+    color: #666666;
+    margin: 10px 0;
+    -unity-font-style: bold;
+    min-width: 50px;
+    -unity-text-align: middle-center;
+}
+
+.google-btn-half {
+    height: 45px;
+    border-width: 1px;
+    border-color: #dddddd;
+    border-radius: 8px;
+    background-color: white;
+    transition-property: background-color, translate;
+    transition-duration: 0.15s;
+    flex: 1;
+}
+
+.google-btn-half:hover {
+    background-color: #f5f5f5;
+    translate: 0 -2px;
+}

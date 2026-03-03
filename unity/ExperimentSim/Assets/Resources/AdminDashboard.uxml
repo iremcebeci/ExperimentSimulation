@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="ScienyxDashboard.uss" />
+
+    <ui:VisualElement name="Root" class="root">
+
+        <ui:VisualElement name="Sidebar" class="sidebar">
+
+            <ui:ScrollView name="Menu" class="menu" vertical-scroller-visibility="Hidden" horizontal-scroller-visibility="Hidden">
+
+                <ui:VisualElement name="SidebarHeaderItem" class="sidebar-header-item">
+                    <ui:Label name="LogoLabel" class="logo" text="Scienyx" />
+                    <ui:Button name="ToggleButton" class="toggle-btn">
+                        <ui:VisualElement name="ToggleIcon" class="menu-icon icon-chevron" />
+                    </ui:Button>
+                </ui:VisualElement>
+
+                <!-- anasayfa -->
+                <ui:Button name="HomeBtn" class="menu-item active">
+                    <ui:VisualElement name="HomeIcon" class="menu-icon icon-home" />
+                    <ui:Label name="HomeLabel" class="menu-text" text="Anasayfa" />
+                </ui:Button>
+
+                <!-- kullanıcı yonetimi -->
+                <ui:VisualElement name="UserManagementGroup" class="menu-group">
+                    <ui:Button name="UserManagementBtn" class="menu-item dropdown-btn">
+                        <ui:VisualElement name="UserManagementIcon" class="menu-icon icon-user" />
+                        <ui:Label name="UserManagementLabel" class="menu-text" text="Kullanıcı Yönetimi" />
+                        <ui:VisualElement name="UserManagementChevron" class="menu-chevron icon-chevron-down" />
+                    </ui:Button>
+                    <ui:VisualElement name="UserManagementSubMenu" class="sub-menu">
+                        <ui:Button name="AddUserBtn" class="sub-menu-item" text="Kullanıcı Ekle" />
+                        <ui:Button name="ListUsersBtn" class="sub-menu-item" text="Kullanıcıları Listele" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+                <!-- rol izin -->
+                <ui:VisualElement name="RolePermissionGroup" class="menu-group">
+                    <ui:Button name="RolePermissionBtn" class="menu-item dropdown-btn">
+                        <ui:VisualElement name="RolePermissionIcon" class="menu-icon icon-roleperm" />
+                        <ui:Label name="RolePermissionLabel" class="menu-text" text="Rol/İzin Yönetimi" />
+                        <ui:VisualElement name="RolePermissionChevron" class="menu-chevron icon-chevron-down" />
+                    </ui:Button>
+                    <ui:VisualElement name="RolePermissionSubMenu" class="sub-menu">
+                        <ui:Button name="RolesBtn" class="sub-menu-item" text="Roller" />
+                        <ui:Button name="PermissionsBtn" class="sub-menu-item" text="İzinler" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+                <!-- veritabanı -->
+                <ui:Button name="DatabaseOpsBtn" class="menu-item">
+                    <ui:VisualElement name="DatabaseOpsIcon" class="menu-icon icon-db" />
+                    <ui:Label name="DatabaseOpsLabel" class="menu-text" text="Veritabanı İşlemleri" />
+                </ui:Button>
+
+                <!-- sistem -->
+                <ui:Button name="SystemBtn" class="menu-item">
+                    <ui:VisualElement name="SystemIcon" class="menu-icon icon-system" />
+                    <ui:Label name="SystemLabel" class="menu-text" text="Sistem" />
+                </ui:Button>
+
+                <!-- simülasyon -->
+                <ui:Button name="StartSimulationBtn" class="menu-item">
+                    <ui:VisualElement name="StartSimulationIcon" class="menu-icon icon-sim" />
+                    <ui:Label name="StartSimulationLabel" class="menu-text" text="Simülasyonu Başlat" />
+                </ui:Button>
+
+            </ui:ScrollView>
+
+            <!-- çıkış yap -->
+            <ui:VisualElement name="SidebarFooter" class="sidebar-footer">
+                <ui:Button name="LogoutBtn" class="menu-item btnLogout">
+                    <ui:VisualElement name="LogoutIcon" class="menu-icon icon-logout" />
+                    <ui:Label name="LogoutLabel" class="menu-text" text="Çıkış Yap" />
+                </ui:Button>
+
+                <ui:Image name="BrandLogo" class="brand-logo-img" />
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+
+
+        <ui:VisualElement name="Main" class="main">
+            <ui:VisualElement name="MainContent" class="main-content">
+
+                <!-- anasayfa -->
+                <ui:VisualElement name="HomePage" class="page active">
+                    <ui:Label text="Admin Paneli" class="main-title" />
+                    <ui:Label text="İçerik daha sonra eklenecek." class="main-subtitle" />
+                </ui:VisualElement>
+
+                <!-- kullanıcı ekle -->
+                <ui:VisualElement name="AddUserPage" class="page">
+                    <ui:Label text="Kullanıcı Ekle" class="main-title" />
+                    <ui:Label text="Yeni kullanıcı bilgilerini girin." class="main-subtitle" />
+
+                    <ui:VisualElement class="form">
+                        <ui:TextField name="AddUser_NameTf" label="Ad" class="AddUser_Textfield" />
+                        <ui:TextField name="AddUser_SurnameTf" label="Soyad" class="AddUser_Textfield" />
+                        <ui:TextField name="AddUser_EmailTf" label="E-posta" class="AddUser_Textfield" />
+
+                        <ui:TextField name="AddUser_PasswordTf" label="Geçici Şifre" is-password-field="true" class="AddUser_Textfield" />
+
+                        <ui:DropdownField name="AddUser_RoleDd" label="Rol"  class="AddUser_Textfield"/>
+
+                        <ui:Toggle name="AddUser_IsActiveTg" label="Aktif" value="true" />
+
+                        <ui:VisualElement class="toolbar">
+                            <ui:Button name="AddUser_SaveBtn" text="Kaydet" class="primary-btn" />
+                            <ui:Button name="AddUser_ClearBtn" text="Temizle" class="primary-btn" />
+                        </ui:VisualElement>
+
+                        <ui:Label name="AddUser_StatusLabel" class="status-label" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+                <!-- kullanıcı listele -->
+                <ui:VisualElement name="ListUsersPage" class="page">
+                    <ui:Label text="Kullanıcıları Listele" class="main-title" />
+
+                    <ui:VisualElement class="toolbar">
+                        <ui:Button name="RefreshUsersBtn" text="Yenile" />
+                        <ui:TextField name="UserSearchTf" placeholder="Ara" />
+                    </ui:VisualElement>
+
+                    <ui:ScrollView name="UsersList" class="users-list" />
+    
+                    <ui:Label name="UsersStatusLabel" class="status-label" />
+                </ui:VisualElement>
+
+                <!-- rol -->
+                <ui:VisualElement name="RolesPage" class="page">
+                    <ui:Label text="Roller" class="main-title" />
+                    <ui:Label text="Rolleri görüntüle, rol ekle ve kullanıcıya rol ata." class="main-subtitle" />
+
+
+                    <ui:VisualElement class="toolbar">
+                        <ui:Button name="Roles_RefreshBtn" text="Yenile" class="primary-btn"/>
+                        <ui:Label name="Roles_StatusLabel" class="status-label" text="" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement class="two-col">
+                        <ui:VisualElement class="panel">
+                            <ui:Label text="Rol Listesi" class="panel-title" />
+                            <ui:ScrollView name="Roles_List" class="list" />
+                        </ui:VisualElement>
+
+                        <ui:VisualElement class="panel">
+                            <ui:Label text="Rol Ekle" class="panel-title" />
+
+                            <ui:TextField name="Roles_NewNameTf" label="Rol Adı" class="AddUser_Textfield" />
+                            <ui:TextField name="Roles_NewDescTf" label="Açıklama" class="AddUser_Textfield" />
+
+                            <ui:VisualElement class="toolbar">
+                                <ui:Button name="Roles_AddBtn" text="Rol Ekle" class="primary-btn" />
+                            </ui:VisualElement>
+
+                            <ui:VisualElement class="hr" />
+
+                            <ui:Label text="Kullanıcıya Rol Ata" class="panel-title" />
+
+                            <ui:DropdownField name="Roles_UserDd" label="Kullanıcı" class="AddUser_Textfield" />
+                            <ui:DropdownField name="Roles_RoleDd" label="Rol" class="AddUser_Textfield" />
+
+                            <ui:VisualElement class="toolbar">
+                                <ui:Button name="Roles_AssignBtn" text="Rol Ata" class="primary-btn" />
+                            </ui:VisualElement>
+
+                            <ui:Label name="Roles_ActionLabel" class="status-label" text="" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+                <!-- izin -->
+                <ui:VisualElement name="PermissionsPage" class="page">
+                    <ui:Label text="İzinler" class="main-title" />
+                    <ui:Label text="İzin yönetimi burada olacak..." class="main-subtitle" />
+                </ui:VisualElement>
+
+                <!-- veritabani -->
+                <ui:VisualElement name="DatabaseOpsPage" class="page">
+                    <ui:Label text="Veritabanı İşlemleri" class="main-title" />
+                    <ui:Label text="Backup / Restore / Migration vb. işlemler..." class="main-subtitle" />
+                </ui:VisualElement>
+
+                <!-- sistem -->
+                <ui:VisualElement name="SystemPage" class="page">
+                    <ui:Label text="Sistem" class="main-title" />
+                    <ui:Label text="Sistem ayarları burada olacak..." class="main-subtitle" />
+                </ui:VisualElement>
+
+                <!-- simülasyon -->
+                <ui:VisualElement name="StartSimulationPage" class="page">
+                    <ui:Label text="Simülasyonu Başlat" class="main-title" />
+                    <ui:Label text="Başlat butonuna basınca simülasyon sahnesi açılacak." class="main-subtitle" />
+                </ui:VisualElement>
+
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>
