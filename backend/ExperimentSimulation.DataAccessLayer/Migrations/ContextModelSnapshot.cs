@@ -22,6 +22,45 @@ namespace ExperimentSimulation.DataAccessLayer.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.Assignment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClassId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("DurationDays")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ExperimentId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClassId");
+
+                    b.HasIndex("ExperimentId");
+
+                    b.ToTable("assignments", (string)null);
+                });
+
             modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.Class", b =>
                 {
                     b.Property<int>("Id")
@@ -34,6 +73,18 @@ namespace ExperimentSimulation.DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(255)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("GradeLevel")
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("LessonName")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("Name")
                         .HasColumnType("longtext");
 
@@ -42,7 +93,206 @@ namespace ExperimentSimulation.DataAccessLayer.Migrations
                     b.HasIndex("Code")
                         .IsUnique();
 
-                    b.ToTable("Class");
+                    b.ToTable("class", (string)null);
+                });
+
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.ContentTask", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AssigneeUserId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("CreatedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Deadline")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("EstimatedDuration")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("varchar(80)");
+
+                    b.Property<string>("ExpectedOutput")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ExperimentName")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("varchar(160)");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)")
+                        .HasDefaultValue("Orta");
+
+                    b.Property<int>("ProgressPercent")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)")
+                        .HasDefaultValue("Atandı");
+
+                    b.Property<string>("TaskType")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("varchar(120)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssigneeUserId");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("Deadline");
+
+                    b.HasIndex("Status");
+
+                    b.ToTable("content_tasks", (string)null);
+                });
+
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.ContentTaskComment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ContentTaskId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("ContentTaskId", "CreatedAtUtc");
+
+                    b.ToTable("content_task_comments", (string)null);
+                });
+
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.ContentTaskRevisionRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ContentTaskId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsResolved")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime?>("NewDeadline")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)")
+                        .HasDefaultValue("Orta");
+
+                    b.Property<int>("RequestedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RevisionType")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("varchar(80)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RequestedByUserId");
+
+                    b.HasIndex("ContentTaskId", "CreatedAtUtc");
+
+                    b.ToTable("content_task_revision_requests", (string)null);
+                });
+
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.Experiment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ExperimentName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("GradeLevel")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("LessonName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("UnitName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Experiments");
                 });
 
             modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.Role", b =>
@@ -62,7 +312,7 @@ namespace ExperimentSimulation.DataAccessLayer.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles");
+                    b.ToTable("roles", (string)null);
 
                     b.HasData(
                         new
@@ -95,6 +345,95 @@ namespace ExperimentSimulation.DataAccessLayer.Migrations
                             Description = "System admin",
                             Name = "Admin"
                         });
+                });
+
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.TodoItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("CompletedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("varchar(4000)");
+
+                    b.Property<DateTime>("DueDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("varchar(4000)");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)")
+                        .HasDefaultValue("Orta");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(240)
+                        .HasColumnType("varchar(240)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "DueDate");
+
+                    b.HasIndex("UserId", "IsCompleted");
+
+                    b.ToTable("todo_items", (string)null);
+                });
+
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.TodoSubtask", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(240)
+                        .HasColumnType("varchar(240)");
+
+                    b.Property<int>("TodoItemId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TodoItemId", "CreatedAtUtc");
+
+                    b.ToTable("todo_subtasks", (string)null);
                 });
 
             modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.User", b =>
@@ -153,7 +492,7 @@ namespace ExperimentSimulation.DataAccessLayer.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("Users");
+                    b.ToTable("users", (string)null);
                 });
 
             modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.UserClass", b =>
@@ -164,14 +503,156 @@ namespace ExperimentSimulation.DataAccessLayer.Migrations
                     b.Property<int>("ClassId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("JoinedAt")
+                    b.Property<DateTime?>("JoinedAt")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("MemberRole")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<DateTime>("RequestedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP()");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasDefaultValue("Approved");
 
                     b.HasKey("UserId", "ClassId");
 
                     b.HasIndex("ClassId");
 
-                    b.ToTable("UserClass");
+                    b.ToTable("userclass", (string)null);
+                });
+
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.UserSessionActivity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("LastSeenAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("LoginAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("LogoutAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "LoginAt");
+
+                    b.ToTable("user_session_activities", (string)null);
+                });
+
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.Assignment", b =>
+                {
+                    b.HasOne("ExperimentSimulation.EntityLayer.Concrete.Class", "Class")
+                        .WithMany("Assignments")
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ExperimentSimulation.EntityLayer.Concrete.Experiment", "Experiment")
+                        .WithMany()
+                        .HasForeignKey("ExperimentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Class");
+
+                    b.Navigation("Experiment");
+                });
+
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.ContentTask", b =>
+                {
+                    b.HasOne("ExperimentSimulation.EntityLayer.Concrete.User", "AssigneeUser")
+                        .WithMany("AssignedContentTasks")
+                        .HasForeignKey("AssigneeUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ExperimentSimulation.EntityLayer.Concrete.User", "CreatedByUser")
+                        .WithMany("CreatedContentTasks")
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AssigneeUser");
+
+                    b.Navigation("CreatedByUser");
+                });
+
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.ContentTaskComment", b =>
+                {
+                    b.HasOne("ExperimentSimulation.EntityLayer.Concrete.ContentTask", "ContentTask")
+                        .WithMany("Comments")
+                        .HasForeignKey("ContentTaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ExperimentSimulation.EntityLayer.Concrete.User", "User")
+                        .WithMany("ContentTaskComments")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ContentTask");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.ContentTaskRevisionRequest", b =>
+                {
+                    b.HasOne("ExperimentSimulation.EntityLayer.Concrete.ContentTask", "ContentTask")
+                        .WithMany("RevisionRequests")
+                        .HasForeignKey("ContentTaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ExperimentSimulation.EntityLayer.Concrete.User", "RequestedByUser")
+                        .WithMany("ContentTaskRevisionRequests")
+                        .HasForeignKey("RequestedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ContentTask");
+
+                    b.Navigation("RequestedByUser");
+                });
+
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.TodoItem", b =>
+                {
+                    b.HasOne("ExperimentSimulation.EntityLayer.Concrete.User", "User")
+                        .WithMany("TodoItems")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.TodoSubtask", b =>
+                {
+                    b.HasOne("ExperimentSimulation.EntityLayer.Concrete.TodoItem", "TodoItem")
+                        .WithMany("Subtasks")
+                        .HasForeignKey("TodoItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TodoItem");
                 });
 
             modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.User", b =>
@@ -204,9 +685,29 @@ namespace ExperimentSimulation.DataAccessLayer.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.UserSessionActivity", b =>
+                {
+                    b.HasOne("ExperimentSimulation.EntityLayer.Concrete.User", "User")
+                        .WithMany("SessionActivities")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.Class", b =>
                 {
+                    b.Navigation("Assignments");
+
                     b.Navigation("UserClasses");
+                });
+
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.ContentTask", b =>
+                {
+                    b.Navigation("Comments");
+
+                    b.Navigation("RevisionRequests");
                 });
 
             modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.Role", b =>
@@ -214,8 +715,25 @@ namespace ExperimentSimulation.DataAccessLayer.Migrations
                     b.Navigation("Users");
                 });
 
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.TodoItem", b =>
+                {
+                    b.Navigation("Subtasks");
+                });
+
             modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.User", b =>
                 {
+                    b.Navigation("AssignedContentTasks");
+
+                    b.Navigation("ContentTaskComments");
+
+                    b.Navigation("ContentTaskRevisionRequests");
+
+                    b.Navigation("CreatedContentTasks");
+
+                    b.Navigation("SessionActivities");
+
+                    b.Navigation("TodoItems");
+
                     b.Navigation("UserClasses");
                 });
 #pragma warning restore 612, 618

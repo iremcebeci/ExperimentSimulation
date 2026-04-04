@@ -32,5 +32,11 @@ namespace ExperimentSimulation.EntityLayer.Concrete
         public DateTime? BirthDate { get; set; }
 
         public ICollection<UserClass> UserClasses { get; set; } = new List<UserClass>();
+        public ICollection<UserSessionActivity> SessionActivities { get; set; } = new List<UserSessionActivity>();
+        public ICollection<ContentTask> AssignedContentTasks { get; set; } = new List<ContentTask>();
+        public ICollection<ContentTask> CreatedContentTasks { get; set; } = new List<ContentTask>();
+        public ICollection<ContentTaskComment> ContentTaskComments { get; set; } = new List<ContentTaskComment>();
+        public ICollection<ContentTaskRevisionRequest> ContentTaskRevisionRequests { get; set; } = new List<ContentTaskRevisionRequest>();
+        public ICollection<TodoItem> TodoItems { get; set; } = new List<TodoItem>();
     }
 }

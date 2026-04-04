@@ -73,6 +73,7 @@ public class DashboardSidebarController : MonoBehaviour
 
         RegisterDropdown("UserManagementBtn", "UserManagementSubMenu", "UserManagementChevron");
         RegisterDropdown("RolePermissionBtn", "RolePermissionSubMenu", "RolePermissionChevron");
+        RegisterDropdown("ContentManagementBtn", "ContentManagementSubMenu", "ContentManagementChevron");
 
         BuildLogoutModalIfNeeded();
 

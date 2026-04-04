@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using UnityEngine;
@@ -217,7 +218,11 @@ public class RegisterController : MonoBehaviour
             RoleId = defaultRoleId,
             IsActive = true,
             Phone = phone,
-            ClassCode = classCode,
+
+            ClassCodes = string.IsNullOrWhiteSpace(classCode)
+        ? new List<string>()
+        : new List<string> { classCode },
+
             BirthDate = birthIso
         };
 
@@ -482,14 +487,11 @@ public class RegisterController : MonoBehaviour
         public string Name;
         public string Surname;
         public string Email;
-
         public string Password;
-
         public int RoleId;
         public bool IsActive;
-
         public string Phone;
-        public string ClassCode;
+        public List<string> ClassCodes;
         public string BirthDate;
     }
 }

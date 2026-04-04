@@ -1,8 +1,15 @@
 ﻿using ExperimentSimulation.DataAccessLayer.Concrete;
+using ExperimentSimulation.EntityLayer.Concrete;
+using ExperimentSimulation.WebApi.Security;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ExperimentSimulation.WebApi.Security;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace ExperimentSimulation.WebApi.Controllers
 {
@@ -25,6 +32,7 @@ namespace ExperimentSimulation.WebApi.Controllers
 
         public class LoginResponse
         {
+            public string Token { get; set; } = null!;
             public int Id { get; set; }
             public string Name { get; set; } = null!;
             public string Surname { get; set; } = null!;
@@ -32,6 +40,7 @@ namespace ExperimentSimulation.WebApi.Controllers
             public int RoleId { get; set; }
             public string RoleName { get; set; } = null!;
         }
+
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest req)
@@ -61,11 +70,31 @@ namespace ExperimentSimulation.WebApi.Controllers
             if (!user.IsActive)
                 return Unauthorized(new { message = "Hesap pasif." });
 
-            user.LastLogin = DateTime.UtcNow;
+            var now = DateTime.UtcNow;
+
+            var openSessions = await _context.UserSessionActivities
+                .Where(x => x.UserId == user.Id && x.LogoutAt == null)
+                .ToListAsync();
+
+            foreach (var open in openSessions)
+                open.LogoutAt = open.LastSeenAt > open.LoginAt ? open.LastSeenAt : now;
+
+            _context.UserSessionActivities.Add(new UserSessionActivity
+            {
+                UserId = user.Id,
+                LoginAt = now,
+                LastSeenAt = now,
+                LogoutAt = null
+            });
+
+            user.LastLogin = now;
             await _context.SaveChangesAsync();
+
+            var token = CreateJwtToken(user);
 
             return Ok(new LoginResponse
             {
+                Token = token,
                 Id = user.Id,
                 Name = user.Name,
                 Surname = user.Surname,
@@ -73,6 +102,34 @@ namespace ExperimentSimulation.WebApi.Controllers
                 RoleId = user.RoleId,
                 RoleName = user.Role?.Name ?? ""
             });
+        }
+
+
+
+
+        private string CreateJwtToken(User user)
+        {
+            var jwt = HttpContext.RequestServices.GetRequiredService<IConfiguration>().GetSection("Jwt");
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt["Key"]!));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.Role, user.Role?.Name ?? "")
+        };
+
+            var token = new JwtSecurityToken(
+                issuer: jwt["Issuer"],
+                audience: jwt["Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(int.Parse(jwt["ExpiresMinutes"]!)),
+                signingCredentials: creds
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }

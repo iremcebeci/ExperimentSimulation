@@ -3,6 +3,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UIElements;
+using System;
 
 public class LoginController : MonoBehaviour
 {
@@ -32,16 +33,11 @@ public class LoginController : MonoBehaviour
         if (emailTf == null) Debug.LogWarning("Email TextField not found (name=\"email\").");
         if (passwordTf == null) Debug.LogWarning("Password TextField not found (name=\"password\").");
 
-
-        // Şifre alanlarını gizleme kodu
-
         if (passwordTf != null)
         {
             passwordTf.isPasswordField = true;
             passwordTf.maskChar = '•';
         }
-
-
 
         statusLabel = new Label("");
         statusLabel.name = "login-status";
@@ -85,6 +81,12 @@ public class LoginController : MonoBehaviour
 
     private IEnumerator LoginCoroutine(LoginRequest req)
     {
+        if (router == null)
+        {
+            statusLabel.text = "Router yok.";
+            yield break;
+        }
+
         string url = router.ApiBaseUrl + loginPath;
         string json = JsonUtility.ToJson(req);
         byte[] body = Encoding.UTF8.GetBytes(json);
@@ -114,15 +116,75 @@ public class LoginController : MonoBehaviour
 
         Debug.Log("LOGIN OK => " + serverMsg);
 
+        string token =
+            ExtractJsonString(serverMsg, "accessToken") ??
+            ExtractJsonString(serverMsg, "access_token") ??
+            ExtractJsonString(serverMsg, "token") ??
+            ExtractJsonString(serverMsg, "Token") ??
+            ExtractNestedObjectString(serverMsg, "data", "accessToken") ??
+            ExtractNestedObjectString(serverMsg, "data", "token") ??
+            "";
+
+        int userId =
+            ExtractJsonInt(serverMsg, "userId") ??
+            ExtractJsonInt(serverMsg, "id") ??
+            ExtractJsonInt(serverMsg, "Id") ??
+            ExtractNestedObjectInt(serverMsg, "user", "id") ??
+            ExtractNestedObjectInt(serverMsg, "User", "Id") ??
+            ExtractNestedObjectInt(serverMsg, "data", "id") ??
+            ExtractNestedObjectInt(serverMsg, "data", "userId") ??
+            0;
+
+        string name =
+            ExtractJsonString(serverMsg, "name") ??
+            ExtractJsonString(serverMsg, "Name") ??
+            ExtractNestedObjectString(serverMsg, "user", "name") ??
+            ExtractNestedObjectString(serverMsg, "user", "Name") ??
+            "";
+
+        string surname =
+            ExtractJsonString(serverMsg, "surname") ??
+            ExtractJsonString(serverMsg, "Surname") ??
+            ExtractNestedObjectString(serverMsg, "user", "surname") ??
+            ExtractNestedObjectString(serverMsg, "user", "Surname") ??
+            "";
+
+        int roleId =
+            ExtractJsonInt(serverMsg, "roleId") ??
+            ExtractJsonInt(serverMsg, "RoleId") ??
+            ExtractNestedObjectInt(serverMsg, "user", "roleId") ??
+            ExtractNestedObjectInt(serverMsg, "user", "RoleId") ??
+            0;
+
+        string roleName =
+            ExtractJsonString(serverMsg, "roleName") ??
+            ExtractJsonString(serverMsg, "RoleName") ??
+            ExtractNestedObjectString(serverMsg, "user", "roleName") ??
+            ExtractNestedObjectString(serverMsg, "user", "RoleName") ??
+            ExtractNestedObjectString(serverMsg, "role", "name") ??
+            ExtractNestedObjectString(serverMsg, "Role", "Name") ??
+            ExtractRoleFallback(serverMsg);
+
+
+        router.SetSession(userId, token, name, surname, roleId, roleName);
+
+        Debug.Log($"[SESSION] userId={router.CurrentUserId} token={(string.IsNullOrEmpty(router.AccessToken) ? "EMPTY" : "OK")} role={router.CurrentRoleName}");
+
+        if (string.IsNullOrEmpty(token))
+            Debug.LogWarning("LOGIN response token içermiyor (accessToken/token). Auth login response'u kontrol et.");
+
+        if (userId <= 0)
+            Debug.LogWarning("LOGIN response user id içermiyor (id/userId/user.id). Response'u kontrol et.");
+
         PlayerPrefs.SetString("auth_user", serverMsg);
         PlayerPrefs.Save();
 
         statusLabel.text = "Giriş başarılı!";
-
         SetInteractable(true);
 
-        string role = ExtractRole(serverMsg);
-        router.ShowDashboardByRole(role);
+        Debug.Log($"ROLE DEBUG => Id:{roleId}, Name:{roleName}");
+        router.ShowDashboardByRole(roleName, roleId);
+
     }
 
     [System.Serializable]
@@ -132,7 +194,8 @@ public class LoginController : MonoBehaviour
         public string Password;
     }
 
-    private string ExtractRole(string json)
+
+    private string ExtractRoleFallback(string json)
     {
         string role =
             ExtractJsonString(json, "RoleName") ??
@@ -160,23 +223,27 @@ public class LoginController : MonoBehaviour
     }
 
 
+
+
+
+
+
     private string ExtractJsonString(string json, string key)
     {
         if (string.IsNullOrEmpty(json) || string.IsNullOrEmpty(key)) return null;
 
         string pattern = $"\"{key}\"";
-        int i = json.IndexOf(pattern);
+        int i = json.IndexOf(pattern, StringComparison.Ordinal);
         if (i < 0) return null;
 
         i = json.IndexOf(':', i);
         if (i < 0) return null;
         i++;
 
-
         while (i < json.Length && char.IsWhiteSpace(json[i])) i++;
+        if (i >= json.Length) return null;
 
-
-        if (i >= json.Length || json[i] != '\"') return null;
+        if (json[i] != '\"') return null;
         i++;
 
         int j = json.IndexOf('\"', i);
@@ -190,23 +257,48 @@ public class LoginController : MonoBehaviour
         if (string.IsNullOrEmpty(json) || string.IsNullOrEmpty(key)) return null;
 
         string pattern = $"\"{key}\"";
-        int i = json.IndexOf(pattern);
+        int i = json.IndexOf(pattern, StringComparison.Ordinal);
         if (i < 0) return null;
 
         i = json.IndexOf(':', i);
         if (i < 0) return null;
         i++;
 
-        while (i < json.Length && (json[i] == ' ')) i++;
+        while (i < json.Length && char.IsWhiteSpace(json[i])) i++;
 
         int j = i;
         while (j < json.Length && (char.IsDigit(json[j]) || json[j] == '-')) j++;
 
         if (j <= i) return null;
 
-        if (int.TryParse(json.Substring(i, j - i), out int val))
-            return val;
+        return int.TryParse(json.Substring(i, j - i), out int val) ? val : null;
+    }
 
-        return null;
+    private string ExtractNestedObjectString(string json, string objectKey, string innerKey)
+    {
+        if (string.IsNullOrEmpty(json) || string.IsNullOrEmpty(objectKey) || string.IsNullOrEmpty(innerKey))
+            return null;
+
+        int i = json.IndexOf($"\"{objectKey}\"", StringComparison.Ordinal);
+        if (i < 0) return null;
+
+        i = json.IndexOf('{', i);
+        if (i < 0) return null;
+
+        return ExtractJsonString(json.Substring(i), innerKey);
+    }
+
+    private int? ExtractNestedObjectInt(string json, string objectKey, string innerKey)
+    {
+        if (string.IsNullOrEmpty(json) || string.IsNullOrEmpty(objectKey) || string.IsNullOrEmpty(innerKey))
+            return null;
+
+        int i = json.IndexOf($"\"{objectKey}\"", StringComparison.Ordinal);
+        if (i < 0) return null;
+
+        i = json.IndexOf('{', i);
+        if (i < 0) return null;
+
+        return ExtractJsonInt(json.Substring(i), innerKey);
     }
 }

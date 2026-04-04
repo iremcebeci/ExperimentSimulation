@@ -445,6 +445,9 @@ GameObject:
   - component: {fileID: 2025353177}
   - component: {fileID: 2025353180}
   - component: {fileID: 2025353181}
+  - component: {fileID: 2025353182}
+  - component: {fileID: 2025353183}
+  - component: {fileID: 2025353184}
   m_Layer: 5
   m_Name: UIDocument
   m_TagString: Untagged
@@ -474,6 +477,12 @@ MonoBehaviour:
   studentDashboardUxml: StudentDashboard
   loginScreenPercentage: 0.75
   preferredAspectRatio: 0
+  currentUserId: 0
+  accessToken: 
+  currentRoleId: 0
+  currentRoleName: 
+  currentName: 
+  currentSurname: 
 --- !u!114 &2025353178
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -536,8 +545,53 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a0110c46dc34264faa824216f7261f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AdminDashboardController
+  headerController: {fileID: 0}
   userPath: /api/User
   rolesPath: /api/Role
+--- !u!114 &2025353182
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2025353176}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 136c43056e9ce144487e734566fe0b89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TeacherDashboardController
+  sidebarController: {fileID: 0}
+  headerController: {fileID: 0}
+  myClassesPath: /api/Class/my
+  createClassPath: /api/Class
+--- !u!114 &2025353183
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2025353176}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57f34facbdd91a741ab427a0ac8c6b94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DashboardsHeaderController
+--- !u!114 &2025353184
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2025353176}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d230282624e0b3441b6efde5abd17e52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StudentDashboardController
+  sidebarController: {fileID: 0}
+  headerController: {fileID: 0}
+  myClassesPath: /api/Class/my
+  joinClassPath: /api/Class/join
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

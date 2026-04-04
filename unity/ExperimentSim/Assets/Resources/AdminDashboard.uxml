@@ -6,7 +6,8 @@
 
         <ui:VisualElement name="Sidebar" class="sidebar">
 
-            <ui:ScrollView name="Menu" class="menu" vertical-scroller-visibility="Hidden" horizontal-scroller-visibility="Hidden">
+            <ui:ScrollView name="Menu" class="menu" vertical-scroller-visibility="Hidden"
+                horizontal-scroller-visibility="Hidden">
 
                 <ui:VisualElement name="SidebarHeaderItem" class="sidebar-header-item">
                     <ui:Label name="LogoLabel" class="logo" text="Scienyx" />
@@ -25,12 +26,15 @@
                 <ui:VisualElement name="UserManagementGroup" class="menu-group">
                     <ui:Button name="UserManagementBtn" class="menu-item dropdown-btn">
                         <ui:VisualElement name="UserManagementIcon" class="menu-icon icon-user" />
-                        <ui:Label name="UserManagementLabel" class="menu-text" text="Kullanıcı Yönetimi" />
-                        <ui:VisualElement name="UserManagementChevron" class="menu-chevron icon-chevron-down" />
+                        <ui:Label name="UserManagementLabel" class="menu-text"
+                            text="Kullanıcı Yönetimi" />
+                        <ui:VisualElement name="UserManagementChevron"
+                            class="menu-chevron icon-chevron-down" />
                     </ui:Button>
                     <ui:VisualElement name="UserManagementSubMenu" class="sub-menu">
                         <ui:Button name="AddUserBtn" class="sub-menu-item" text="Kullanıcı Ekle" />
-                        <ui:Button name="ListUsersBtn" class="sub-menu-item" text="Kullanıcıları Listele" />
+                        <ui:Button name="ListUsersBtn" class="sub-menu-item"
+                            text="Kullanıcıları Listele" />
                     </ui:VisualElement>
                 </ui:VisualElement>
 
@@ -38,8 +42,10 @@
                 <ui:VisualElement name="RolePermissionGroup" class="menu-group">
                     <ui:Button name="RolePermissionBtn" class="menu-item dropdown-btn">
                         <ui:VisualElement name="RolePermissionIcon" class="menu-icon icon-roleperm" />
-                        <ui:Label name="RolePermissionLabel" class="menu-text" text="Rol/İzin Yönetimi" />
-                        <ui:VisualElement name="RolePermissionChevron" class="menu-chevron icon-chevron-down" />
+                        <ui:Label name="RolePermissionLabel" class="menu-text"
+                            text="Rol/İzin Yönetimi" />
+                        <ui:VisualElement name="RolePermissionChevron"
+                            class="menu-chevron icon-chevron-down" />
                     </ui:Button>
                     <ui:VisualElement name="RolePermissionSubMenu" class="sub-menu">
                         <ui:Button name="RolesBtn" class="sub-menu-item" text="Roller" />
@@ -47,22 +53,43 @@
                     </ui:VisualElement>
                 </ui:VisualElement>
 
-                <!-- veritabanı -->
-                <ui:Button name="DatabaseOpsBtn" class="menu-item">
-                    <ui:VisualElement name="DatabaseOpsIcon" class="menu-icon icon-db" />
-                    <ui:Label name="DatabaseOpsLabel" class="menu-text" text="Veritabanı İşlemleri" />
+                <!-- icerik yonetimi -->
+                <ui:VisualElement name="ContentManagementGroup" class="menu-group">
+                    <ui:Button name="ContentManagementBtn" class="menu-item dropdown-btn">
+                        <ui:VisualElement name="ContentManagementIcon" class="menu-icon icon-missions" />
+                        <ui:Label name="ContentManagementLabel" class="menu-text"
+                            text="İçerik Yönetimi" />
+                        <ui:VisualElement name="ContentManagementChevron"
+                            class="menu-chevron icon-chevron-down" />
+                    </ui:Button>
+                    <ui:VisualElement name="ContentManagementSubMenu" class="sub-menu">
+                        <ui:Button name="CreatorsBtn" class="sub-menu-item" text="İçerik Üreticileri" />
+                        <!--
+                        <ui:Button name="TrackCreatorsBtn" class="sub-menu-item" text="Takip" />
+                        -->
+                        <ui:Button name="MissionsDataBtn" class="sub-menu-item" text="Görev Verileri" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+                <!-- aktivite -->
+                <ui:Button name="ActivityBtn" class="menu-item">
+                    <ui:VisualElement name="ActivityIcon" class="menu-icon icon-activity" />
+                    <ui:Label name="ActivityLabel" class="menu-text"
+                        text="Aktivite" />
                 </ui:Button>
 
-                <!-- sistem -->
-                <ui:Button name="SystemBtn" class="menu-item">
-                    <ui:VisualElement name="SystemIcon" class="menu-icon icon-system" />
-                    <ui:Label name="SystemLabel" class="menu-text" text="Sistem" />
+                <!-- profil -->
+                <ui:Button name="ProfileBtn" class="menu-item">
+                    <ui:VisualElement name="ProfileIcon" class="menu-icon icon-profile" />
+                    <ui:Label name="ProfileLabel" class="menu-text"
+                        text="Profil" />
                 </ui:Button>
 
                 <!-- simülasyon -->
                 <ui:Button name="StartSimulationBtn" class="menu-item">
                     <ui:VisualElement name="StartSimulationIcon" class="menu-icon icon-sim" />
-                    <ui:Label name="StartSimulationLabel" class="menu-text" text="Simülasyonu Başlat" />
+                    <ui:Label name="StartSimulationLabel" class="menu-text"
+                        text="Simülasyonu Başlat" />
                 </ui:Button>
 
             </ui:ScrollView>
@@ -83,25 +110,239 @@
         <ui:VisualElement name="Main" class="main">
             <ui:VisualElement name="MainContent" class="main-content">
 
+                <ui:VisualElement class="dashboards-top">
+
+                    <ui:VisualElement class="dasboard-user-info">
+                        <ui:Label name="TopUsernameLabel" text="-" class="dashboards-top-username" />
+                        <ui:Label text="|" class="dashboards-top-divider" />
+                        <ui:Label name="TopRoleLabel" text="-" class="dashboards-top-title" />
+                    </ui:VisualElement>
+
+                    <ui:VisualElement class="top-navigation">
+
+                        <ui:Button name="SettingsBtn" class="" text="">
+                            <ui:VisualElement name="SettingsIcon" class="top-nav-icon icon-settings" />
+                        </ui:Button>
+
+                        <ui:Button name="NotificationsBtn" class="" text="">
+                            <ui:VisualElement name="NotificationsIcon"
+                                class="top-nav-icon icon-bell" />
+                        </ui:Button>
+
+                        <ui:Button name="AccountBtn" class="" text="">
+                            <ui:VisualElement name="AccountIcon" class="top-nav-icon icon-user" />
+                        </ui:Button>
+
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
                 <!-- anasayfa -->
                 <ui:VisualElement name="HomePage" class="page active">
-                    <ui:Label text="Admin Paneli" class="main-title" />
-                    <ui:Label text="İçerik daha sonra eklenecek." class="main-subtitle" />
+                    <ui:VisualElement class="welcome-area">
+
+                        <ui:VisualElement class="welcome-text">
+                            <ui:Label name="WelcomeUsernameLabel" text="Merhaba, -"
+                                class="welcome-username" />
+                            <ui:VisualElement class="br" />
+                            <ui:Label name="WelcomeMessageLabel" text="-" class="welcome-message" />
+                        </ui:VisualElement>
+
+                        <ui:VisualElement class="welcome-hero" />
+
+                    </ui:VisualElement>
+
+                    <ui:VisualElement name="StudentHomePage" class="tc-home">
+
+                        <!-- KPI -->
+                        <ui:VisualElement class="tc-kpi-grid">
+
+                            <ui:VisualElement class="tc-kpi-card">
+                                <ui:Label text="AG" class="tc-kpi-icon navy" />
+                                <ui:VisualElement class="tc-kpi-texts">
+                                    <ui:Label name="TcTotalClassValueLabel" text="-"
+                                        class="tc-kpi-value" />
+                                    <ui:Label text="Toplam Kullanıcı" class="tc-kpi-label" />
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+
+                            <ui:VisualElement class="tc-kpi-card">
+                                <ui:Label text="KS" class="tc-kpi-icon amber" />
+                                <ui:VisualElement class="tc-kpi-texts">
+                                    <ui:Label name="TcActiveAssignmentValueLabel" text="-"
+                                        class="tc-kpi-value" />
+                                    <ui:Label text="Aktif Kullanıcı" class="tc-kpi-label" />
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+
+                            <ui:VisualElement class="tc-kpi-card">
+                                <ui:Label text="TD" class="tc-kpi-icon blue" />
+                                <ui:VisualElement class="tc-kpi-texts">
+                                    <ui:Label name="TcTotalStudentValueLabel" text="-"
+                                        class="tc-kpi-value" />
+                                    <ui:Label text="Toplam Rol" class="tc-kpi-label" />
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+
+                            <ui:VisualElement class="tc-kpi-card">
+                                <ui:Label text="TD" class="tc-kpi-icon blue" />
+                                <ui:VisualElement class="tc-kpi-texts">
+                                    <ui:Label name="TcCompletedAssignmentValueLabel" text="-"
+                                        class="tc-kpi-value" />
+                                    <ui:Label text="Bu Hafta Yeni" class="tc-kpi-label" />
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+
+                        </ui:VisualElement>
+
+                        <!-- Alt Alan -->
+                        <ui:VisualElement class="tc-main-grid">
+
+                            <!-- Sol Panel -->
+                            <ui:VisualElement class="tc-panel tc-summary-panel">
+                                <ui:VisualElement class="tc-panel-head">
+                                    <ui:Label text="Özet" class="tc-panel-title" />
+                                    <ui:Label text="Bu Hafta" class="tc-panel-badge" />
+                                </ui:VisualElement>
+
+                                <ui:ScrollView name="TcSummaryScroll" class="tc-summary-scroll"
+                                    mode="Vertical">
+
+                                    <ui:VisualElement class="tc-summary-item">
+                                        <ui:Label text="Son Atanan İş"
+                                            class="tc-summary-small" />
+                                        <ui:Label name="TcMostActiveClassLabel"
+                                            text="-" class="tc-summary-bold" />
+                                        <ui:Label text="-"
+                                            class="tc-summary-text" />
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement class="tc-summary-item">
+                                        <ui:Label text="Son Tamamlanan İş"
+                                            class="tc-summary-small" />
+                                        <ui:Label name="TcTopHomeworkClassLabel"
+                                            text="-" class="tc-summary-bold" />
+                                        <ui:Label text="-"
+                                            class="tc-summary-text" />
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement class="tc-summary-item">
+                                        <ui:Label text="Deney Sayısı"
+                                            class="tc-summary-small" />
+                                        <ui:Label name="TcTopHomeworkClassLabel"
+                                            text="-" class="tc-summary-bold" />
+                                        <ui:Label text="-"
+                                            class="tc-summary-text" />
+                                    </ui:VisualElement>
+
+                                </ui:ScrollView>
+                            </ui:VisualElement>
+
+                            <!-- Sağ Panel -->
+                            <ui:VisualElement class="tc-panel tc-chart-panel">
+                                <ui:VisualElement class="tc-panel-head">
+                                    <ui:Label text="Aktiflik Grafiği" class="tc-panel-title" />
+                                    <ui:Label text="Haftalık Görünüm" class="tc-panel-badge" />
+                                </ui:VisualElement>
+
+                                <ui:VisualElement class="tc-chart-wrap">
+                                    <ui:VisualElement name="StudentActivityChart"
+                                        class="tc-chart-box">
+
+                                        <ui:VisualElement
+                                            class="tc-chart-grid-line tc-chart-grid-top" />
+                                        <ui:VisualElement
+                                            class="tc-chart-grid-line tc-chart-grid-mid" />
+                                        <ui:VisualElement
+                                            class="tc-chart-grid-line tc-chart-grid-low" />
+
+                                        <ui:VisualElement class="tc-chart-bars">
+                                            <ui:VisualElement class="tc-chart-bar-group">
+                                                <ui:Label text="0" class="cg-bar-value" />
+                                                <ui:VisualElement name="TcBarMon"
+                                                    class="tc-chart-bar" />
+                                                <ui:Label text="Pzt" class="tc-chart-x-label" />
+                                            </ui:VisualElement>
+
+                                            <ui:VisualElement class="tc-chart-bar-group">
+                                                <ui:Label text="0" class="cg-bar-value" />
+                                                <ui:VisualElement name="TcBarTue"
+                                                    class="tc-chart-bar" />
+                                                <ui:Label text="Sal" class="tc-chart-x-label" />
+                                            </ui:VisualElement>
+
+                                            <ui:VisualElement class="tc-chart-bar-group">
+                                                <ui:Label text="0" class="cg-bar-value" />
+                                                <ui:VisualElement name="TcBarWed"
+                                                    class="tc-chart-bar" />
+                                                <ui:Label text="Çar" class="tc-chart-x-label" />
+                                            </ui:VisualElement>
+
+                                            <ui:VisualElement class="tc-chart-bar-group">
+                                                <ui:Label text="0" class="cg-bar-value" />
+                                                <ui:VisualElement name="TcBarThu"
+                                                    class="tc-chart-bar" />
+                                                <ui:Label text="Per" class="tc-chart-x-label" />
+                                            </ui:VisualElement>
+
+                                            <ui:VisualElement class="tc-chart-bar-group">
+                                                <ui:Label text="0" class="cg-bar-value" />
+                                                <ui:VisualElement name="TcBarFri"
+                                                    class="tc-chart-bar" />
+                                                <ui:Label text="Cum" class="tc-chart-x-label" />
+                                            </ui:VisualElement>
+
+                                            <ui:VisualElement class="tc-chart-bar-group">
+                                                <ui:Label text="0" class="cg-bar-value" />
+                                                <ui:VisualElement name="TcBarSat"
+                                                    class="tc-chart-bar" />
+                                                <ui:Label text="Cmt" class="tc-chart-x-label" />
+                                            </ui:VisualElement>
+
+                                            <ui:VisualElement class="tc-chart-bar-group">
+                                                <ui:Label text="0" class="cg-bar-value" />
+                                                <ui:VisualElement name="TcBarSun"
+                                                    class="tc-chart-bar" />
+                                                <ui:Label text="Paz" class="tc-chart-x-label" />
+                                            </ui:VisualElement>
+                                        </ui:VisualElement>
+
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement class="tc-chart-legend">
+                                        <ui:VisualElement class="tc-chart-legend-left">
+                                            <ui:VisualElement class="tc-chart-legend-line" />
+                                            <ui:Label text="Aktif Saat"
+                                                class="tc-chart-legend-text" />
+                                        </ui:VisualElement>
+
+                                        <ui:Label name="TcChartPeakInfoLabel" text="Tepe: -"
+                                            class="tc-chart-legend-peak" />
+                                    </ui:VisualElement>
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+
+                        </ui:VisualElement>
+
+                    </ui:VisualElement>
                 </ui:VisualElement>
 
                 <!-- kullanıcı ekle -->
-                <ui:VisualElement name="AddUserPage" class="page">
+                <ui:VisualElement name="AddUserPage" class="page admin-background">
                     <ui:Label text="Kullanıcı Ekle" class="main-title" />
                     <ui:Label text="Yeni kullanıcı bilgilerini girin." class="main-subtitle" />
 
                     <ui:VisualElement class="form">
                         <ui:TextField name="AddUser_NameTf" label="Ad" class="AddUser_Textfield" />
-                        <ui:TextField name="AddUser_SurnameTf" label="Soyad" class="AddUser_Textfield" />
-                        <ui:TextField name="AddUser_EmailTf" label="E-posta" class="AddUser_Textfield" />
+                        <ui:TextField name="AddUser_SurnameTf" label="Soyad"
+                            class="AddUser_Textfield" />
+                        <ui:TextField name="AddUser_EmailTf" label="E-posta"
+                            class="AddUser_Textfield" />
 
-                        <ui:TextField name="AddUser_PasswordTf" label="Geçici Şifre" is-password-field="true" class="AddUser_Textfield" />
+                        <ui:TextField name="AddUser_PasswordTf" label="Geçici Şifre"
+                            is-password-field="true" class="AddUser_Textfield" />
 
-                        <ui:DropdownField name="AddUser_RoleDd" label="Rol"  class="AddUser_Textfield"/>
+                        <ui:DropdownField name="AddUser_RoleDd" label="Rol"
+                            class="AddUser_Textfield" />
 
                         <ui:Toggle name="AddUser_IsActiveTg" label="Aktif" value="true" />
 
@@ -115,7 +356,7 @@
                 </ui:VisualElement>
 
                 <!-- kullanıcı listele -->
-                <ui:VisualElement name="ListUsersPage" class="page">
+                <ui:VisualElement name="ListUsersPage" class="page admin-background">
                     <ui:Label text="Kullanıcıları Listele" class="main-title" />
 
                     <ui:VisualElement class="toolbar">
@@ -124,18 +365,19 @@
                     </ui:VisualElement>
 
                     <ui:ScrollView name="UsersList" class="users-list" />
-    
+
                     <ui:Label name="UsersStatusLabel" class="status-label" />
                 </ui:VisualElement>
 
                 <!-- rol -->
-                <ui:VisualElement name="RolesPage" class="page">
+                <ui:VisualElement name="RolesPage" class="page admin-background">
                     <ui:Label text="Roller" class="main-title" />
-                    <ui:Label text="Rolleri görüntüle, rol ekle ve kullanıcıya rol ata." class="main-subtitle" />
+                    <ui:Label text="Rolleri görüntüle, rol ekle ve kullanıcıya rol ata."
+                        class="main-subtitle" />
 
 
                     <ui:VisualElement class="toolbar">
-                        <ui:Button name="Roles_RefreshBtn" text="Yenile" class="primary-btn"/>
+                        <ui:Button name="Roles_RefreshBtn" text="Yenile" class="primary-btn" />
                         <ui:Label name="Roles_StatusLabel" class="status-label" text="" />
                     </ui:VisualElement>
 
@@ -148,8 +390,10 @@
                         <ui:VisualElement class="panel">
                             <ui:Label text="Rol Ekle" class="panel-title" />
 
-                            <ui:TextField name="Roles_NewNameTf" label="Rol Adı" class="AddUser_Textfield" />
-                            <ui:TextField name="Roles_NewDescTf" label="Açıklama" class="AddUser_Textfield" />
+                            <ui:TextField name="Roles_NewNameTf" label="Rol Adı"
+                                class="AddUser_Textfield" />
+                            <ui:TextField name="Roles_NewDescTf" label="Açıklama"
+                                class="AddUser_Textfield" />
 
                             <ui:VisualElement class="toolbar">
                                 <ui:Button name="Roles_AddBtn" text="Rol Ekle" class="primary-btn" />
@@ -159,8 +403,10 @@
 
                             <ui:Label text="Kullanıcıya Rol Ata" class="panel-title" />
 
-                            <ui:DropdownField name="Roles_UserDd" label="Kullanıcı" class="AddUser_Textfield" />
-                            <ui:DropdownField name="Roles_RoleDd" label="Rol" class="AddUser_Textfield" />
+                            <ui:DropdownField name="Roles_UserDd" label="Kullanıcı"
+                                class="AddUser_Textfield" />
+                            <ui:DropdownField name="Roles_RoleDd" label="Rol"
+                                class="AddUser_Textfield" />
 
                             <ui:VisualElement class="toolbar">
                                 <ui:Button name="Roles_AssignBtn" text="Rol Ata" class="primary-btn" />
@@ -172,27 +418,1159 @@
                 </ui:VisualElement>
 
                 <!-- izin -->
-                <ui:VisualElement name="PermissionsPage" class="page">
+                <ui:VisualElement name="PermissionsPage" class="page admin-background">
                     <ui:Label text="İzinler" class="main-title" />
                     <ui:Label text="İzin yönetimi burada olacak..." class="main-subtitle" />
                 </ui:VisualElement>
 
-                <!-- veritabani -->
-                <ui:VisualElement name="DatabaseOpsPage" class="page">
-                    <ui:Label text="Veritabanı İşlemleri" class="main-title" />
-                    <ui:Label text="Backup / Restore / Migration vb. işlemler..." class="main-subtitle" />
+                <!-- görev ata -->
+                <ui:VisualElement name="CreatorsPage" class="page task-page">
+
+                    <!-- stats -->
+                    <ui:VisualElement class="task-stats-grid">
+
+                        <ui:VisualElement class="task-stat-card">
+                            <ui:Label text="AG" class="task-stat-icon" />
+                            <ui:VisualElement class="task-stat-texts">
+                                <ui:Label text="128" name="TaskActiveCountLabel"
+                                    class="task-stat-value" />
+                                <ui:Label text="Aktif Görevler" class="task-stat-label" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+
+                        <ui:VisualElement class="task-stat-card">
+                            <ui:Label text="BT" class="task-stat-icon warning" />
+                            <ui:VisualElement class="task-stat-texts">
+                                <ui:Label text="17" name="TaskTodayDeadlineCountLabel"
+                                    class="task-stat-value" />
+                                <ui:Label text="Bugün Teslim Edilecekler" class="task-stat-label" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+
+                        <ui:VisualElement class="task-stat-card">
+                            <ui:Label text="GC" class="task-stat-icon danger" />
+                            <ui:VisualElement class="task-stat-texts">
+                                <ui:Label text="9" name="TaskOverdueCountLabel"
+                                    class="task-stat-value" />
+                                <ui:Label text="Geciken Görevler" class="task-stat-label" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+
+                        <ui:VisualElement class="task-stat-card">
+                            <ui:Label text="İN" class="task-stat-icon info" />
+                            <ui:VisualElement class="task-stat-texts">
+                                <ui:Label text="24" name="TaskReviewCountLabel"
+                                    class="task-stat-value" />
+                                <ui:Label text="İncelemedeki Görevler" class="task-stat-label" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+
+                    </ui:VisualElement>
+
+                    <!-- content -->
+                    <ui:VisualElement class="task-content-grid">
+
+                        <!-- sol -->
+                        <ui:VisualElement class="task-main-card">
+
+                            <ui:VisualElement class="task-main-header">
+                                <ui:Label text="Görev Oluştur ve Ata" class="task-main-title" />
+                                <ui:Label
+                                    text="İçerik üretim akışını hızlandırmak için görevi ayrıntılı şekilde tanımlayın."
+                                    class="task-main-subtitle" />
+                            </ui:VisualElement>
+
+                            <ui:VisualElement class="task-form-shell">
+
+                                <ui:ScrollView name="TaskFormScroll" class="task-form-scroll"
+                                    mode="Vertical">
+
+                                    <ui:VisualElement class="task-two-col-grid">
+
+                                        <ui:VisualElement class="task-field-group">
+                                            <ui:Label text="Görev Başlığı" class="task-field-label" />
+                                            <ui:TextField name="TaskTitleInput" class="task-input" />
+                                        </ui:VisualElement>
+
+                                        <ui:VisualElement class="task-field-group">
+                                            <ui:Label text="Başlangıç Tarihi"
+                                                class="task-field-label" />
+                                            <ui:TextField name="TaskStartDateInput"
+                                                class="task-input" />
+                                        </ui:VisualElement>
+
+                                        <ui:VisualElement class="task-field-group">
+                                            <ui:Label text="Görev Türü" class="task-field-label" />
+                                            <ui:DropdownField name="TaskTypeDropdown"
+                                                class="task-input" />
+                                        </ui:VisualElement>
+
+                                        <ui:VisualElement class="task-field-group">
+                                            <ui:Label text="Son Teslim Tarihi"
+                                                class="task-field-label" />
+                                            <ui:TextField name="TaskDeadlineInput"
+                                                class="task-input" />
+                                        </ui:VisualElement>
+
+                                        <ui:VisualElement class="task-field-group">
+                                            <ui:Label text="İlgili Deney" class="task-field-label" />
+                                            <ui:TextField name="TaskExperimentInput"
+                                                class="task-input" />
+                                        </ui:VisualElement>
+
+                                        <ui:VisualElement class="task-field-group">
+                                            <ui:Label text="Tahmini Süre" class="task-field-label" />
+                                            <ui:TextField name="TaskEstimatedDurationInput"
+                                                class="task-input" />
+                                        </ui:VisualElement>
+
+                                        <ui:VisualElement class="task-field-group">
+                                            <ui:Label text="Atanacak İçerik Üreticisi"
+                                                class="task-field-label" />
+                                            <ui:DropdownField name="TaskAssigneeDropdown"
+                                                class="task-input" />
+                                        </ui:VisualElement>
+
+                                        <ui:VisualElement class="task-field-group">
+                                            <ui:Label text="Öncelik" class="task-field-label" />
+                                            <ui:DropdownField name="TaskPriorityDropdown"
+                                                class="task-input" />
+                                        </ui:VisualElement>
+
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement class="task-full-width-group">
+                                        <ui:Label text="Görev Açıklaması" class="task-field-label" />
+                                        <ui:TextField name="TaskDescriptionInput" multiline="true"
+                                            class="task-textarea" />
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement class="task-full-width-group">
+                                        <ui:Label text="Beklenen Çıktı / Teslim İçeriği"
+                                            class="task-field-label" />
+                                        <ui:TextField name="TaskExpectedOutputInput"
+                                            multiline="true" class="task-textarea" />
+                                    </ui:VisualElement>
+
+                                </ui:ScrollView>
+
+                                <ui:VisualElement class="task-action-row">
+                                    <ui:Button name="AssignTaskBtn" text="Görevi Ata"
+                                        class="btn-task-primary" />
+                                </ui:VisualElement>
+                                <ui:Label name="AssignTaskStatusLabel" class="status-label" text="" />
+
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+
+                        <!-- sağ -->
+                        <ui:VisualElement class="task-preview-card">
+
+                            <ui:VisualElement class="preview-header">
+                                <ui:Label text="Görev Önizleme" class="preview-title" />
+                                <ui:Label text="Canlı Taslak" class="preview-chip" />
+                            </ui:VisualElement>
+
+                            <ui:VisualElement class="preview-body">
+                                <ui:Label text="Fotosentez Simülasyonu Sahne Güncellemesi"
+                                    name="PreviewTaskTitleLabel" class="preview-task-title" />
+                                <ui:Label text="Atanan Kişi: Elif Kaya"
+                                    name="PreviewTaskAssigneeLabel" class="preview-task-person" />
+
+                                <ui:VisualElement class="preview-badges">
+                                    <ui:Label text="İncelemede" name="PreviewStatusBadge"
+                                        class="badge-status" />
+                                    <ui:Label text="Yüksek Öncelik" name="PreviewPriorityBadge"
+                                        class="badge-priority" />
+                                </ui:VisualElement>
+
+                                <ui:VisualElement class="preview-meta">
+                                    <ui:VisualElement class="preview-meta-item">
+                                        <ui:Label text="Son Teslim" class="preview-meta-small" />
+                                        <ui:Label text="27 Mart 2026" name="PreviewDeadlineLabel"
+                                            class="preview-meta-big" />
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement class="preview-meta-item">
+                                        <ui:Label text="Tahmini Süre" class="preview-meta-small" />
+                                        <ui:Label text="12 Saat" name="PreviewDurationLabel"
+                                            class="preview-meta-big" />
+                                    </ui:VisualElement>
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+
+                        </ui:VisualElement>
+
+                    </ui:VisualElement>
+
                 </ui:VisualElement>
 
-                <!-- sistem -->
-                <ui:VisualElement name="SystemPage" class="page">
-                    <ui:Label text="Sistem" class="main-title" />
-                    <ui:Label text="Sistem ayarları burada olacak..." class="main-subtitle" />
+                <!-- içerik üreticileri 
+                <ui:VisualElement name="TrackCreatorsPage" class="page track-page">
+
+                    <ui:VisualElement class="track-filter-bar">
+                        <ui:TextField name="TrackSearchInput" class="track-filter-input" />
+                        <ui:DropdownField name="TrackCreatorDropdown" class="track-filter-input" />
+                        <ui:DropdownField name="TrackTaskTypeDropdown" class="track-filter-input" />
+                        <ui:DropdownField name="TrackStatusDropdown" class="track-filter-input" />
+                        <ui:DropdownField name="TrackPriorityDropdown" class="track-filter-input" />
+                    </ui:VisualElement>
+
+                    
+
+
+                    <ui:VisualElement class="track-main-grid">
+
+
+                        <ui:VisualElement class="track-table-card">
+
+                            <ui:VisualElement class="track-table-head">
+                                <ui:Label text="Görev Adı" />
+                                <ui:Label text="Deney" />
+                                <ui:Label text="Atanan Kişi" />
+                                <ui:Label text="Görev Türü" />
+                                <ui:Label text="Öncelik" />
+                                <ui:Label text="Durum" />
+                                <ui:Label text="İlerleme" />
+                                <ui:Label text="Son Teslim" />
+                                <ui:Label text="Son Güncelleme" />
+                                <ui:Label text="İşlemler" />
+                            </ui:VisualElement>
+
+                            <ui:ScrollView name="TrackTableScroll" class="track-table-body">
+
+                           
+                                <ui:VisualElement name="TrackRow1" class="track-row is-selected">
+                                    <ui:VisualElement class="track-title-cell">
+                                        <ui:Label text="Fotosentez Simülasyonu Sahne Güncellemesi"
+                                            class="track-title" />
+                                    </ui:VisualElement>
+
+                                    <ui:Label text="Fotosentez Simülasyonu" class="track-cell" />
+                                    <ui:Label text="Elif Kaya" class="track-cell" />
+                                    <ui:Label text="Deney Optimizasyonu" class="track-cell" />
+
+                                    <ui:VisualElement class="track-cell">
+                                        <ui:Label text="Yüksek" class="priority high" />
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement class="track-cell">
+                                        <ui:Label text="İncelemede" class="status orange" />
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement class="track-cell">
+                                        <ui:Label text="%78" class="progress-text" />
+                                        <ui:VisualElement class="mini-progress">
+                                            <ui:VisualElement class="mini-progress-fill w78" />
+                                        </ui:VisualElement>
+                                    </ui:VisualElement>
+
+                                    <ui:Label text="27 Mar 2026" class="track-cell" />
+                                    <ui:Label text="Bugün 10:42" class="track-cell" />
+                                    <ui:Button name="TrackRow1DetailBtn" text="Detay"
+                                        class="table-action" />
+                                </ui:VisualElement>
+
+                            
+                                <ui:VisualElement name="TrackRow2" class="track-row">
+                                    <ui:VisualElement class="track-title-cell">
+                                        <ui:Label text="Asit-Baz Etkileşimi Hata Düzeltme"
+                                            class="track-title" />
+                                    </ui:VisualElement>
+
+                                    <ui:Label text="Asit-Baz Tepkimesi" class="track-cell" />
+                                    <ui:Label text="Can Demir" class="track-cell" />
+                                    <ui:Label text="Hata Düzeltme" class="track-cell" />
+
+                                    <ui:VisualElement class="track-cell">
+                                        <ui:Label text="Kritik" class="priority critical" />
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement class="track-cell">
+                                        <ui:Label text="Gecikti" class="status red" />
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement class="track-cell">
+                                        <ui:Label text="%62" class="progress-text" />
+                                        <ui:VisualElement class="mini-progress">
+                                            <ui:VisualElement class="mini-progress-fill w62" />
+                                        </ui:VisualElement>
+                                    </ui:VisualElement>
+
+                                    <ui:Label text="24 Mar 2026" class="track-cell" />
+                                    <ui:Label text="Dün 18:11" class="track-cell" />
+                                    <ui:Button name="TrackRow2DetailBtn" text="Detay"
+                                        class="table-action" />
+                                </ui:VisualElement>
+
+                     
+                                <ui:VisualElement name="TrackRow3" class="track-row">
+                                    <ui:VisualElement class="track-title-cell">
+                                        <ui:Label text="Elektrik Devresi Test Senaryoları"
+                                            class="track-title" />
+                                    </ui:VisualElement>
+
+                                    <ui:Label text="Elektrik Devresi" class="track-cell" />
+                                    <ui:Label text="Merve Aksoy" class="track-cell" />
+                                    <ui:Label text="Test / Kontrol" class="track-cell" />
+
+                                    <ui:VisualElement class="track-cell">
+                                        <ui:Label text="Orta" class="priority medium" />
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement class="track-cell">
+                                        <ui:Label text="Devam Ediyor" class="status blue" />
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement class="track-cell">
+                                        <ui:Label text="%46" class="progress-text" />
+                                        <ui:VisualElement class="mini-progress">
+                                            <ui:VisualElement class="mini-progress-fill w46" />
+                                        </ui:VisualElement>
+                                    </ui:VisualElement>
+
+                                    <ui:Label text="29 Mar 2026" class="track-cell" />
+                                    <ui:Label text="Bugün 09:06" class="track-cell" />
+                                    <ui:Button name="TrackRow3DetailBtn" text="Detay"
+                                        class="table-action" />
+                                </ui:VisualElement>
+
+                          
+                                <ui:VisualElement name="TrackRow4" class="track-row">
+                                    <ui:VisualElement class="track-title-cell">
+                                        <ui:Label text="Hücresel Solunum İçerik Revizyonu"
+                                            class="track-title" />
+                                    </ui:VisualElement>
+
+                                    <ui:Label text="Hücresel Solunum" class="track-cell" />
+                                    <ui:Label text="Selin Aydın" class="track-cell" />
+                                    <ui:Label text="Rapor Hazırlama" class="track-cell" />
+
+                                    <ui:VisualElement class="track-cell">
+                                        <ui:Label text="Orta" class="priority medium" />
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement class="track-cell">
+                                        <ui:Label text="Revizyonda" class="status purple" />
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement class="track-cell">
+                                        <ui:Label text="%71" class="progress-text" />
+                                        <ui:VisualElement class="mini-progress">
+                                            <ui:VisualElement class="mini-progress-fill w71" />
+                                        </ui:VisualElement>
+                                    </ui:VisualElement>
+
+                                    <ui:Label text="30 Mar 2026" class="track-cell" />
+                                    <ui:Label text="Dün 13:55" class="track-cell" />
+                                    <ui:Button name="TrackRow4DetailBtn" text="Detay"
+                                        class="table-action" />
+                                </ui:VisualElement>
+
+                          
+                                <ui:VisualElement name="TrackRow5" class="track-row">
+                                    <ui:VisualElement class="track-title-cell">
+                                        <ui:Label text="Astronomi İçerik Paketi" class="track-title" />
+                                    </ui:VisualElement>
+
+                                    <ui:Label text="Gezegen Hareketleri" class="track-cell" />
+                                    <ui:Label text="Eren Uslu" class="track-cell" />
+                                    <ui:Label text="Yeni Deney Ekleme" class="track-cell" />
+
+                                    <ui:VisualElement class="track-cell">
+                                        <ui:Label text="Düşük" class="priority low" />
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement class="track-cell">
+                                        <ui:Label text="Tamamlandı" class="status green" />
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement class="track-cell">
+                                        <ui:Label text="%100" class="progress-text" />
+                                        <ui:VisualElement class="mini-progress">
+                                            <ui:VisualElement class="mini-progress-fill w100" />
+                                        </ui:VisualElement>
+                                    </ui:VisualElement>
+
+                                    <ui:Label text="20 Mar 2026" class="track-cell" />
+                                    <ui:Label text="20 Mar 2026" class="track-cell" />
+                                    <ui:Button name="TrackRow5DetailBtn" text="Detay"
+                                        class="table-action" />
+                                </ui:VisualElement>
+
+                            </ui:ScrollView>
+                        </ui:VisualElement>
+
+
+                        <ui:VisualElement name="TrackDetailPanel" class="track-detail-card">
+                            <ui:ScrollView class="track-detail-scroll">
+
+                                <ui:Label name="DetailTitleLabel"
+                                    text="Fotosentez Simülasyonu Sahne Güncellemesi"
+                                    class="track-detail-title" />
+                                <ui:Label name="DetailStatusLabel" text="İncelemede"
+                                    class="status orange" />
+
+                                <ui:VisualElement class="detail-block">
+                                    <ui:Label text="Görev Açıklaması" class="detail-block-title" />
+                                    <ui:Label name="DetailDescLabel"
+                                        text="Işık bağımlı reaksiyon akışının görsel hiyerarşisi güncelleniyor, etkileşim kartları sadeleştiriliyor."
+                                        class="detail-block-text" />
+                                </ui:VisualElement>
+
+                                <ui:VisualElement class="detail-mini-grid">
+                                    <ui:VisualElement class="detail-mini-item">
+                                        <ui:Label text="Atanan İçerik Üreticisi"
+                                            class="detail-mini-small" />
+                                        <ui:Label name="DetailAssigneeLabel" text="Elif Kaya"
+                                            class="detail-mini-big" />
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement class="detail-mini-item">
+                                        <ui:Label text="Öncelik" class="detail-mini-small" />
+                                        <ui:Label name="DetailPriorityLabel" text="Yüksek"
+                                            class="detail-mini-big" />
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement class="detail-mini-item">
+                                        <ui:Label text="Son Teslim" class="detail-mini-small" />
+                                        <ui:Label name="DetailDeadlineLabel" text="27 Mart 2026"
+                                            class="detail-mini-big" />
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement class="detail-mini-item">
+                                        <ui:Label text="İlerleme" class="detail-mini-small" />
+                                        <ui:Label name="DetailProgressLabel" text="%78"
+                                            class="detail-mini-big" />
+                                    </ui:VisualElement>
+                                </ui:VisualElement>
+
+                                <ui:VisualElement class="detail-block">
+                                    <ui:Label text="Ek Dosyalar" class="detail-block-title" />
+                                    <ui:VisualElement name="DetailFilesList" class="file-list">
+                                        <ui:Label text="fotosentez-v4.pdf" class="file-item" />
+                                        <ui:Label text="test-kaydi.mp4" class="file-item" />
+                                    </ui:VisualElement>
+                                </ui:VisualElement>
+
+                                <ui:VisualElement class="detail-block">
+                                    <ui:Label text="Admin Notları" class="detail-block-title" />
+                                    <ui:Label name="DetailNotesLabel"
+                                        text="İnceleme öncesi tooltip metinleri tekrar kontrol edilmeli."
+                                        class="detail-block-text" />
+                                </ui:VisualElement>
+
+                                <ui:VisualElement class="detail-block activity">
+                                    <ui:Label text="Aktivite / Zaman Akışı"
+                                        class="detail-block-title" />
+                                    <ui:ScrollView name="TrackActivityScroll"
+                                        class="activity-scroll">
+                                        <ui:Label text="10:42 Görev atandı." class="activity-item" />
+                                        <ui:Label
+                                            text="10:57 Araştırma başladı. Bugün deney konusu için araştırma yapıldı."
+                                            class="activity-item" />
+                                        <ui:Label
+                                            text="11:34 Kodlama başladı. Simülasyon akışının ilk taslağı oluşturuldu."
+                                            class="activity-item" />
+                                        <ui:Label
+                                            text="12:10 Not eklendi. Kodlama süreci başlatıldı."
+                                            class="activity-item" />
+                                        <ui:Label
+                                            text="13:18 Dosya yüklendi. Arayüz düzenlemesi tamamlandı."
+                                            class="activity-item" />
+                                        <ui:Label text="14:02 İncelemeye gönderildi."
+                                            class="activity-item" />
+                                        <ui:Label text="14:19 Revizyon istendi."
+                                            class="activity-item" />
+                                        <ui:Label
+                                            text="15:01 Tamamlandı. Testte tespit edilen iki hata düzeltildi."
+                                            class="activity-item" />
+                                    </ui:ScrollView>
+                                </ui:VisualElement>
+
+                                <ui:VisualElement class="detail-block performance">
+                                    <ui:Label text="Küçük Performans Bölümü"
+                                        class="detail-block-title" />
+
+                                    <ui:VisualElement class="perf-item">
+                                        <ui:Label text="En aktif içerik üreticileri"
+                                            class="perf-label" />
+                                        <ui:Label text="Elif Kaya, Merve Aksoy" class="perf-value" />
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement class="perf-item">
+                                        <ui:Label text="Kullanıcı başına görev sayısı"
+                                            class="perf-label" />
+                                        <ui:Label text="6.3" class="perf-value" />
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement class="perf-item">
+                                        <ui:Label text="Bu hafta en çok güncelleme yapan"
+                                            class="perf-label" />
+                                        <ui:Label text="Can Demir" class="perf-value" />
+                                    </ui:VisualElement>
+                                </ui:VisualElement>
+
+                            </ui:ScrollView>
+                        </ui:VisualElement>
+
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+                -->
+
+                <!-- görevler -->
+                <ui:VisualElement name="MissionsDataPage" class="page missions-page">
+
+                    <!-- üst istatistikler -->
+                    <ui:VisualElement class="task-stats-grid">
+
+                        <ui:VisualElement class="task-stat-card">
+                            <ui:Label text="AG" class="task-stat-icon" />
+                            <ui:VisualElement>
+                                <ui:Label text="128" name="MissionActiveCountLabel"
+                                    class="task-stat-value" />
+                                <ui:Label text="Aktif Görevler" class="task-stat-label" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+
+                        <ui:VisualElement class="task-stat-card">
+                            <ui:Label text="BT" class="task-stat-icon warning" />
+                            <ui:VisualElement>
+                                <ui:Label text="17" name="MissionTodayCountLabel"
+                                    class="task-stat-value" />
+                                <ui:Label text="Bugün Teslim Edilecekler" class="task-stat-label" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+
+                        <ui:VisualElement class="task-stat-card">
+                            <ui:Label text="GC" class="task-stat-icon danger" />
+                            <ui:VisualElement>
+                                <ui:Label text="9" name="MissionLateCountLabel"
+                                    class="task-stat-value" />
+                                <ui:Label text="Geciken Görevler" class="task-stat-label" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+
+                        <ui:VisualElement class="task-stat-card">
+                            <ui:Label text="İN" class="task-stat-icon info" />
+                            <ui:VisualElement>
+                                <ui:Label text="24" name="MissionReviewCountLabel"
+                                    class="task-stat-value" />
+                                <ui:Label text="İncelemedeki Görevler" class="task-stat-label" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+
+                    </ui:VisualElement>
+
+                    <!-- 2x2 paneller -->
+                    <ui:VisualElement class="missions-grid">
+
+                        <!-- Aktif Görevler -->
+                        <ui:VisualElement class="mission-panel">
+                            <ui:VisualElement class="mission-panel-header">
+                                <ui:Label text="Aktif Görevler" class="mission-panel-title" />
+                                <ui:Label text="128" class="mission-panel-count" />
+                            </ui:VisualElement>
+
+                            <ui:ScrollView name="ActiveMissionList" class="mission-list-scroll"
+                                mode="Vertical">
+                                <ui:Button name="ActiveMissionBtn1" class="mission-link">
+                                    <ui:VisualElement class="mission-item">
+                                        <ui:Label text="Kimya Deneyi V2 Revizyonu"
+                                            class="mission-item-title" />
+                                        <ui:Label text="Atanan: Merve Aksoy • Teslim: 25 Mart"
+                                            class="mission-item-text" />
+                                    </ui:VisualElement>
+                                </ui:Button>
+
+                                <ui:Button name="ActiveMissionBtn2" class="mission-link">
+                                    <ui:VisualElement class="mission-item">
+                                        <ui:Label text="Hareket Yasaları Simülasyonu"
+                                            class="mission-item-title" />
+                                        <ui:Label text="Atanan: Elif Kaya • Teslim: 26 Mart"
+                                            class="mission-item-text" />
+                                    </ui:VisualElement>
+                                </ui:Button>
+
+                                <ui:Button name="ActiveMissionBtn3" class="mission-link">
+                                    <ui:VisualElement class="mission-item">
+                                        <ui:Label text="Biyoloji Hücre Bölünmesi Güncellemesi"
+                                            class="mission-item-title" />
+                                        <ui:Label text="Atanan: Can Demir • Teslim: 28 Mart"
+                                            class="mission-item-text" />
+                                    </ui:VisualElement>
+                                </ui:Button>
+
+                                <ui:Button name="ActiveMissionBtn4" class="mission-link">
+                                    <ui:VisualElement class="mission-item">
+                                        <ui:Label text="Biyoloji Hücre Bölünmesi Güncellemesi"
+                                            class="mission-item-title" />
+                                        <ui:Label text="Atanan: Can Demir • Teslim: 28 Mart"
+                                            class="mission-item-text" />
+                                    </ui:VisualElement>
+                                </ui:Button>
+
+                                <ui:Button name="ActiveMissionBtn5" class="mission-link">
+                                    <ui:VisualElement class="mission-item">
+                                        <ui:Label text="Biyoloji Hücre Bölünmesi Güncellemesi"
+                                            class="mission-item-title" />
+                                        <ui:Label text="Atanan: Can Demir • Teslim: 28 Mart"
+                                            class="mission-item-text" />
+                                    </ui:VisualElement>
+                                </ui:Button>
+                            </ui:ScrollView>
+                        </ui:VisualElement>
+
+                        <!-- Bugün Teslim -->
+                        <ui:VisualElement class="mission-panel">
+                            <ui:VisualElement class="mission-panel-header">
+                                <ui:Label text="Bugün Teslim Edilecekler"
+                                    class="mission-panel-title" />
+                                <ui:Label text="17" class="mission-panel-count" />
+                            </ui:VisualElement>
+
+                            <ui:ScrollView name="TodayMissionList" class="mission-list-scroll"
+                                mode="Vertical">
+                                <ui:Button name="TodayMissionBtn1" class="mission-link">
+                                    <ui:VisualElement class="mission-item">
+                                        <ui:Label text="Elektrik Devreleri Test Paketi"
+                                            class="mission-item-title" />
+                                        <ui:Label text="Atanan: Selin Aydın • Saat: 15:00"
+                                            class="mission-item-text" />
+                                    </ui:VisualElement>
+                                </ui:Button>
+
+                                <ui:Button name="TodayMissionBtn2" class="mission-link">
+                                    <ui:VisualElement class="mission-item">
+                                        <ui:Label text="Rapor: Lise Fizik Kullanım Analizi"
+                                            class="mission-item-title" />
+                                        <ui:Label text="Atanan: Eren Uslu • Saat: 17:30"
+                                            class="mission-item-text" />
+                                    </ui:VisualElement>
+                                </ui:Button>
+
+                                <ui:Button name="TodayMissionBtn3" class="mission-link">
+                                    <ui:VisualElement class="mission-item">
+                                        <ui:Label text="Rapor: Lise Fizik Kullanım Analizi"
+                                            class="mission-item-title" />
+                                        <ui:Label text="Atanan: Eren Uslu • Saat: 17:30"
+                                            class="mission-item-text" />
+                                    </ui:VisualElement>
+                                </ui:Button>
+
+                                <ui:Button name="TodayMissionBtn4" class="mission-link">
+                                    <ui:VisualElement class="mission-item">
+                                        <ui:Label text="Rapor: Lise Fizik Kullanım Analizi"
+                                            class="mission-item-title" />
+                                        <ui:Label text="Atanan: Eren Uslu • Saat: 17:30"
+                                            class="mission-item-text" />
+                                    </ui:VisualElement>
+                                </ui:Button>
+
+                                <ui:Button name="TodayMissionBtn5" class="mission-link">
+                                    <ui:VisualElement class="mission-item">
+                                        <ui:Label text="Rapor: Lise Fizik Kullanım Analizi"
+                                            class="mission-item-title" />
+                                        <ui:Label text="Atanan: Eren Uslu • Saat: 17:30"
+                                            class="mission-item-text" />
+                                    </ui:VisualElement>
+                                </ui:Button>
+                            </ui:ScrollView>
+                        </ui:VisualElement>
+
+                        <!-- Geciken -->
+                        <ui:VisualElement class="mission-panel">
+                            <ui:VisualElement class="mission-panel-header">
+                                <ui:Label text="Geciken Görevler" class="mission-panel-title" />
+                                <ui:Label text="9" class="mission-panel-count" />
+                            </ui:VisualElement>
+
+                            <ui:ScrollView name="LateMissionList" class="mission-list-scroll"
+                                mode="Vertical">
+                                <ui:Button name="LateMissionBtn1" class="mission-link">
+                                    <ui:VisualElement class="mission-item late">
+                                        <ui:Label text="Asit-Baz Etkileşimi Hata Düzeltme"
+                                            class="mission-item-title" />
+                                        <ui:Label text="Atanan: Elif Kaya • 2 gün gecikme"
+                                            class="mission-item-text" />
+                                    </ui:VisualElement>
+                                </ui:Button>
+
+                                <ui:Button name="LateMissionBtn2" class="mission-link">
+                                    <ui:VisualElement class="mission-item late">
+                                        <ui:Label text="Öğretmen Paneli Deney Filtreleri"
+                                            class="mission-item-title" />
+                                        <ui:Label text="Atanan: Can Demir • 1 gün gecikme"
+                                            class="mission-item-text" />
+                                    </ui:VisualElement>
+                                </ui:Button>
+
+                                <ui:Button name="LateMissionBtn3" class="mission-link">
+                                    <ui:VisualElement class="mission-item late">
+                                        <ui:Label text="Öğretmen Paneli Deney Filtreleri"
+                                            class="mission-item-title" />
+                                        <ui:Label text="Atanan: Can Demir • 1 gün gecikme"
+                                            class="mission-item-text" />
+                                    </ui:VisualElement>
+                                </ui:Button>
+
+                                <ui:Button name="LateMissionBtn4" class="mission-link">
+                                    <ui:VisualElement class="mission-item late">
+                                        <ui:Label text="Öğretmen Paneli Deney Filtreleri"
+                                            class="mission-item-title" />
+                                        <ui:Label text="Atanan: Can Demir • 1 gün gecikme"
+                                            class="mission-item-text" />
+                                    </ui:VisualElement>
+                                </ui:Button>
+
+                                <ui:Button name="LateMissionBtn5" class="mission-link">
+                                    <ui:VisualElement class="mission-item late">
+                                        <ui:Label text="Öğretmen Paneli Deney Filtreleri"
+                                            class="mission-item-title" />
+                                        <ui:Label text="Atanan: Can Demir • 1 gün gecikme"
+                                            class="mission-item-text" />
+                                    </ui:VisualElement>
+                                </ui:Button>
+                            </ui:ScrollView>
+                        </ui:VisualElement>
+
+                        <!-- İncelemede -->
+                        <ui:VisualElement class="mission-panel">
+                            <ui:VisualElement class="mission-panel-header">
+                                <ui:Label text="İncelemedeki Görevler" class="mission-panel-title" />
+                                <ui:Label text="24" class="mission-panel-count" />
+                            </ui:VisualElement>
+
+                            <ui:ScrollView name="ReviewMissionList" class="mission-list-scroll"
+                                mode="Vertical">
+                                <ui:Button name="ReviewMissionBtn1" class="mission-link">
+                                    <ui:VisualElement class="mission-item review">
+                                        <ui:Label text="Fotosentez Simülasyonu Sahne Güncellemesi"
+                                            class="mission-item-title" />
+                                        <ui:Label text="İnceleyen: Admin • Öncelik: Yüksek"
+                                            class="mission-item-text" />
+                                    </ui:VisualElement>
+                                </ui:Button>
+
+                                <ui:Button name="ReviewMissionBtn2" class="mission-link">
+                                    <ui:VisualElement class="mission-item review">
+                                        <ui:Label text="Ortaokul Astronomi İçerik Paketi"
+                                            class="mission-item-title" />
+                                        <ui:Label text="İnceleyen: İçerik Ekibi • Öncelik: Orta"
+                                            class="mission-item-text" />
+                                    </ui:VisualElement>
+                                </ui:Button>
+
+                                <ui:Button name="ReviewMissionBtn3" class="mission-link">
+                                    <ui:VisualElement class="mission-item review">
+                                        <ui:Label text="Ortaokul Astronomi İçerik Paketi"
+                                            class="mission-item-title" />
+                                        <ui:Label text="İnceleyen: İçerik Ekibi • Öncelik: Orta"
+                                            class="mission-item-text" />
+                                    </ui:VisualElement>
+                                </ui:Button>
+
+                                <ui:Button name="ReviewMissionBtn4" class="mission-link">
+                                    <ui:VisualElement class="mission-item review">
+                                        <ui:Label text="Ortaokul Astronomi İçerik Paketi"
+                                            class="mission-item-title" />
+                                        <ui:Label text="İnceleyen: İçerik Ekibi • Öncelik: Orta"
+                                            class="mission-item-text" />
+                                    </ui:VisualElement>
+                                </ui:Button>
+
+                                <ui:Button name="ReviewMissionBtn5" class="mission-link">
+                                    <ui:VisualElement class="mission-item review">
+                                        <ui:Label text="Ortaokul Astronomi İçerik Paketi"
+                                            class="mission-item-title" />
+                                        <ui:Label text="İnceleyen: İçerik Ekibi • Öncelik: Orta"
+                                            class="mission-item-text" />
+                                    </ui:VisualElement>
+                                </ui:Button>
+                            </ui:ScrollView>
+                        </ui:VisualElement>
+
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+
+                <!-- görev detayları -->
+                <ui:VisualElement name="MissionDetailPage" class="page mission-detail-page">
+
+                    <!-- üst bar -->
+                    <ui:VisualElement class="detail-topbar">
+                        <ui:Button name="BackToMissionsBtn" text="← Görev Verilerine Dön"
+                            class="back-link-btn" />
+
+                        <ui:VisualElement class="detail-actions">
+                            <ui:Button name="OpenRevisionModalBtn" text="Revizyon İste"
+                                class="btn-detail-ghost" />
+                            <ui:Button name="ApproveMissionBtn" text="Görevi Onayla"
+                                class="btn-detail-primary" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+
+                    <!-- ana layout -->
+                    <ui:VisualElement class="detail-layout">
+
+                        <!-- sol ana kart -->
+                        <ui:VisualElement class="detail-main-card">
+
+                            <ui:VisualElement class="detail-header">
+                                <ui:Label text="Görev #SCX-1428" name="MissionDetailKickerLabel"
+                                    class="detail-kicker" />
+                                <ui:Label text="Fotosentez Simülasyonu Sahne Güncellemesi"
+                                    name="MissionDetailTitleLabel" class="detail-title" />
+
+                                <ui:VisualElement class="detail-badges">
+                                    <ui:Label text="İncelemede" name="MissionDetailStatusBadge"
+                                        class="badge-detail status" />
+                                    <ui:Label text="Yüksek Öncelik"
+                                        name="MissionDetailPriorityBadge"
+                                        class="badge-detail priority" />
+                                    <ui:Label text="Revizyon Önceliği: -"
+                                        name="MissionDetailRevisionPriorityBadge"
+                                        class="badge-detail revision-priority" />
+                                    <ui:Label text="Elif Kaya" name="MissionDetailOwnerBadge"
+                                        class="badge-detail owner" />
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+
+                            <ui:ScrollView name="MissionDetailMainScroll" class="detail-scroll"
+                                mode="Vertical">
+
+                                <ui:VisualElement class="detail-block">
+                                    <ui:Label text="Atanan İçerik Üreticisi" class="detail-block-title" />
+                                    <ui:Label text="-" name="MissionAssignedCreatorLabel" class="detail-block-text" />
+                                </ui:VisualElement>
+
+                                <ui:VisualElement class="detail-block">
+                                    <ui:Label text="Görev Açıklaması" class="detail-block-title" />
+                                    <ui:Label
+                                        text="Simülasyonun ışık bağımlı reaksiyon sahnesinde kullanıcı etkileşimini artırmak için görsel sıralama yeniden düzenlenecek. Öğrencinin kloroplast yapısını adım adım takip edebilmesi için animasyon geçişleri sadeleştirilecek ve bilgi kartları seviyelendirilmiş anlatımla güncellenecek."
+                                        name="MissionDetailDescLabel"
+                                        class="detail-block-text" />
+                                </ui:VisualElement>
+
+                                <ui:VisualElement class="detail-block">
+                                    <ui:Label text="Beklenen Çıktılar" class="detail-block-title" />
+
+                                    <ui:VisualElement name="MissionExpectedOutputsList" class="detail-list">
+                                        <ui:Label text="• Güncellenmiş sahne akış şeması"
+                                            class="detail-list-item" />
+                                        <ui:Label text="• Yeni metin içerikleri ve tooltip düzeni"
+                                            class="detail-list-item" />
+                                        <ui:Label text="• Test raporu ve ekran kayıtları"
+                                            class="detail-list-item" />
+                                    </ui:VisualElement>
+                                </ui:VisualElement>
+
+                                <ui:VisualElement name="MissionRevisionNoteBlock" class="detail-block revision-note-block">
+                                    <ui:Label text="Revizyon Notu" class="detail-block-title" />
+                                    <ui:Label text="-" name="MissionRevisionNoteLabel" class="detail-block-text revision-highlight" />
+                                </ui:VisualElement>
+
+
+                                <ui:VisualElement class="detail-block">
+                                    <ui:Label text="Yorumlar" class="detail-block-title" />
+
+                                    <ui:VisualElement name="MissionCommentsList" class="detail-list">
+                                        <ui:VisualElement class="comment-item">
+                                        <ui:Label text="İrem Cebeci" class="comment-author" />
+                                        <ui:Label
+                                            text="Animasyon geçişleri 7. sınıf için biraz hızlı, bir kademe daha yavaşlatabilir misin?"
+                                            class="comment-text" />
+                                        </ui:VisualElement>
+
+                                        <ui:VisualElement class="comment-item">
+                                        <ui:Label text="Elif Kaya" class="comment-author" />
+                                        <ui:Label
+                                            text="Yeni geçiş süresini 1.2s olarak güncelledim, test videosunu ekledim."
+                                            class="comment-text" />
+                                        </ui:VisualElement>
+                                    </ui:VisualElement>
+
+                                    <ui:TextField name="MissionCommentInput" multiline="true"
+                                        class="revision-textarea" />
+                                    <ui:VisualElement class="revision-modal-footer">
+                                        <ui:Button name="AddMissionCommentBtn" text="Yorum Ekle"
+                                            class="btn-detail-primary" />
+                                    </ui:VisualElement>
+                                    <ui:Label name="MissionCommentStatusLabel" class="status-label"
+                                        text="" />
+                                </ui:VisualElement>
+
+                            </ui:ScrollView>
+                        </ui:VisualElement>
+
+                        <!-- sağ kart -->
+                        <ui:VisualElement class="detail-side-card">
+
+                            <ui:Label text="Görev Bilgileri" class="side-card-title" />
+
+                            <ui:VisualElement class="side-grid">
+                                <ui:VisualElement class="side-grid-item">
+                                    <ui:Label text="Başlangıç" class="side-grid-small" />
+                                    <ui:Label text="21 Mart 2026" name="MissionStartDateLabel"
+                                        class="side-grid-big" />
+                                </ui:VisualElement>
+
+                                <ui:VisualElement class="side-grid-item">
+                                    <ui:Label text="Son Teslim" class="side-grid-small" />
+                                    <ui:Label text="27 Mart 2026" name="MissionDeadlineDateLabel"
+                                        class="side-grid-big" />
+                                </ui:VisualElement>
+
+                                <ui:VisualElement class="side-grid-item">
+                                    <ui:Label text="Görev Türü" class="side-grid-small" />
+                                    <ui:Label text="Deney Optimizasyonu" name="MissionTypeLabel"
+                                        class="side-grid-big" />
+                                </ui:VisualElement>
+
+                                <ui:VisualElement class="side-grid-item">
+                                    <ui:Label text="Durum" class="side-grid-small" />
+                                    <ui:Label text="İncelemede" name="MissionStatusInfoLabel"
+                                        class="side-grid-big" />
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+
+                            <ui:Label text="Aktivite Akışı" class="side-card-title" />
+
+                            <ui:ScrollView name="MissionTimelineScroll" class="timeline-scroll"
+                                mode="Vertical">
+                                <ui:Label text="10:42 Elif Kaya dosya yükledi."
+                                    class="timeline-item" />
+                                <ui:Label text="09:25 Admin görev notu ekledi."
+                                    class="timeline-item" />
+                                <ui:Label text="Dün Durum 'İncelemede' olarak güncellendi."
+                                    class="timeline-item" />
+                                <ui:Label text="Dün Görev ilk teslime gönderildi."
+                                    class="timeline-item" />
+                            </ui:ScrollView>
+
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+
+                    <!-- revision modal -->
+                    <ui:VisualElement name="RevisionModal" class="revision-modal hidden">
+
+                        <ui:VisualElement class="revision-modal-card">
+
+                            <ui:VisualElement class="revision-modal-header">
+                                <ui:Label text="Revizyon Talebi Oluştur"
+                                    class="revision-modal-title" />
+                                <ui:Button name="CloseRevisionModalBtn" text="✕"
+                                    class="revision-icon-btn" />
+                            </ui:VisualElement>
+
+                            <ui:ScrollView class="revision-modal-body" mode="Vertical">
+
+                                <ui:VisualElement class="revision-field">
+                                    <ui:Label text="Revizyon Türü" class="revision-field-label" />
+                                    <ui:DropdownField name="RevisionTypeDropdown"
+                                        class="revision-input" />
+                                </ui:VisualElement>
+
+                                <ui:VisualElement class="revision-grid">
+                                    <ui:VisualElement class="revision-field">
+                                        <ui:Label text="Öncelik" class="revision-field-label" />
+                                        <ui:DropdownField name="RevisionPriorityDropdown"
+                                            class="revision-input" />
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement class="revision-field">
+                                        <ui:Label text="Yeni Teslim Tarihi"
+                                            class="revision-field-label" />
+                                        <ui:TextField name="RevisionDeadlineInput"
+                                            class="revision-input" />
+                                    </ui:VisualElement>
+                                </ui:VisualElement>
+
+                                <ui:VisualElement class="revision-field">
+                                    <ui:Label text="Revizyon Notu" class="revision-field-label" />
+                                    <ui:TextField name="RevisionNoteInput" multiline="true"
+                                        class="revision-textarea" />
+                                </ui:VisualElement>
+
+                                <ui:Label
+                                    text="Not: Talep gönderildiğinde görev durumu otomatik olarak 'Revizyonda' olarak güncellenir."
+                                    class="revision-help" />
+
+                                <ui:VisualElement class="revision-modal-footer">
+                                    <ui:Button name="CancelRevisionBtn" text="Vazgeç"
+                                        class="btn-detail-ghost" />
+                                    <ui:Button name="SubmitRevisionBtn" text="Talebi Gönder"
+                                        class="btn-detail-primary" />
+                                </ui:VisualElement>
+
+                            </ui:ScrollView>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+
+                </ui:VisualElement>
+
+                <!-- aktivite -->
+                <ui:VisualElement name="ActivityPage" class="page">
+
+                    <ui:ScrollView name="PersonalActivityScroll" class="activity-page"
+                        mode="Vertical">
+
+                        <!-- Filter Bar -->
+                        <ui:VisualElement class="act-filter-bar">
+
+                            <ui:VisualElement class="act-filter-tabs">
+                                <ui:Button name="ActTabAllBtn" text="Tümü"
+                                    class="act-filter-tab active" />
+                                <ui:Button name="ActTabAssignmentBtn" text="Atama"
+                                    class="act-filter-tab" />
+                                <ui:Button name="ActTabProgressBtn" text="Hesap"
+                                    class="act-filter-tab" />
+                            </ui:VisualElement>
+
+                            <ui:VisualElement class="assignment-search">
+                                <ui:VisualElement class="icon icon-search" />
+                                <ui:TextField name="AssignmentSearchInput" class="" value="" />
+                            </ui:VisualElement>
+
+                            <ui:DropdownField
+                                name="ActDateFilterDropdown"
+                                class="act-date-select"
+                                choices="Tüm Zamanlar,Bugün,Bu Hafta,Bu Ay"
+                                index="0" />
+                        </ui:VisualElement>
+
+                        <!-- Main Layout -->
+                        <ui:VisualElement class="act-main-layout">
+
+                            <!-- Feed -->
+                            <ui:VisualElement name="ActFeed" class="act-feed">
+                                <ui:Label text="Aktivite yükleniyor..." class="act-date-divider" />
+
+                            </ui:VisualElement>
+
+                        </ui:VisualElement>
+                    </ui:ScrollView>
+
+                </ui:VisualElement>
+
+                <!-- profil -->
+                <ui:VisualElement name="ProfilePage" class="page">
+
+                    <ui:ScrollView name="TeacherProfileScroll" class="teacher-profile-page"
+                        mode="Vertical">
+                        <ui:VisualElement class="teacher-profile-top">
+
+                            <ui:VisualElement class="teacher-profile-card teacher-identity-section">
+                                <ui:VisualElement class="teacher-avatar-area">
+                                    <ui:Label name="TeacherAvatarLabel" text="KT"
+                                        class="teacher-avatar" />
+
+                                    <ui:VisualElement class="teacher-name-area">
+                                        <ui:Label name="TeacherNameLabel" text="-"
+                                            class="teacher-name-title" />
+                                        <ui:Label name="TeacherRoleLabel"
+                                            text="-"
+                                            class="teacher-role-badge" />
+
+                                        <ui:VisualElement class="teacher-status-indicator">
+                                            <ui:VisualElement class="teacher-status-dot" />
+                                            <ui:Label name="TeacherStatusLabel" text="-"
+                                                class="teacher-status-text" />
+                                        </ui:VisualElement>
+                                    </ui:VisualElement>
+                                </ui:VisualElement>
+
+                                <ui:VisualElement class="teacher-identity-divider" />
+
+                                <ui:VisualElement class="teacher-info-grid">
+
+
+                                    <ui:VisualElement
+                                        class="teacher-info-item">
+                                        <ui:Label text="E-Posta" class="teacher-info-caption" />
+                                        <ui:Label name="TeacherMailLabel"
+                                            text="-"
+                                            class="teacher-info-value" />
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement
+                                        class="teacher-info-item">
+                                        <ui:Label text="Katılım Tarihi" class="teacher-info-caption" />
+                                        <ui:Label name="TeacherJoinDateLabel" text="-"
+                                            class="teacher-info-value" />
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement class="teacher-info-item">
+                                        <ui:Label text="Son Giriş" class="teacher-info-caption" />
+                                        <ui:Label name="TeacherLastLoginLabel" text="-"
+                                            class="teacher-info-value" />
+                                    </ui:VisualElement>
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+
+                            <ui:VisualElement class="teacher-profile-card teacher-stats-section">
+                                <ui:Label text="Genel İstatistikler" class="teacher-section-title" />
+
+                                <ui:VisualElement class="teacher-stats-grid">
+
+                                    <ui:VisualElement class="teacher-stat-card">
+                                        <ui:Label text="0" class="stat-value" />
+                                        <ui:Label text="Tamamlanan Deney" class="stat-label" />
+                                        <ui:Label text="-" class="stat-change" />
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement
+                                        class="teacher-stat-card teacher-stat-card-left">
+                                        <ui:Label text="0" class="stat-value" />
+                                        <ui:Label text="Ortalama Başarı" class="stat-label" />
+                                        <ui:Label text="-" class="stat-change" />
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement class="teacher-stat-card">
+                                        <ui:Label text="0" class="stat-value" />
+                                        <ui:Label text="Devam Oranı" class="stat-label" />
+                                        <ui:Label text="-" class="stat-change" />
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement class="teacher-stat-card">
+                                        <ui:Label text="0" class="stat-value" />
+                                        <ui:Label text="Aktif Gün Serisi" class="stat-label" />
+                                        <ui:Label text="-" class="stat-change" />
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement class="teacher-stat-card">
+                                        <ui:Label text="0" class="stat-value" />
+                                        <ui:Label text="Aktif Toplam Gün" class="stat-label" />
+                                        <ui:Label text="-" class="stat-change" />
+                                    </ui:VisualElement>
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+
+                            <ui:VisualElement class="teacher-profile-card teacher-quick-section">
+                                <ui:Label text="Hızlı İşlemler" class="teacher-section-title" />
+
+                                <ui:VisualElement class="teacher-quick-actions">
+                                    <ui:Button name="AdminGoHomeBtn"
+                                        text="Anasayfaya Git"
+                                        class="teacher-quick-btn teacher-quick-btn-primary" />
+                                    <ui:Button name="AdminGoUsersBtn" text="Kullanıcıları Listele"
+                                        class="teacher-quick-btn" />
+                                    <ui:Button name="AdminLogoutBtn" text="Oturumu Kapat"
+                                        class="teacher-quick-btn teacher-quick-btn-danger" />
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+
+                        </ui:VisualElement>
+                    </ui:ScrollView>
+
                 </ui:VisualElement>
 
                 <!-- simülasyon -->
                 <ui:VisualElement name="StartSimulationPage" class="page">
                     <ui:Label text="Simülasyonu Başlat" class="main-title" />
-                    <ui:Label text="Başlat butonuna basınca simülasyon sahnesi açılacak." class="main-subtitle" />
+                    <ui:Label text="Başlat butonuna basınca simülasyon sahnesi açılacak."
+                        class="main-subtitle" />
                 </ui:VisualElement>
 
             </ui:VisualElement>

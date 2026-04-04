@@ -9,6 +9,8 @@ public class AppRouter : MonoBehaviour
     public string apiBaseUrl = "http://localhost:5156";
     public string ApiBaseUrl => apiBaseUrl;
 
+
+
     [Header("Resources UXML Names (no extension)")]
     public string loginUxml = "Login";
     public string registerUxml = "Register";
@@ -27,6 +29,45 @@ public class AppRouter : MonoBehaviour
 
     [Tooltip("Login/Register penceresi için tercih edilen aspect ratio (16:9 veya 16:10)")]
     public AspectRatio preferredAspectRatio = AspectRatio.SixteenByNine;
+
+    [Header("Session (Auth)")]
+    [SerializeField] private int currentUserId;
+    [SerializeField] private string accessToken;
+    [SerializeField] private int currentRoleId;
+    [SerializeField] private string currentRoleName;
+    [SerializeField] private string currentName;
+    [SerializeField] private string currentSurname;
+
+    public int CurrentUserId => currentUserId;
+    public string AccessToken => accessToken;
+    public int CurrentRoleId => currentRoleId;
+    public string CurrentRoleName => currentRoleName;
+    public string CurrentName => currentName;
+    public string CurrentSurname => currentSurname;
+
+    public void SetSession(int userId, string token, string name, string surname, int roleId, string roleName)
+    {
+        currentUserId = userId;
+        accessToken = token;
+
+        currentName = name;
+        currentSurname = surname;
+
+        currentRoleId = roleId;
+        currentRoleName = roleName;
+    }
+
+    public void ClearSession()
+    {
+        currentUserId = 0;
+        accessToken = "";
+
+        currentName = "";
+        currentSurname = "";
+
+        currentRoleId = 0;
+        currentRoleName = "";
+    }
 
     public enum AspectRatio
     {
@@ -66,8 +107,26 @@ public class AppRouter : MonoBehaviour
         var admin = GetComponent<AdminDashboardController>();
         if (admin != null) admin.enabled = false;
 
+        var teacher = GetComponent<TeacherDashboardController>();
+        if (teacher != null) teacher.enabled = false;
+
+        var general = GetComponent<GeneralDashboardController>();
+        if (general != null) general.enabled = false;
+
         var sidebar = GetComponent<DashboardSidebarController>();
         if (sidebar != null) sidebar.enabled = false;
+
+        var header = GetComponent<DashboardsHeaderController>();
+        if (header != null) header.enabled = false;
+
+        var student = GetComponent<StudentDashboardController>();
+        if (student != null) student.enabled = false;
+
+        var independentUser = GetComponent<IndependentUserDashboardController>();
+        if (independentUser != null) independentUser.enabled = false;
+
+        var contentCreator = GetComponent<ContentCreatorDashboardController>();
+        if (contentCreator != null) contentCreator.enabled = false;
     }
 
     // giriş yap
@@ -134,12 +193,22 @@ public class AppRouter : MonoBehaviour
         LoadDashboard(adminDashboardUxml);
     }
 
-    public void ShowDashboardByRole(string role)
+    public void ShowDashboardByRole(string role, int roleId = 0)
     {
         string r = (role ?? "").Trim().ToLowerInvariant();
-        Debug.Log("ROLE => " + role);
+        Debug.Log($"ROLE => {role}, roleId => {roleId}");
 
-        if (r.Contains("admin") || r.Contains("yönetici") || r.Contains("yonetici"))
+        if (roleId == 5)
+            LoadDashboard(adminDashboardUxml);
+        else if (roleId == 4)
+            LoadDashboard(contentCreatorDashboardUxml);
+        else if (roleId == 3)
+            LoadDashboard(independentDashboardUxml);
+        else if (roleId == 2)
+            LoadDashboard(teacherDashboardUxml);
+        else if (roleId == 1)
+            LoadDashboard(studentDashboardUxml);
+        else if (r.Contains("admin") || r.Contains("yönetici") || r.Contains("yonetici"))
             LoadDashboard(adminDashboardUxml);
         else if (r.Contains("contentcreator") || r.Contains("content creator") || r.Contains("içerik") || r.Contains("icerik"))
             LoadDashboard(contentCreatorDashboardUxml);
@@ -147,6 +216,8 @@ public class AppRouter : MonoBehaviour
             LoadDashboard(teacherDashboardUxml);
         else if (r.Contains("student") || r.Contains("öğrenci") || r.Contains("ogrenci"))
             LoadDashboard(studentDashboardUxml);
+        else if (r.Contains("independent") || r.Contains("bağımsız") || r.Contains("bagimsiz"))
+            LoadDashboard(independentDashboardUxml);
         else
             LoadDashboard(independentDashboardUxml);
     }
@@ -155,7 +226,7 @@ public class AppRouter : MonoBehaviour
     {
         ResetView();
 
-        SetWindowMode(true, 0, 0, resizable: false);
+        SetWindowMode(true, Screen.currentResolution.width, Screen.currentResolution.height, resizable: false);
 
         var uxml = Resources.Load<VisualTreeAsset>(dashboardUxmlName);
         if (uxml == null)
@@ -173,10 +244,53 @@ public class AppRouter : MonoBehaviour
         sidebarCtrl.enabled = true;
         sidebarCtrl.Bind(this, dashboardInstance);
 
-        var admin = GetComponent<AdminDashboardController>();
-        if (admin == null) admin = gameObject.AddComponent<AdminDashboardController>();
-        admin.enabled = true;
-        admin.Bind(this, dashboardInstance);
+        var header = GetComponent<DashboardsHeaderController>();
+        if (header == null) header = gameObject.AddComponent<DashboardsHeaderController>();
+        header.enabled = true;
+        header.Bind(this, dashboardInstance);
+
+        if (dashboardUxmlName == adminDashboardUxml)
+        {
+            var admin = GetComponent<AdminDashboardController>();
+            if (admin == null) admin = gameObject.AddComponent<AdminDashboardController>();
+            admin.enabled = true;
+            admin.Bind(this, dashboardInstance);
+        }
+        else if (dashboardUxmlName == teacherDashboardUxml)
+        {
+            var teacher = GetComponent<TeacherDashboardController>();
+            if (teacher == null) teacher = gameObject.AddComponent<TeacherDashboardController>();
+            teacher.enabled = true;
+            teacher.Bind(this, dashboardInstance);
+        }
+        else if (dashboardUxmlName == studentDashboardUxml)
+        {
+            var student = GetComponent<StudentDashboardController>();
+            if (student == null) student = gameObject.AddComponent<StudentDashboardController>();
+            student.enabled = true;
+            student.Bind(this, dashboardInstance);
+        }
+        else if (dashboardUxmlName == independentDashboardUxml)
+        {
+            var independent = GetComponent<IndependentUserDashboardController>();
+            if (independent == null) independent = gameObject.AddComponent<IndependentUserDashboardController>();
+            independent.enabled = true;
+            independent.Bind(this, dashboardInstance);
+        }
+        else if (dashboardUxmlName == contentCreatorDashboardUxml)
+        {
+            var contentCreator = GetComponent<ContentCreatorDashboardController>();
+            if (contentCreator == null) contentCreator = gameObject.AddComponent<ContentCreatorDashboardController>();
+            contentCreator.enabled = true;
+            contentCreator.Bind(this, dashboardInstance);
+        }
+        else
+        {
+            var general = GetComponent<GeneralDashboardController>();
+            if (general == null) general = gameObject.AddComponent<GeneralDashboardController>();
+            general.enabled = true;
+            general.Bind(this, dashboardInstance);
+        }
 
         Debug.Log($"Loaded dashboard: {dashboardUxmlName}");
     }
@@ -209,12 +323,13 @@ public class AppRouter : MonoBehaviour
     {
         if (fullscreen)
         {
-            Screen.fullScreenMode = FullScreenMode.FullScreenWindow;
-            Screen.fullScreen = true;
+            int w = Display.main.systemWidth;
+            int h = Display.main.systemHeight;
+
+            Screen.SetResolution(w, h, FullScreenMode.FullScreenWindow);
         }
         else
         {
-            Screen.fullScreen = false;
             Screen.SetResolution(width, height, FullScreenMode.Windowed);
         }
     }

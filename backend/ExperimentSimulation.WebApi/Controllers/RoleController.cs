@@ -2,11 +2,13 @@
 using ExperimentSimulation.EntityLayer.Concrete;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ExperimentSimulation.WebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
+    [Route("api/[controller]")]
     public class RoleController : ControllerBase
     {
         private readonly IRoleService _roleService;
