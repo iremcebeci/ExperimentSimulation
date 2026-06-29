@@ -30,6 +30,18 @@ public class AppRouter : MonoBehaviour
     [Tooltip("Login/Register penceresi için tercih edilen aspect ratio (16:9 veya 16:10)")]
     public AspectRatio preferredAspectRatio = AspectRatio.SixteenByNine;
 
+    private const string SessionUserIdKey = "Session_UserId";
+    private const string SessionTokenKey = "Session_AccessToken";
+    private const string SessionRoleIdKey = "Session_RoleId";
+    private const string SessionRoleNameKey = "Session_RoleName";
+    private const string SessionNameKey = "Session_Name";
+    private const string SessionSurnameKey = "Session_Surname";
+
+    [Header("Login Flow")]
+    [SerializeField] private bool forceLoginOnlyOnAppLaunch = true;
+
+    private static bool firstLaunchLoginHandled = false;
+
     [Header("Session (Auth)")]
     [SerializeField] private int currentUserId;
     [SerializeField] private string accessToken;
@@ -55,6 +67,16 @@ public class AppRouter : MonoBehaviour
 
         currentRoleId = roleId;
         currentRoleName = roleName;
+
+        PlayerPrefs.SetInt(SessionUserIdKey, currentUserId);
+        PlayerPrefs.SetString(SessionTokenKey, accessToken ?? "");
+        PlayerPrefs.SetInt(SessionRoleIdKey, currentRoleId);
+        PlayerPrefs.SetString(SessionRoleNameKey, currentRoleName ?? "");
+        PlayerPrefs.SetString(SessionNameKey, currentName ?? "");
+        PlayerPrefs.SetString(SessionSurnameKey, currentSurname ?? "");
+        PlayerPrefs.Save();
+
+        Debug.Log($"SESSION SAVED => UserId: {currentUserId}, RoleId: {currentRoleId}, Role: {currentRoleName}");
     }
 
     public void ClearSession()
@@ -67,6 +89,16 @@ public class AppRouter : MonoBehaviour
 
         currentRoleId = 0;
         currentRoleName = "";
+
+        PlayerPrefs.DeleteKey(SessionUserIdKey);
+        PlayerPrefs.DeleteKey(SessionTokenKey);
+        PlayerPrefs.DeleteKey(SessionRoleIdKey);
+        PlayerPrefs.DeleteKey(SessionRoleNameKey);
+        PlayerPrefs.DeleteKey(SessionNameKey);
+        PlayerPrefs.DeleteKey(SessionSurnameKey);
+        PlayerPrefs.Save();
+
+        Debug.Log("SESSION CLEARED");
     }
 
     public enum AspectRatio
@@ -86,7 +118,24 @@ public class AppRouter : MonoBehaviour
 
     private void Start()
     {
-        ShowLogin();
+        if (forceLoginOnlyOnAppLaunch && !firstLaunchLoginHandled)
+        {
+            firstLaunchLoginHandled = true;
+
+            ClearSession();
+            ShowLogin();
+            return;
+        }
+
+        if (TryRestoreSession())
+        {
+            Debug.Log($"SESSION RESTORED => UserId: {currentUserId}, RoleId: {currentRoleId}, Role: {currentRoleName}");
+            ShowDashboardByRole(currentRoleName, currentRoleId);
+        }
+        else
+        {
+            ShowLogin();
+        }
     }
 
     private void ResetView()
@@ -190,7 +239,7 @@ public class AppRouter : MonoBehaviour
 
     public void ShowDashboard()
     {
-        LoadDashboard(adminDashboardUxml);
+        ShowDashboardByRole(currentRoleName, currentRoleId);
     }
 
     public void ShowDashboardByRole(string role, int roleId = 0)
@@ -332,5 +381,24 @@ public class AppRouter : MonoBehaviour
         {
             Screen.SetResolution(width, height, FullScreenMode.Windowed);
         }
+    }
+
+    private bool TryRestoreSession()
+    {
+        string savedToken = PlayerPrefs.GetString(SessionTokenKey, "");
+
+        if (string.IsNullOrWhiteSpace(savedToken))
+            return false;
+
+        currentUserId = PlayerPrefs.GetInt(SessionUserIdKey, 0);
+        accessToken = savedToken;
+
+        currentRoleId = PlayerPrefs.GetInt(SessionRoleIdKey, 0);
+        currentRoleName = PlayerPrefs.GetString(SessionRoleNameKey, "");
+
+        currentName = PlayerPrefs.GetString(SessionNameKey, "");
+        currentSurname = PlayerPrefs.GetString(SessionSurnameKey, "");
+
+        return true;
     }
 }

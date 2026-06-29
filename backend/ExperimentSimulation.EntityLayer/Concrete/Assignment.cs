@@ -19,5 +19,6 @@ namespace ExperimentSimulation.EntityLayer.Concrete
         public Class Class { get; set; } = null!;
         public int ExperimentId { get; set; }
         public Experiment Experiment { get; set; } = null!;
+        public ICollection<AssignmentResult> Results { get; set; } = new List<AssignmentResult>();
     }
 }

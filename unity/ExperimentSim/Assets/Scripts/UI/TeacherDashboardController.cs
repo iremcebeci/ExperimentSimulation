@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 public class TeacherDashboardController : MonoBehaviour
@@ -34,11 +36,17 @@ public class TeacherDashboardController : MonoBehaviour
     [SerializeField] private string classActivityLikePathTemplate = "/api/Class/{classId}/activity/{activityId}/like";
     [SerializeField] private string classActivityUnlikePathTemplate = "/api/Class/{classId}/activity/{activityId}/unlike";
     [SerializeField] private string classActivityCommentPathTemplate = "/api/Class/{classId}/activity/{activityId}/comments";
+    [SerializeField] private string userPath = "/api/User";
     [SerializeField] private string personalActivityPath = "/api/Class/activity/personal";
     [SerializeField] private string myProfilePath = "/api/User/me";
+    [SerializeField] private string teacherRoleRequestPath = "/api/User/teacher-role-request/me";
     [SerializeField] private string sessionHeartbeatPath = "/api/User/session/heartbeat";
     [SerializeField] private string sessionEndPath = "/api/User/session/end";
     [SerializeField] private string sessionWeeklyHoursPath = "/api/User/session/weekly-hours";
+    [SerializeField] private string calendarCategoriesPath = "/api/Calendar/categories";
+    [SerializeField] private string calendarEventsPath = "/api/Calendar/events";
+    [SerializeField] private string assignmentCompletedStudentsPathTemplate = "/api/AssignmentResult/assignment/{assignmentId}/completed-students";
+    [SerializeField] private string assignmentResultAnswersPathTemplate = "/api/AssignmentResult/{resultId}/answers";
 
     private DropdownField assignmentUnitDropdown;
     private DropdownField assignmentExperimentDropdown;
@@ -154,6 +162,7 @@ public class TeacherDashboardController : MonoBehaviour
 
     private DropdownField gradeLevelDropdown;
     private JoinRequestDto[] currentRequestItems;
+    private TeacherJoinRequestNotificationItem[] notificationJoinRequestItems = Array.Empty<TeacherJoinRequestNotificationItem>();
     private ClassStudentDto[] currentStudentItems;
     private ClassActivityDto[] currentActivityItems;
 
@@ -215,65 +224,6 @@ public class TeacherDashboardController : MonoBehaviour
     private readonly Dictionary<string, string> classNameToLesson = new();
     private readonly Dictionary<string, string> classNameToGrade = new();
     // ------------------------------------------------
-    // ---------------- CALENDAR ----------------
-    private VisualElement calendarPage;
-
-    private Button calAddEventBtn;
-    private Button calTodayBtnTop;
-    private Button calExportBtn;
-    private Button calRefreshBtn;
-
-    private Button calPrevBtn;
-    private Button calNextBtn;
-    private Button calMiniPrevBtn;
-    private Button calMiniNextBtn;
-
-    private Button calMonthViewBtn;
-    private Button calWeekViewBtn;
-    private Button calDayViewBtn;
-    private Button calAgendaViewBtn;
-
-    private TextField calSearchInput;
-    private DropdownField calFilterDropdown;
-
-    private Label calCurrentMonthLabel;
-    private Label calMiniMonthLabel;
-
-    private VisualElement calMiniGrid;
-    private VisualElement calUpcomingList;
-    private VisualElement calMonthGrid;
-
-    private VisualElement calMonthView;
-    private VisualElement calWeekView;
-    private VisualElement calDayView;
-    private VisualElement calAgendaView;
-
-    private VisualElement calWeekHeader;
-    private VisualElement calWeekBody;
-    private VisualElement calDayHeader;
-    private VisualElement calDayBody;
-
-    private ScrollView calAgendaList;
-    private VisualElement calAgendaItems;
-
-    private VisualElement calEventModal;
-    private Button calCloseModalBtn;
-    private Button calCancelEventBtn;
-    private Button calSaveEventBtn;
-    private Button calDeleteEventBtn;
-
-    private Label calModalTitleLabel;
-    private TextField calEventTitleInput;
-    private DropdownField calEventTypeDropdown;
-    private TextField calEventDateInput;
-    private TextField calEventTimeInput;
-    private TextField calEventDescriptionInput;
-
-    private DateTime calendarCurrentDate = DateTime.Today;
-    private string currentCalendarView = "month";
-
-    private readonly List<CalendarEventData> sampleCalendarEvents = new();
-    // ------------------------------------------
 
     // ---------------- PERSONAL ACTIVITY ----------------
     private VisualElement personalActivityPage;
@@ -303,9 +253,143 @@ public class TeacherDashboardController : MonoBehaviour
     private Button teacherNewAssignmentBtn;
     private Button teacherGoClassesBtn;
     private Button teacherLogoutBtn;
+    private VisualElement settingsModal;
+    private Button settingsModalCloseBtn;
+    private Button settingsCancelBtn;
+    private Button settingsSaveProfileBtn;
+    private TextField settingsNameInput;
+    private TextField settingsSurnameInput;
+    private TextField settingsEmailInput;
+    private TextField settingsPhoneInput;
+    private Label settingsStatusLabel;
+    private SettingsUserUpdatePayloadDto settingsUserSnapshot;
+    private ProfileMeDto profileMe;
+    private DashboardNotificationCenter notificationCenter;
+    private readonly List<RoleChangeNotificationDto> roleChangeNotificationItems = new();
     private Coroutine sessionHeartbeatRoutine;
     // ------------------------------------------
 
+    // ---------------- CALENDAR ----------------
+    private VisualElement calendarPage;
+
+    private Button calendarBtn;
+    private Button calAddEventBtn;
+    private Button calRefreshBtn;
+    private Button calPrevBtn;
+    private Button calNextBtn;
+    private Button calTodayBtn;
+
+    private Button calViewDayBtn;
+    private Button calViewWeekBtn;
+    private Button calViewMonthBtn;
+    private Button calViewAgendaBtn;
+
+    private Button calMiniPrevBtn;
+    private Button calMiniNextBtn;
+    private Button calAddCategoryBtn;
+    private Button calQuickCreateBtn;
+    private Button calQuickCategoryBtn;
+
+    private Label calToolbarMonthLabel;
+    private Label calMiniMonthLabel;
+    private Label calDayHeaderLabel;
+    private Label calCategoryEmptyLabel;
+
+    private TextField calSearchInput;
+    private DropdownField calFilterDropdown;
+
+    private VisualElement calMiniGrid;
+    private VisualElement calCategoryList;
+    private VisualElement calMonthGrid;
+    private VisualElement calWeekHeader;
+    private VisualElement calWeekBody;
+    private VisualElement calDayTimeCol;
+    private VisualElement calDayEventsCol;
+    private VisualElement calAgendaContent;
+
+    private ScrollView calWeekView;
+    private ScrollView calDayView;
+    private ScrollView calAgendaView;
+    private VisualElement calMonthView;
+
+    // add event modal
+    private VisualElement calAddModal;
+    private Button calAddModalCloseBtn;
+    private Button calAddCancelBtn;
+    private Button calSaveEventBtn;
+    private TextField calAddTitleInput;
+    private DropdownField calAddTypeDropdown;
+    private TextField calAddDateInput;
+    private TextField calAddStartInput;
+    private TextField calAddEndInput;
+    private DropdownField calAddClassDropdown;
+    private TextField calAddDescInput;
+
+    // category modal
+    private VisualElement calCategoryModal;
+    private Button calCategoryModalCloseBtn;
+    private Button calCategoryCancelBtn;
+    private Button calSaveCategoryBtn;
+    private TextField calCategoryNameInput;
+    private TextField calCategoryColorInput;
+    private Button calTextColorWhiteBtn;
+    private Button calTextColorBlackBtn;
+
+    // detail modal
+    private VisualElement calDetailModal;
+    private Button calDetailCloseBtn;
+    private Button calDetailFooterCloseBtn;
+    private Button calDetailEditBtn;
+    private Button calDetailDeleteBtn;
+    private Label calDetailTitleLabel;
+    private Label calDetailTypeLabel;
+    private Label calDetailDateLabel;
+    private Label calDetailTimeLabel;
+    private Label calDetailLocationLabel;
+    private Label calDetailDescLabel;
+
+    private readonly List<CalendarEventItem> calendarEvents = new();
+    private readonly List<CalendarCategoryItem> calendarCategories = new();
+
+    private int calCurrentYear;
+    private int calCurrentMonth;
+    private DateTime? calSelectedDate;
+    private DateTime? calWeekStartDate;
+    private DateTime? calDayViewDate;
+    private string calCurrentView = "month";
+    private string calActiveFilter = "all";
+    private string calSearchQuery = "";
+    private CalendarEventItem calCurrentDetailEvent;
+    private int? calEditingEventId;
+    private readonly List<Button> calCategoryPresetColorButtons = new();
+    private string calSelectedPresetColor = "";
+    private string calSelectedTextColor = "#ffffff";
+
+    private static readonly string[] CalendarDefaultCategoryColors =
+    {
+        "#2e86c1",
+        "#16a085",
+        "#27ae60",
+        "#f39c12",
+        "#e74c3c",
+        "#8e44ad",
+        "#34495e"
+    };
+
+    // ---------------- ASSIGNMENT RESULTS PAGE ----------------
+    private VisualElement assignmentResultsPage;
+    private Button assignmentResultsBackBtn;
+    private Label assignmentResultsTitleLabel;
+    private Label assignmentResultsSummaryLabel;
+    private Label assignmentResultsSelectedStudentLabel;
+    private VisualElement assignmentResultsStudentsContainer;
+    private VisualElement assignmentResultsAnswersContainer;
+
+    private AssignmentDto currentResultsAssignment;
+    // ------------------------------------------
+    // ------------- GO SIMULATION --------------
+    private Button goSimulationBtn;
+    // ------------------------------------------
     public void Bind(AppRouter router, VisualElement teacherView)
     {
         this.router = router;
@@ -374,6 +458,14 @@ public class TeacherDashboardController : MonoBehaviour
             includeInactive = false;
         }
 
+        goSimulationBtn = root.Q<Button>("GoSimulationBtn");
+        if (goSimulationBtn != null)
+        {
+            goSimulationBtn.clicked -= OnGoSimulationClicked;
+            goSimulationBtn.clicked += OnGoSimulationClicked;
+        }
+
+
         BindFilters();
         BindAddClassModal();
         BindAddAssignmentPage();
@@ -381,10 +473,12 @@ public class TeacherDashboardController : MonoBehaviour
         BindFilters();
         BindAddClassModal();
         BindAddAssignmentPage();
-        BindCalendarPage();
         BindPersonalActivityPage();
         BindProfilePage();
+        BindSettingsModal();
         BindMenuButtons();
+        BindCalendarPage();
+        BindNotifications();
 
         StartCoroutine(FetchMyClasses());
         StartCoroutine(FetchMyAssignments());
@@ -445,8 +539,10 @@ public class TeacherDashboardController : MonoBehaviour
             yield return StartCoroutine(FetchMyAssignments());
 
         yield return StartCoroutine(FetchWeeklySessionHours());
+        yield return StartCoroutine(RefreshRoleChangeStateForNotifications());
 
         ApplyTeacherHomeDashboardMetrics();
+        RefreshNotificationsBadge();
     }
 
     private void ApplyTeacherHomeDashboardMetrics()
@@ -799,13 +895,6 @@ public class TeacherDashboardController : MonoBehaviour
             ShowPage("StartSimulationPage");
         });
 
-        root.Q<Button>("CalendarBtn")?.RegisterCallback<ClickEvent>(_ =>
-        {
-            CloseClassDetailsOverlays();
-            SetMenuActive("CalendarBtn");
-            ShowPage("CalendarPage");
-        });
-
         root.Q<Button>("EmailBtn")?.RegisterCallback<ClickEvent>(_ =>
         {
             CloseClassDetailsOverlays();
@@ -828,6 +917,188 @@ public class TeacherDashboardController : MonoBehaviour
             ShowPage("ProfilePage");
             StartCoroutine(LoadProfilePageData());
         });
+
+        root.Q<Button>("AccountBtn")?.RegisterCallback<ClickEvent>(_ =>
+        {
+            CloseClassDetailsOverlays();
+            SetMenuActive("ProfileBtn");
+            ShowPage("ProfilePage");
+            StartCoroutine(LoadProfilePageData());
+        });
+
+        root.Q<Button>("SettingsBtn")?.RegisterCallback<ClickEvent>(_ =>
+        {
+            OpenSettingsModal();
+        });
+
+        root.Q<Button>("CalendarBtn")?.RegisterCallback<ClickEvent>(_ =>
+        {
+            CloseClassDetailsOverlays();
+            SetMenuActive("CalendarBtn");
+            ShowPage("CalendarPage");
+            RenderCalendarAll();
+        });
+    }
+
+    private void BindNotifications()
+    {
+        notificationCenter = new DashboardNotificationCenter(
+            root,
+            BuildNotificationItems,
+            HandleNotificationSelected,
+            () => $"teacher-{router?.CurrentUserId ?? 0}");
+        notificationCenter.Bind("NotificationsBtn");
+        notificationCenter.RefreshBadge();
+    }
+
+    private void RefreshNotificationsBadge()
+    {
+        notificationCenter?.RefreshBadge();
+    }
+
+    private List<DashboardNotificationCenter.NotificationItem> BuildNotificationItems()
+    {
+        var list = new List<DashboardNotificationCenter.NotificationItem>();
+        var now = DateTime.Now;
+
+        foreach (var assignment in assignmentItems ?? Array.Empty<AssignmentDto>())
+        {
+            if (assignment == null)
+                continue;
+
+            var dueAt = GetTeacherAssignmentDueAt(assignment);
+            if (!dueAt.HasValue)
+                continue;
+
+            string status = GetTeacherAssignmentStatus(assignment);
+            bool isUpcoming = dueAt.Value >= now && dueAt.Value <= now.AddDays(3);
+
+            if (isUpcoming && !string.Equals(status, "Tamamlandı", StringComparison.OrdinalIgnoreCase))
+            {
+                list.Add(new DashboardNotificationCenter.NotificationItem
+                {
+                    Id = $"teacher-upcoming-assignment-{assignment.Id}",
+                    Title = "Yaklaşan Teslim",
+                    Message = $"{SafeText(assignment.Title)} için son tarih: {dueAt.Value.ToString("dd MMM yyyy HH:mm", trCulture)}",
+                    Timestamp = dueAt.Value,
+                    TargetPage = "ClassesPage",
+                    TargetMenuButton = "ClassBtn",
+                    IsUnread = true
+                });
+            }
+        }
+
+        foreach (var req in notificationJoinRequestItems ?? Array.Empty<TeacherJoinRequestNotificationItem>())
+        {
+            if (req == null)
+                continue;
+
+            bool isPending = string.IsNullOrWhiteSpace(req.Status)
+                || string.Equals(req.Status, "Pending", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(req.Status, "Beklemede", StringComparison.OrdinalIgnoreCase);
+
+            if (!isPending)
+                continue;
+
+            var requestedAt = TryParseDashboardDate(req.RequestedAt, out var parsed) ? parsed : now;
+            list.Add(new DashboardNotificationCenter.NotificationItem
+            {
+                Id = $"teacher-join-request-{req.ClassId}-{req.UserId}",
+                Title = "Sınıfa Katılma İsteği",
+                Message = $"{SafeText(req.Name)} {SafeText(req.Surname)} {SafeText(req.ClassName)} sınıfına katılmak istiyor.",
+                Timestamp = requestedAt,
+                TargetPage = "ClassesPage",
+                TargetMenuButton = "ClassBtn",
+                IsUnread = requestedAt >= now.AddDays(-7)
+            });
+        }
+
+        foreach (var activity in personalActivityItems ?? Array.Empty<ClassActivityDto>())
+        {
+            if (activity == null)
+                continue;
+
+            bool isSubmission = string.Equals(activity.Type, "AssignmentSubmitted", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(activity.Type, "HomeworkSubmitted", StringComparison.OrdinalIgnoreCase)
+                || (activity.Type ?? string.Empty).IndexOf("Submitted", StringComparison.OrdinalIgnoreCase) >= 0;
+
+            if (!isSubmission)
+                continue;
+
+            var occurredAt = ParseActivityDate(activity.OccurredAt);
+            if (occurredAt == DateTime.MinValue)
+                occurredAt = now;
+
+            list.Add(new DashboardNotificationCenter.NotificationItem
+            {
+                Id = $"teacher-submitted-{activity.ActivityId}",
+                Title = "Ödev Teslimi",
+                Message = string.IsNullOrWhiteSpace(activity.Description)
+                    ? $"{SafeText(activity.ActorName)} bir ödev teslim etti."
+                    : activity.Description,
+                Timestamp = occurredAt,
+                TargetPage = "ActivityPage",
+                TargetMenuButton = "ActivityBtn",
+                IsUnread = occurredAt >= now.AddDays(-7)
+            });
+        }
+
+        foreach (var roleChange in roleChangeNotificationItems)
+        {
+            if (roleChange == null)
+                continue;
+
+            list.Add(new DashboardNotificationCenter.NotificationItem
+            {
+                Id = roleChange.Id,
+                Title = "Rol Güncellemesi",
+                Message = roleChange.Message,
+                Timestamp = roleChange.Timestamp,
+                TargetPage = "ProfilePage",
+                TargetMenuButton = "ProfileBtn",
+                IsUnread = roleChange.Timestamp >= now.AddDays(-7)
+            });
+        }
+
+        if (TryLoadPersistedRoleChangeNotification(out var persistedRoleChange)
+            && !list.Any(x => string.Equals(x.Id, persistedRoleChange.Id, StringComparison.Ordinal)))
+        {
+            list.Add(new DashboardNotificationCenter.NotificationItem
+            {
+                Id = persistedRoleChange.Id,
+                Title = "Rol Güncellemesi",
+                Message = persistedRoleChange.Message,
+                Timestamp = persistedRoleChange.Timestamp,
+                TargetPage = "ProfilePage",
+                TargetMenuButton = "ProfileBtn",
+                IsUnread = persistedRoleChange.Timestamp >= now.AddDays(-7)
+            });
+        }
+
+        return list
+            .Where(x => x.Timestamp != DateTime.MinValue)
+            .OrderByDescending(x => x.Timestamp)
+            .Take(250)
+            .ToList();
+    }
+
+    private void HandleNotificationSelected(DashboardNotificationCenter.NotificationItem item)
+    {
+        if (item == null)
+            return;
+
+        CloseClassDetailsOverlays();
+
+        if (!string.IsNullOrWhiteSpace(item.TargetMenuButton))
+            SetMenuActive(item.TargetMenuButton);
+
+        if (!string.IsNullOrWhiteSpace(item.TargetPage))
+            ShowPage(item.TargetPage);
+
+        if (string.Equals(item.TargetPage, "ActivityPage", StringComparison.OrdinalIgnoreCase))
+            StartCoroutine(FetchPersonalActivity());
+        else if (string.Equals(item.TargetPage, "ClassesPage", StringComparison.OrdinalIgnoreCase))
+            StartCoroutine(FetchMyClasses());
     }
 
     private void BindProfilePage()
@@ -894,6 +1165,205 @@ public class TeacherDashboardController : MonoBehaviour
         StartCoroutine(EndSessionAndLogout());
     }
 
+    private void BindSettingsModal()
+    {
+        settingsModal = root.Q<VisualElement>("SettingsModal");
+        if (settingsModal == null)
+            return;
+
+        settingsModalCloseBtn = root.Q<Button>("SettingsModalCloseBtn");
+        settingsCancelBtn = root.Q<Button>("SettingsCancelBtn");
+        settingsSaveProfileBtn = root.Q<Button>("SettingsSaveProfileBtn");
+        settingsNameInput = root.Q<TextField>("SettingsNameInput");
+        settingsSurnameInput = root.Q<TextField>("SettingsSurnameInput");
+        settingsEmailInput = root.Q<TextField>("SettingsEmailInput");
+        settingsPhoneInput = root.Q<TextField>("SettingsPhoneInput");
+        settingsStatusLabel = root.Q<Label>("SettingsStatusLabel");
+
+        ShowSettingsStatus(string.Empty);
+
+        if (settingsModalCloseBtn != null)
+            settingsModalCloseBtn.clicked += CloseSettingsModal;
+        if (settingsCancelBtn != null)
+            settingsCancelBtn.clicked += CloseSettingsModal;
+        if (settingsSaveProfileBtn != null)
+            settingsSaveProfileBtn.clicked += () => StartCoroutine(SaveSettingsProfile());
+
+        settingsModal.RegisterCallback<ClickEvent>(evt =>
+        {
+            if (evt.target == settingsModal)
+                CloseSettingsModal();
+        });
+    }
+
+    private void OpenSettingsModal()
+    {
+        if (settingsModal == null)
+            return;
+
+        StartCoroutine(OpenSettingsModalRoutine());
+    }
+
+    private IEnumerator OpenSettingsModalRoutine()
+    {
+        ShowSettingsStatus(string.Empty);
+
+        if (profileMe == null)
+            yield return StartCoroutine(LoadProfilePageData());
+
+        yield return StartCoroutine(LoadSettingsUserSnapshot());
+        FillSettingsFieldsFromProfile();
+
+        settingsModal.RemoveFromClassList("hidden");
+        settingsModal.AddToClassList("open");
+    }
+
+    private void CloseSettingsModal()
+    {
+        if (settingsModal == null)
+            return;
+
+        settingsModal.RemoveFromClassList("open");
+        settingsModal.AddToClassList("hidden");
+    }
+
+    private void FillSettingsFieldsFromProfile()
+    {
+        string name = profileMe != null ? profileMe.name : router?.CurrentName;
+        string surname = profileMe != null ? profileMe.surname : router?.CurrentSurname;
+        string email = profileMe != null ? profileMe.email : string.Empty;
+        string phone = settingsUserSnapshot != null ? settingsUserSnapshot.Phone : string.Empty;
+
+        if (settingsNameInput != null)
+            settingsNameInput.value = name ?? string.Empty;
+        if (settingsSurnameInput != null)
+            settingsSurnameInput.value = surname ?? string.Empty;
+        if (settingsEmailInput != null)
+            settingsEmailInput.value = email ?? string.Empty;
+        if (settingsPhoneInput != null)
+            settingsPhoneInput.value = phone ?? string.Empty;
+    }
+
+    private IEnumerator LoadSettingsUserSnapshot()
+    {
+        if (router == null)
+            yield break;
+
+        string detailUrl = router.ApiBaseUrl + userPath + "/" + router.CurrentUserId;
+        using var detailReq = AuthedGet(detailUrl);
+        yield return detailReq.SendWebRequest();
+
+        if (detailReq.result != UnityWebRequest.Result.Success)
+        {
+            settingsUserSnapshot = null;
+            yield break;
+        }
+
+        string detailRaw = detailReq.downloadHandler != null ? detailReq.downloadHandler.text : "{}";
+        settingsUserSnapshot = JsonUtility.FromJson<SettingsUserUpdatePayloadDto>(detailRaw);
+    }
+
+    private IEnumerator SaveSettingsProfile()
+    {
+        if (router == null)
+            yield break;
+
+        string name = (settingsNameInput?.value ?? string.Empty).Trim();
+        string surname = (settingsSurnameInput?.value ?? string.Empty).Trim();
+        string email = (settingsEmailInput?.value ?? string.Empty).Trim();
+        string phone = (settingsPhoneInput?.value ?? string.Empty).Trim();
+
+        if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(surname) || string.IsNullOrWhiteSpace(email))
+        {
+            ShowSettingsStatus("Ad, soyad ve e-posta zorunludur.", isError: true);
+            yield break;
+        }
+
+        settingsSaveProfileBtn?.SetEnabled(false);
+        ShowSettingsStatus("Profil kaydediliyor...");
+
+        if (settingsUserSnapshot == null || settingsUserSnapshot.Id <= 0)
+            yield return StartCoroutine(LoadSettingsUserSnapshot());
+
+        if (settingsUserSnapshot == null || settingsUserSnapshot.Id <= 0)
+        {
+            ShowSettingsStatus("Kullanıcı bilgileri alınamadı.", isError: true);
+            settingsSaveProfileBtn?.SetEnabled(true);
+            yield break;
+        }
+
+        var payload = settingsUserSnapshot;
+        payload.Name = name;
+        payload.Surname = surname;
+        payload.Email = email;
+        payload.Phone = string.IsNullOrWhiteSpace(phone) ? null : phone;
+
+        string updateUrl = router.ApiBaseUrl + userPath;
+        string body = JsonUtility.ToJson(payload);
+        using var updateReq = new UnityWebRequest(updateUrl, "PUT");
+        updateReq.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(body));
+        updateReq.downloadHandler = new DownloadHandlerBuffer();
+        updateReq.SetRequestHeader("Content-Type", "application/json");
+        if (!string.IsNullOrEmpty(router.AccessToken))
+            updateReq.SetRequestHeader("Authorization", "Bearer " + router.AccessToken);
+
+        yield return updateReq.SendWebRequest();
+
+        if (updateReq.result != UnityWebRequest.Result.Success)
+        {
+            ShowSettingsStatus(ReadApiMessage(updateReq.downloadHandler?.text, "Profil güncellenemedi."), isError: true);
+            settingsSaveProfileBtn?.SetEnabled(true);
+            yield break;
+        }
+
+        router.SetSession(router.CurrentUserId, router.AccessToken, name, surname, router.CurrentRoleId, router.CurrentRoleName);
+        yield return StartCoroutine(LoadProfilePageData());
+        yield return StartCoroutine(LoadSettingsUserSnapshot());
+        FillSettingsFieldsFromProfile();
+        ShowSettingsStatus("Profil bilgileri güncellendi.", isSuccess: true);
+        settingsSaveProfileBtn?.SetEnabled(true);
+    }
+
+    private string ReadApiMessage(string raw, string fallback)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+            return fallback;
+
+        try
+        {
+            var dto = JsonUtility.FromJson<SettingsApiMessageDto>(raw);
+            if (dto != null && !string.IsNullOrWhiteSpace(dto.message))
+                return dto.message;
+        }
+        catch { }
+
+        return fallback;
+    }
+
+    private void ShowSettingsStatus(string message, bool isError = false, bool isSuccess = false)
+    {
+        if (settingsStatusLabel == null)
+            return;
+
+        settingsStatusLabel.RemoveFromClassList("error");
+        settingsStatusLabel.RemoveFromClassList("success");
+
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            settingsStatusLabel.text = string.Empty;
+            settingsStatusLabel.AddToClassList("hidden");
+            return;
+        }
+
+        settingsStatusLabel.text = message;
+        settingsStatusLabel.RemoveFromClassList("hidden");
+
+        if (isError)
+            settingsStatusLabel.AddToClassList("error");
+        else if (isSuccess)
+            settingsStatusLabel.AddToClassList("success");
+    }
+
     private IEnumerator LoadProfilePageData()
     {
         if (router == null)
@@ -916,6 +1386,8 @@ public class TeacherDashboardController : MonoBehaviour
             {
                 string raw = req.downloadHandler != null ? req.downloadHandler.text : "{}";
                 me = JsonUtility.FromJson<ProfileMeDto>(raw);
+                profileMe = me;
+                TrackRoleChangeNotification(me);
             }
             else
             {
@@ -925,6 +1397,213 @@ public class TeacherDashboardController : MonoBehaviour
 
         ApplyProfileIdentity(me);
         BuildProfileStatsCards(me);
+    }
+
+    private void TrackRoleChangeNotification(ProfileMeDto me)
+    {
+        if (router == null || me == null)
+            return;
+
+        string newRole = string.IsNullOrWhiteSpace(me.roleName) ? "Bilinmeyen Rol" : me.roleName.Trim();
+        string snapshotKey = GetRoleSnapshotKey();
+        string previousRole = PlayerPrefs.GetString(snapshotKey, string.Empty);
+
+        if (string.IsNullOrWhiteSpace(previousRole))
+        {
+            previousRole = LoadLegacySnapshotRole();
+            if (!string.IsNullOrWhiteSpace(previousRole))
+                PlayerPrefs.SetString(snapshotKey, previousRole);
+        }
+
+        if (string.IsNullOrWhiteSpace(previousRole))
+        {
+            PlayerPrefs.SetString(snapshotKey, newRole);
+            return;
+        }
+
+        if (string.Equals(previousRole, newRole, StringComparison.OrdinalIgnoreCase))
+            return;
+
+        var roleChange = new RoleChangeNotificationDto
+        {
+            Id = $"teacher-role-change-{router.CurrentUserId}-{DateTime.UtcNow.Ticks}",
+            Message = BuildRoleChangeMessage(previousRole, newRole),
+            Timestamp = DateTime.Now
+        };
+
+        roleChangeNotificationItems.Add(roleChange);
+        PersistRoleChangeNotification(roleChange);
+
+        PlayerPrefs.SetString(snapshotKey, newRole);
+    }
+
+    private string BuildRoleChangeMessage(string previousRole, string newRole)
+    {
+        string normalized = (newRole ?? string.Empty).ToLowerInvariant();
+        if (normalized.Contains("teacher") || normalized.Contains("öğretmen") || normalized.Contains("ogretmen"))
+            return "Öğretmenlik başvurunuz onaylandı. Rolünüz öğretmen olarak güncellendi.";
+
+        if (normalized.Contains("student") || normalized.Contains("öğrenci") || normalized.Contains("ogrenci"))
+            return "Öğrencilik başvurunuz onaylandı. Rolünüz öğrenci olarak güncellendi.";
+
+        return $"Rolünüz {previousRole} rolünden {newRole} rolüne güncellendi.";
+    }
+
+    private void PersistRoleChangeNotification(RoleChangeNotificationDto roleChange)
+    {
+        if (roleChange == null)
+            return;
+
+        PlayerPrefs.SetString(GetRoleNotificationIdKey(), roleChange.Id ?? string.Empty);
+        PlayerPrefs.SetString(GetRoleNotificationMessageKey(), roleChange.Message ?? string.Empty);
+        PlayerPrefs.SetString(GetRoleNotificationTimestampKey(), roleChange.Timestamp.ToString("O"));
+        PlayerPrefs.Save();
+    }
+
+    private bool TryLoadPersistedRoleChangeNotification(out RoleChangeNotificationDto roleChange)
+    {
+        roleChange = null;
+        if (router == null)
+            return false;
+
+        string id = PlayerPrefs.GetString(GetRoleNotificationIdKey(), string.Empty);
+        string message = PlayerPrefs.GetString(GetRoleNotificationMessageKey(), string.Empty);
+        string rawTimestamp = PlayerPrefs.GetString(GetRoleNotificationTimestampKey(), string.Empty);
+
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            id = PlayerPrefs.GetString(GetLegacyRoleNotificationIdKey(), string.Empty);
+            message = PlayerPrefs.GetString(GetLegacyRoleNotificationMessageKey(), string.Empty);
+            rawTimestamp = PlayerPrefs.GetString(GetLegacyRoleNotificationTimestampKey(), string.Empty);
+        }
+
+        if (string.IsNullOrWhiteSpace(message))
+            return false;
+
+        if (!DateTime.TryParse(rawTimestamp, null, DateTimeStyles.RoundtripKind, out var parsed))
+            parsed = DateTime.Now;
+
+        roleChange = new RoleChangeNotificationDto
+        {
+            Id = string.IsNullOrWhiteSpace(id)
+                ? $"teacher-role-change-{router.CurrentUserId}-{parsed.ToUniversalTime().Ticks}"
+                : id,
+            Message = message,
+            Timestamp = parsed
+        };
+
+        return true;
+    }
+
+    private string LoadLegacySnapshotRole()
+    {
+        int userId = router != null ? router.CurrentUserId : 0;
+        string[] keys =
+        {
+            $"independent-role-snapshot-{userId}",
+            $"student-role-snapshot-{userId}",
+            $"creator-role-snapshot-{userId}",
+            $"teacher-role-snapshot-{userId}"
+        };
+
+        foreach (var key in keys)
+        {
+            string value = PlayerPrefs.GetString(key, string.Empty);
+            if (!string.IsNullOrWhiteSpace(value))
+                return value;
+        }
+
+        return string.Empty;
+    }
+
+    private string GetRoleNotificationIdKey()
+    {
+        int userId = router != null ? router.CurrentUserId : 0;
+        return $"role-notification-id-{userId}";
+    }
+
+    private string GetRoleNotificationMessageKey()
+    {
+        int userId = router != null ? router.CurrentUserId : 0;
+        return $"role-notification-message-{userId}";
+    }
+
+    private string GetRoleNotificationTimestampKey()
+    {
+        int userId = router != null ? router.CurrentUserId : 0;
+        return $"role-notification-time-{userId}";
+    }
+
+    private string GetLegacyRoleNotificationIdKey()
+    {
+        int userId = router != null ? router.CurrentUserId : 0;
+        return $"independent-role-notification-id-{userId}";
+    }
+
+    private string GetLegacyRoleNotificationMessageKey()
+    {
+        int userId = router != null ? router.CurrentUserId : 0;
+        return $"independent-role-notification-message-{userId}";
+    }
+
+    private string GetLegacyRoleNotificationTimestampKey()
+    {
+        int userId = router != null ? router.CurrentUserId : 0;
+        return $"independent-role-notification-time-{userId}";
+    }
+
+    private string GetRoleSnapshotKey()
+    {
+        int userId = router != null ? router.CurrentUserId : 0;
+        return $"role-snapshot-{userId}";
+    }
+
+    private IEnumerator RefreshRoleChangeStateForNotifications()
+    {
+        if (router == null)
+            yield break;
+
+        string url = router.ApiBaseUrl + myProfilePath;
+        using var req = AuthedGet(url);
+        yield return req.SendWebRequest();
+
+        if (req.result != UnityWebRequest.Result.Success)
+            yield break;
+
+        string raw = req.downloadHandler != null ? req.downloadHandler.text : "{}";
+        var me = JsonUtility.FromJson<ProfileMeDto>(raw);
+        if (me == null)
+            yield break;
+
+        TrackRoleChangeNotification(me);
+
+        if (string.IsNullOrWhiteSpace(me.roleName)
+            || !me.roleName.ToLowerInvariant().Contains("teacher") && !me.roleName.ToLowerInvariant().Contains("öğretmen") && !me.roleName.ToLowerInvariant().Contains("ogretmen"))
+            yield break;
+
+        using var teacherReq = AuthedGet(router.ApiBaseUrl + teacherRoleRequestPath);
+        yield return teacherReq.SendWebRequest();
+
+        if (teacherReq.result != UnityWebRequest.Result.Success)
+            yield break;
+
+        string teacherRaw = teacherReq.downloadHandler != null ? teacherReq.downloadHandler.text : "{}";
+        var teacherState = JsonUtility.FromJson<TeacherRoleRequestStateDto>(teacherRaw);
+        if (teacherState == null || !string.Equals(teacherState.Status, "Approved", StringComparison.OrdinalIgnoreCase))
+            yield break;
+
+        if (TryLoadPersistedRoleChangeNotification(out _))
+            yield break;
+
+        var approvalNotification = new RoleChangeNotificationDto
+        {
+            Id = $"teacher-approved-{router.CurrentUserId}-{DateTime.UtcNow.Ticks}",
+            Message = "Öğretmenlik başvurunuz onaylandı. Rolünüz öğretmen olarak güncellendi.",
+            Timestamp = DateTime.Now
+        };
+
+        roleChangeNotificationItems.Add(approvalNotification);
+        PersistRoleChangeNotification(approvalNotification);
     }
 
     private void ApplyProfileIdentity(ProfileMeDto me)
@@ -1037,6 +1716,14 @@ public class TeacherDashboardController : MonoBehaviour
             {
                 using var req = AuthedPost(router.ApiBaseUrl + sessionHeartbeatPath);
                 yield return req.SendWebRequest();
+
+                yield return StartCoroutine(RefreshRoleChangeStateForNotifications());
+
+                if (lastItems != null)
+                {
+                    yield return StartCoroutine(FetchPendingJoinRequestsForNotifications());
+                    RefreshNotificationsBadge();
+                }
             }
 
             yield return new WaitForSeconds(120f);
@@ -1066,25 +1753,34 @@ public class TeacherDashboardController : MonoBehaviour
 
     private void ShowPage(string pageName)
     {
-        foreach (var child in mainContent.Children())
-            child.RemoveFromClassList("active");
+        if (mainContent == null)
+            return;
 
-        var page = mainContent.Q<VisualElement>(pageName);
-        if (page == null)
+        var pages = mainContent.Query<VisualElement>(className: "page").ToList();
+
+        foreach (var pageItem in pages)
+        {
+            pageItem.RemoveFromClassList("active");
+            pageItem.style.display = DisplayStyle.None;
+        }
+
+        var targetPage = mainContent.Q<VisualElement>(pageName);
+
+        if (targetPage == null)
         {
             Debug.LogError($"[TeacherDashboardController] Page not found: {pageName}");
             return;
         }
 
-        page.AddToClassList("active");
+        targetPage.style.display = DisplayStyle.Flex;
+        targetPage.AddToClassList("active");
 
-        if (pageName == "CalendarPage")
-            RenderCalendar();
+        Debug.Log($"[TeacherDashboardController] Opened page: {pageName}");
     }
 
     private void SetMenuActive(string activeButtonName)
     {
-        var names = new[] { "HomeBtn", "ClassBtn", "AddAssignmentBtn", "StartSimulationBtn", "CalendarBtn", "EmailBtn", "ActivityBtn", "ProfileBtn" };
+        var names = new[] { "HomeBtn", "ClassBtn", "AddAssignmentBtn", "CalendarBtn", "StartSimulationBtn", "EmailBtn", "ActivityBtn", "ProfileBtn" };
 
         foreach (var n in names)
             root.Q<Button>(n)?.RemoveFromClassList("active");
@@ -1182,6 +1878,9 @@ public class TeacherDashboardController : MonoBehaviour
         var items = wrapped != null ? wrapped.items : null;
 
         lastItems = items;
+        RefreshCalendarClassDropdown();
+
+        yield return StartCoroutine(FetchPendingJoinRequestsForNotifications());
 
         int totalCount = items != null ? items.Length : 0;
         int activeCount = 0;
@@ -1218,10 +1917,66 @@ public class TeacherDashboardController : MonoBehaviour
         RefreshClassDetailsGeneralMetrics();
 
         ApplyTeacherHomeDashboardMetrics();
+        RefreshNotificationsBadge();
 
         RefreshAssignmentLessonDropdown();
         RefreshAssignmentClassDropdown();
         ApplyFiltersAndRender();
+    }
+
+    private IEnumerator FetchPendingJoinRequestsForNotifications()
+    {
+        if (router == null)
+            yield break;
+
+        var classes = (lastItems ?? Array.Empty<MyClassDto>()).Where(c => c != null).ToArray();
+        var pendingItems = new List<TeacherJoinRequestNotificationItem>();
+
+        foreach (var cls in classes)
+        {
+            if (cls == null || cls.Id <= 0)
+                continue;
+
+            string url = BuildJoinRequestsUrl(cls.Id);
+            using var req = AuthedGet(url);
+            yield return req.SendWebRequest();
+
+            if (req.result != UnityWebRequest.Result.Success)
+                continue;
+
+            string raw = req.downloadHandler != null ? req.downloadHandler.text : "[]";
+            var wrapped = JsonUtility.FromJson<JoinRequestListWrapper>("{\"items\":" + raw + "}");
+            var items = wrapped != null && wrapped.items != null ? wrapped.items : Array.Empty<JoinRequestDto>();
+
+            foreach (var item in items)
+            {
+                if (item == null)
+                    continue;
+
+                bool isPending = string.IsNullOrWhiteSpace(item.Status)
+                    || string.Equals(item.Status, "Pending", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(item.Status, "Beklemede", StringComparison.OrdinalIgnoreCase);
+
+                if (!isPending)
+                    continue;
+
+                pendingItems.Add(new TeacherJoinRequestNotificationItem
+                {
+                    ClassId = cls.Id,
+                    ClassName = cls.Name,
+                    UserId = item.UserId,
+                    Name = item.Name,
+                    Surname = item.Surname,
+                    Email = item.Email,
+                    RequestedAt = item.RequestedAt,
+                    Status = item.Status
+                });
+            }
+        }
+
+        notificationJoinRequestItems = pendingItems
+            .OrderByDescending(x => ParseActivityDate(x.RequestedAt))
+            .ToArray();
     }
 
     private void RefreshClassStatisticsCards()
@@ -1310,6 +2065,8 @@ public class TeacherDashboardController : MonoBehaviour
         if (req.result != UnityWebRequest.Result.Success)
         {
             Debug.LogError($"[ASSIGNMENTS] FAILED {(int)req.responseCode} => {req.downloadHandler?.text}");
+            assignmentItems = Array.Empty<AssignmentDto>();
+            RefreshNotificationsBadge();
             yield break;
         }
 
@@ -1336,6 +2093,7 @@ public class TeacherDashboardController : MonoBehaviour
         RefreshClassDetailsGeneralMetrics();
 
         ApplyTeacherHomeDashboardMetrics();
+        RefreshNotificationsBadge();
     }
 
     private IEnumerator CreateAssignment(string title, int classId, DateTime startDate, int durationDays, int experimentId, string className, string lessonName, string experimentName)
@@ -1596,6 +2354,28 @@ public class TeacherDashboardController : MonoBehaviour
         sfAssignmentsHistoryScroll = root.Q<ScrollView>("SfAssignmentsHistoryScroll");
         sfExperimentsHistoryScroll = root.Q<ScrollView>("SfExperimentsHistoryScroll");
 
+        assignmentResultsPage = root.Q<VisualElement>("AssignmentResultsPage");
+        assignmentResultsBackBtn = root.Q<Button>("AssignmentResultsBackBtn");
+        assignmentResultsTitleLabel = root.Q<Label>("AssignmentResultsTitleLabel");
+        assignmentResultsSummaryLabel = root.Q<Label>("AssignmentResultsSummaryLabel");
+        assignmentResultsSelectedStudentLabel = root.Q<Label>("AssignmentResultsSelectedStudentLabel");
+
+        var assignmentResultsStudentsScroll = root.Q<ScrollView>("AssignmentResultsStudentsScroll");
+        assignmentResultsStudentsContainer = assignmentResultsStudentsScroll != null
+            ? assignmentResultsStudentsScroll.contentContainer
+            : root.Q<VisualElement>("AssignmentResultsStudentsContainer");
+
+        var assignmentResultsAnswersScroll = root.Q<ScrollView>("AssignmentResultsAnswersScroll");
+        assignmentResultsAnswersContainer = assignmentResultsAnswersScroll != null
+            ? assignmentResultsAnswersScroll.contentContainer
+            : root.Q<VisualElement>("AssignmentResultsAnswersContainer");
+
+        if (assignmentResultsBackBtn != null)
+        {
+            assignmentResultsBackBtn.clicked -= CloseAssignmentResultsPage;
+            assignmentResultsBackBtn.clicked += CloseAssignmentResultsPage;
+        }
+
         if (copyClassCodeBtn != null)
         {
             copyClassCodeBtn.clicked -= CopySelectedClassCode;
@@ -1787,6 +2567,7 @@ public class TeacherDashboardController : MonoBehaviour
             Debug.LogError($"[PERSONAL ACTIVITY] FAILED {(int)req.responseCode} => {req.downloadHandler?.text}");
             personalActivityItems = Array.Empty<ClassActivityDto>();
             BuildPersonalActivityFeed();
+            RefreshNotificationsBadge();
             yield break;
         }
 
@@ -1797,6 +2578,7 @@ public class TeacherDashboardController : MonoBehaviour
             : Array.Empty<ClassActivityDto>();
 
         BuildPersonalActivityFeed();
+        RefreshNotificationsBadge();
     }
 
     private void BuildPersonalActivityFeed()
@@ -2115,7 +2897,7 @@ public class TeacherDashboardController : MonoBehaviour
         var items = historyItems ?? Array.Empty<StudentProfileHistoryItemDto>();
         if (items.Length == 0)
         {
-            content.Add(BuildStudentHistoryItem("Kayıt bulunamadı", "-", "-"));
+            content.Add(BuildStudentHistoryItem("Kayıt bulunamadı", "", "-"));
             return;
         }
 
@@ -2133,7 +2915,7 @@ public class TeacherDashboardController : MonoBehaviour
         var items = historyItems ?? Array.Empty<StudentProfileHistoryItemDto>();
         if (items.Length == 0)
         {
-            content.Add(BuildStudentHistoryItem("Kayıt bulunamadı", "-", "-"));
+            content.Add(BuildStudentHistoryItem("Kayıt bulunamadı", "", "-"));
             return;
         }
 
@@ -2149,26 +2931,16 @@ public class TeacherDashboardController : MonoBehaviour
         var top = new VisualElement();
         top.AddToClassList("history-item-top");
 
-        var titleLabel = new Label(title);
+        var titleLabel = new Label(string.IsNullOrWhiteSpace(title) ? "-" : title);
         titleLabel.AddToClassList("history-item-title");
 
-        var group = new VisualElement();
-        group.AddToClassList("history-item-group");
-
-        var scoreLabel = new Label(score);
-        scoreLabel.AddToClassList("history-item-score");
-
-        var pdfBtn = new Button();
-        pdfBtn.text = "PDF";
-        pdfBtn.AddToClassList("history-item-pdf");
-
-        group.Add(scoreLabel);
-        group.Add(pdfBtn);
+        var valueLabel = new Label(string.IsNullOrWhiteSpace(score) ? "-" : score);
+        valueLabel.AddToClassList("history-item-score");
 
         top.Add(titleLabel);
-        top.Add(group);
+        top.Add(valueLabel);
 
-        var bottom = new Label(date);
+        var bottom = new Label(string.IsNullOrWhiteSpace(date) ? "-" : date);
         bottom.AddToClassList("history-item-bottom");
 
         item.Add(top);
@@ -2394,10 +3166,32 @@ public class TeacherDashboardController : MonoBehaviour
             .Where(a => a != null && a.ClassId == classId)
             .ToArray();
 
-        int totalAssignments = classAssignments.Length;
-        int completedAssignments = classAssignments.Count(a => string.Equals(GetTeacherAssignmentStatus(a), "Tamamlandı", StringComparison.OrdinalIgnoreCase));
-        int completionPercent = totalAssignments > 0
-            ? Mathf.RoundToInt((completedAssignments / (float)totalAssignments) * 100f)
+        int completedStudentTotal = 0;
+        int expectedStudentTotal = 0;
+
+        foreach (var assignment in classAssignments)
+        {
+            if (assignment == null)
+                continue;
+
+            int completed = Mathf.Max(assignment.CompletedStudentCount, 0);
+
+            int totalForAssignment = Mathf.Max(assignment.ClassStudentCount, 0);
+
+            if (totalForAssignment <= 0)
+            {
+                totalForAssignment = Mathf.Max(
+                    Mathf.Max(currentSelectedClass != null ? currentSelectedClass.StudentCount : 0, 0),
+                    completed + Mathf.Max(assignment.IncompleteStudentCount, 0)
+                );
+            }
+
+            completedStudentTotal += completed;
+            expectedStudentTotal += totalForAssignment;
+        }
+
+        int completionPercent = expectedStudentTotal > 0
+            ? Mathf.RoundToInt((completedStudentTotal / (float)expectedStudentTotal) * 100f)
             : 0;
 
         if (cgCompletionPercentLabel != null)
@@ -2460,6 +3254,8 @@ public class TeacherDashboardController : MonoBehaviour
             }
         }
     }
+
+
 
     private string NormalizeChartDayKey(string raw)
     {
@@ -2687,7 +3483,10 @@ public class TeacherDashboardController : MonoBehaviour
         noCell.AddToClassList("td");
         noCell.AddToClassList("td-no");
 
-        var successCell = new Label("%0");
+        int successRate = student != null ? Mathf.Clamp(student.SuccessRatePercent, 0, 100) : 0;
+
+        var successCell = new Label($"%{successRate}");
+
         successCell.AddToClassList("td");
         successCell.AddToClassList("td-success-rate");
 
@@ -2731,7 +3530,9 @@ public class TeacherDashboardController : MonoBehaviour
 
     private void BuildAssignmentCards()
     {
-        if (assignmentsCardsRow == null) return;
+        if (assignmentsCardsRow == null)
+            return;
+
         assignmentsCardsRow.Clear();
 
         if (currentSelectedClass == null || assignmentItems == null)
@@ -2745,15 +3546,21 @@ public class TeacherDashboardController : MonoBehaviour
 
         foreach (var a in assignmentItems)
         {
-            if (a == null) continue;
-            if (a.ClassId != currentSelectedClass.Id) continue;
+            if (a == null)
+                continue;
+
+            if (a.ClassId != currentSelectedClass.Id)
+                continue;
 
             bool include = assignmentFilterMode switch
             {
                 "active" => a.IsActive,
                 "passive" => !a.IsActive,
-                "completed" => !a.IsActive,
-                "incomplete" => a.IsActive,
+
+                // Burada artık tamamlanma durumunu öğrenci sonuçlarına göre filtreliyoruz.
+                "completed" => a.CompletedStudentCount > 0,
+                "incomplete" => a.IncompleteStudentCount > 0,
+
                 _ => true
             };
 
@@ -2764,19 +3571,27 @@ public class TeacherDashboardController : MonoBehaviour
             {
                 string title = (a.Title ?? "").ToLowerInvariant();
                 string cls = (a.ClassName ?? "").ToLowerInvariant();
-                if (!title.Contains(q) && !cls.Contains(q))
+                string experiment = (a.ExperimentName ?? "").ToLowerInvariant();
+
+                if (!title.Contains(q) && !cls.Contains(q) && !experiment.Contains(q))
                     continue;
             }
 
+            int completed = Mathf.Max(0, a.CompletedStudentCount);
+            int incomplete = Mathf.Max(0, a.IncompleteStudentCount);
+            int percent = Mathf.Clamp(a.CompletionPercent, 0, 100);
+
             assignmentsCardsRow.Add(BuildAssignmentCard(
-                string.IsNullOrWhiteSpace(a.Title) ? "-" : a.Title,
-                string.IsNullOrWhiteSpace(a.ExperimentName) ? "-" : a.ExperimentName,
-                "Başlangıç Seviyesi",
-                GetRemainingDaysText(a),
-                "0",
-                "0",
-                0
-            ));
+    a,
+    string.IsNullOrWhiteSpace(a.Title) ? "-" : a.Title,
+    string.IsNullOrWhiteSpace(a.ExperimentName) ? "-" : a.ExperimentName,
+    "Başlangıç Seviyesi",
+    GetRemainingDaysText(a),
+    incomplete.ToString(),
+    completed.ToString(),
+    percent
+));
+
             rendered++;
         }
 
@@ -2784,7 +3599,7 @@ public class TeacherDashboardController : MonoBehaviour
             assignmentsCardsRow.Add(new Label("Filtreye uygun ödev bulunamadı."));
     }
 
-    private VisualElement BuildAssignmentCard(string title, string unit, string difficulty, string dayCount, string incomplete, string complete, int percent)
+    private VisualElement BuildAssignmentCard(AssignmentDto assignment, string title, string unit, string difficulty, string dayCount, string incomplete, string complete, int percent)
     {
         var card = new VisualElement();
         card.AddToClassList("table-assignment-card");
@@ -2845,7 +3660,7 @@ public class TeacherDashboardController : MonoBehaviour
 
         var progressFill = new VisualElement();
         progressFill.AddToClassList("complete-bar-fill");
-        progressFill.style.width = percent;
+        progressFill.style.width = new Length(Mathf.Clamp(percent, 0, 100), LengthUnit.Percent);
 
         progressWrap.Add(progressFill);
         progressRow.Add(progressWrap);
@@ -2863,6 +3678,11 @@ public class TeacherDashboardController : MonoBehaviour
 
         lastRow.Add(comp);
         lastRow.Add(detailBtn);
+
+        detailBtn.clicked += () =>
+        {
+            OpenAssignmentResultsPage(assignment);
+        };
 
         card.Add(firstRow);
         card.Add(difficultyRow);
@@ -3247,6 +4067,7 @@ public class TeacherDashboardController : MonoBehaviour
             Debug.LogError($"[JOIN REQUESTS] FETCH FAILED {(int)req.responseCode} => {req.downloadHandler?.text}");
             currentRequestItems = Array.Empty<JoinRequestDto>();
             BuildRequestList();
+            RefreshNotificationsBadge();
             yield break;
         }
 
@@ -3255,6 +4076,7 @@ public class TeacherDashboardController : MonoBehaviour
         currentRequestItems = wrapped != null && wrapped.items != null ? wrapped.items : Array.Empty<JoinRequestDto>();
 
         BuildRequestList();
+        RefreshNotificationsBadge();
     }
 
     private IEnumerator FetchClassStudents()
@@ -3418,6 +4240,8 @@ public class TeacherDashboardController : MonoBehaviour
         Debug.Log("[JOIN REQUESTS] APPROVED => " + (req.downloadHandler?.text ?? ""));
         StartCoroutine(FetchJoinRequests());
         StartCoroutine(FetchMyClasses());
+        StartCoroutine(FetchPendingJoinRequestsForNotifications());
+        RefreshNotificationsBadge();
     }
 
     private IEnumerator RejectJoinRequest(int studentId)
@@ -3444,6 +4268,8 @@ public class TeacherDashboardController : MonoBehaviour
 
         Debug.Log("[JOIN REQUESTS] REJECTED => " + (req.downloadHandler?.text ?? ""));
         StartCoroutine(FetchJoinRequests());
+        StartCoroutine(FetchPendingJoinRequestsForNotifications());
+        RefreshNotificationsBadge();
     }
 
     private string BuildJoinRequestsUrl(int classId)
@@ -3921,21 +4747,30 @@ public class TeacherDashboardController : MonoBehaviour
 
     private void RenderAssignmentBlocks()
     {
-        if (timelineContents == null) return;
-        if (assignmentItems == null || assignmentItems.Length == 0) return;
+        if (timelineContents == null)
+            return;
+
+        if (assignmentItems == null || assignmentItems.Length == 0)
+            return;
 
         DateTime visibleEndDate = visibleStartDate.AddDays(AssignmentDayCount - 1);
 
+        var visibleAssignments = new List<TimelineAssignmentBlockData>();
+
         foreach (var item in assignmentItems)
         {
-            if (item == null) continue;
-            if (string.IsNullOrWhiteSpace(item.StartDate)) continue;
+            if (item == null)
+                continue;
+
+            if (string.IsNullOrWhiteSpace(item.StartDate))
+                continue;
 
             if (!DateTime.TryParse(item.StartDate, null, DateTimeStyles.RoundtripKind, out var parsedStart))
                 continue;
 
             DateTime startDate = parsedStart.ToLocalTime().Date;
-            DateTime itemEndDate = startDate.AddDays(item.DurationDays - 1);
+            int durationDays = Mathf.Max(item.DurationDays, 1);
+            DateTime itemEndDate = startDate.AddDays(durationDays - 1);
 
             if (itemEndDate < visibleStartDate || startDate > visibleEndDate)
                 continue;
@@ -3944,23 +4779,56 @@ public class TeacherDashboardController : MonoBehaviour
             int endOffset = Mathf.Min(AssignmentDayCount - 1, (itemEndDate - visibleStartDate).Days);
             int visibleDuration = (endOffset - startOffset) + 1;
 
-            var row = timelineContents.Q<VisualElement>($"AssignmentTimelineRow_{GetRowIndexForAssignment(item)}");
-            if (row == null) continue;
+            visibleAssignments.Add(new TimelineAssignmentBlockData
+            {
+                Item = item,
+                StartDate = startDate,
+                EndDate = itemEndDate,
+                StartOffset = startOffset,
+                EndOffset = endOffset,
+                VisibleDuration = visibleDuration
+            });
+        }
+
+        visibleAssignments = visibleAssignments
+            .OrderBy(x => x.StartOffset)
+            .ThenByDescending(x => x.VisibleDuration)
+            .ThenBy(x => x.Item != null ? x.Item.Title : "")
+            .ToList();
+
+        int[] rowEndOffsets = new int[AssignmentRowCount];
+
+        for (int i = 0; i < rowEndOffsets.Length; i++)
+            rowEndOffsets[i] = -1;
+
+        foreach (var data in visibleAssignments)
+        {
+            int rowIndex = FindAvailableAssignmentTimelineRow(data.StartOffset, data.EndOffset, rowEndOffsets);
+
+            if (rowIndex < 0)
+                rowIndex = AssignmentRowCount - 1;
+
+            rowEndOffsets[rowIndex] = Mathf.Max(rowEndOffsets[rowIndex], data.EndOffset);
+
+            var row = timelineContents.Q<VisualElement>($"AssignmentTimelineRow_{rowIndex}");
+
+            if (row == null)
+                continue;
 
             var block = new VisualElement();
             block.AddToClassList("assignment-block");
 
             block.style.position = Position.Absolute;
             block.style.top = new Length(50, LengthUnit.Percent);
-            block.style.left = new Length(startOffset * (100f / AssignmentDayCount), LengthUnit.Percent);
-            block.style.width = new Length(visibleDuration * (100f / AssignmentDayCount), LengthUnit.Percent);
+            block.style.left = new Length(data.StartOffset * (100f / AssignmentDayCount), LengthUnit.Percent);
+            block.style.width = new Length(data.VisibleDuration * (100f / AssignmentDayCount), LengthUnit.Percent);
             block.style.height = 40;
             block.style.translate = new Translate(4, -20, 0);
 
-            var titleLabel = new Label(item.Title);
+            var titleLabel = new Label(data.Item.Title);
             titleLabel.AddToClassList("assignment-block-title");
 
-            var classLabel = new Label(item.ClassName);
+            var classLabel = new Label(data.Item.ClassName);
             classLabel.AddToClassList("assignment-block-class");
 
             block.Add(titleLabel);
@@ -3969,19 +4837,45 @@ public class TeacherDashboardController : MonoBehaviour
             block.RegisterCallback<ClickEvent>(evt =>
             {
                 evt.StopPropagation();
-                string lesson = ResolveLessonNameByClassId(item.ClassId);
+
+                string lesson = ResolveLessonNameByClassId(data.Item.ClassId);
+
                 OpenAssignmentDetailsModal(
-                    item.Title,
-                    item.ClassName,
+                    data.Item.Title,
+                    data.Item.ClassName,
                     lesson,
-                    startDate,
-                    item.DurationDays,
-                    string.IsNullOrWhiteSpace(item.ExperimentName) ? "-" : item.ExperimentName
+                    data.StartDate,
+                    data.Item.DurationDays,
+                    string.IsNullOrWhiteSpace(data.Item.ExperimentName) ? "-" : data.Item.ExperimentName
                 );
             });
 
             row.Add(block);
         }
+    }
+
+    private int FindAvailableAssignmentTimelineRow(int startOffset, int endOffset, int[] rowEndOffsets)
+    {
+        if (rowEndOffsets == null || rowEndOffsets.Length == 0)
+            return -1;
+
+        for (int i = 0; i < rowEndOffsets.Length; i++)
+        {
+            if (startOffset > rowEndOffsets[i])
+                return i;
+        }
+
+        return -1;
+    }
+
+    private class TimelineAssignmentBlockData
+    {
+        public AssignmentDto Item;
+        public DateTime StartDate;
+        public DateTime EndDate;
+        public int StartOffset;
+        public int EndOffset;
+        public int VisibleDuration;
     }
 
     private string ResolveLessonNameByClassId(int classId)
@@ -4196,696 +5090,1582 @@ public class TeacherDashboardController : MonoBehaviour
         assignmentExperimentDropdown.index = -1;
     }
 
-    // ---------------- CALENDAR PAGE ----------------
+
+    private void OpenAssignmentResultsPage(AssignmentDto assignment)
+    {
+        if (assignment == null)
+            return;
+
+        currentResultsAssignment = assignment;
+
+        ShowPage("AssignmentResultsPage");
+        SetMenuActive("ClassBtn");
+
+        if (assignmentResultsTitleLabel != null)
+            assignmentResultsTitleLabel.text = $"{SafeText(assignment.Title)} - Sonuçlar";
+
+        if (assignmentResultsSummaryLabel != null)
+        {
+            assignmentResultsSummaryLabel.text =
+                $"Tamamlayan: {Mathf.Max(assignment.CompletedStudentCount, 0)} | " +
+                $"Tamamlamayan: {Mathf.Max(assignment.IncompleteStudentCount, 0)} | " +
+                $"Tamamlanma: %{Mathf.Clamp(assignment.CompletionPercent, 0, 100)}";
+        }
+
+        if (assignmentResultsSelectedStudentLabel != null)
+            assignmentResultsSelectedStudentLabel.text = "Cevapları görmek için bir öğrenci seç.";
+
+        assignmentResultsStudentsContainer?.Clear();
+        assignmentResultsAnswersContainer?.Clear();
+
+        StartCoroutine(FetchCompletedStudentsForAssignment(assignment.Id));
+    }
+
+    private void CloseAssignmentResultsPage()
+    {
+        currentResultsAssignment = null;
+
+        ShowPage("ClassDetailsPage");
+        SetMenuActive("ClassBtn");
+        SetClassDetailsTab("assignments");
+    }
+
+    private IEnumerator FetchCompletedStudentsForAssignment(int assignmentId)
+    {
+        if (router == null)
+            yield break;
+
+        string path = assignmentCompletedStudentsPathTemplate
+            .Replace("{assignmentId}", assignmentId.ToString());
+
+        string url = router.ApiBaseUrl + path;
+
+        using var req = AuthedGet(url);
+        yield return req.SendWebRequest();
+
+        if (req.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError($"[ASSIGNMENT RESULTS STUDENTS] FAILED {(int)req.responseCode} => {req.downloadHandler?.text}");
+
+            assignmentResultsStudentsContainer?.Clear();
+            assignmentResultsStudentsContainer?.Add(new Label("Tamamlayan öğrenciler getirilemedi."));
+            yield break;
+        }
+
+        string raw = req.downloadHandler != null ? req.downloadHandler.text : "[]";
+        var wrapped = JsonUtility.FromJson<CompletedStudentResultListWrapper>("{\"items\":" + raw + "}");
+
+        var items = wrapped != null && wrapped.items != null
+            ? wrapped.items
+            : Array.Empty<CompletedStudentResultDto>();
+
+        BuildCompletedStudentResults(items);
+    }
+
+    private void BuildCompletedStudentResults(CompletedStudentResultDto[] items)
+    {
+        if (assignmentResultsStudentsContainer == null)
+            return;
+
+        assignmentResultsStudentsContainer.Clear();
+
+        if (items == null || items.Length == 0)
+        {
+            assignmentResultsStudentsContainer.Add(new Label("Bu ödevi henüz tamamlayan öğrenci yok."));
+            return;
+        }
+
+        foreach (var item in items)
+        {
+            if (item == null)
+                continue;
+
+            assignmentResultsStudentsContainer.Add(BuildCompletedStudentResultRow(item));
+        }
+    }
+
+    private VisualElement BuildCompletedStudentResultRow(CompletedStudentResultDto item)
+    {
+        string fullName = $"{item.StudentName} {item.StudentSurname}".Trim();
+        if (string.IsNullOrWhiteSpace(fullName))
+            fullName = "-";
+
+        var row = new VisualElement();
+        row.AddToClassList("assignment-result-student-row");
+
+        var left = new VisualElement();
+        left.AddToClassList("assignment-result-student-left");
+
+        var avatar = new Label(BuildInitials(item.StudentName, item.StudentSurname));
+        avatar.AddToClassList("student-avatar");
+
+        var nameWrap = new VisualElement();
+        nameWrap.AddToClassList("assignment-result-student-info");
+
+        var nameLabel = new Label(fullName);
+        nameLabel.AddToClassList("assignment-result-student-name");
+
+        var dateLabel = new Label(FormatDate(item.CompletedAt));
+        dateLabel.AddToClassList("assignment-result-student-date");
+
+        nameWrap.Add(nameLabel);
+        nameWrap.Add(dateLabel);
+
+        left.Add(avatar);
+        left.Add(nameWrap);
+
+        var score = new Label($"%{Mathf.Clamp(item.Score, 0, 100)}");
+        score.AddToClassList("assignment-result-score");
+
+        row.Add(left);
+        row.Add(score);
+
+        row.RegisterCallback<ClickEvent>(_ =>
+        {
+            if (assignmentResultsSelectedStudentLabel != null)
+                assignmentResultsSelectedStudentLabel.text = $"{fullName} - Cevaplar";
+
+            StartCoroutine(FetchStudentAnswersForResult(item.ResultId));
+        });
+
+        return row;
+    }
+
+    private IEnumerator FetchStudentAnswersForResult(int resultId)
+    {
+        if (router == null)
+            yield break;
+
+        string path = assignmentResultAnswersPathTemplate
+            .Replace("{resultId}", resultId.ToString());
+
+        string url = router.ApiBaseUrl + path;
+
+        using var req = AuthedGet(url);
+        yield return req.SendWebRequest();
+
+        if (req.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError($"[ASSIGNMENT RESULT ANSWERS] FAILED {(int)req.responseCode} => {req.downloadHandler?.text}");
+
+            assignmentResultsAnswersContainer?.Clear();
+            assignmentResultsAnswersContainer?.Add(new Label("Öğrenci cevapları getirilemedi."));
+            yield break;
+        }
+
+        string raw = req.downloadHandler != null ? req.downloadHandler.text : "[]";
+        var wrapped = JsonUtility.FromJson<StudentAnswerListWrapper>("{\"items\":" + raw + "}");
+
+        var answers = wrapped != null && wrapped.items != null
+            ? wrapped.items
+            : Array.Empty<StudentAnswerDto>();
+
+        BuildStudentAnswerCards(answers);
+    }
+
+    private void BuildStudentAnswerCards(StudentAnswerDto[] answers)
+    {
+        if (assignmentResultsAnswersContainer == null)
+            return;
+
+        assignmentResultsAnswersContainer.Clear();
+
+        if (answers == null || answers.Length == 0)
+        {
+            assignmentResultsAnswersContainer.Add(new Label("Bu öğrenci için kayıtlı cevap bulunamadı."));
+            return;
+        }
+
+        for (int i = 0; i < answers.Length; i++)
+        {
+            assignmentResultsAnswersContainer.Add(BuildStudentAnswerCard(i + 1, answers[i]));
+        }
+    }
+
+    private VisualElement BuildStudentAnswerCard(int order, StudentAnswerDto answer)
+    {
+        var card = new VisualElement();
+        card.AddToClassList("student-answer-card");
+
+        var top = new VisualElement();
+        top.AddToClassList("student-answer-top");
+
+        var questionTitle = new Label($"Soru {order}");
+        questionTitle.AddToClassList("student-answer-question-no");
+
+        var status = new Label(answer.IsCorrect ? "Doğru" : "Yanlış");
+        status.AddToClassList(answer.IsCorrect ? "answer-status-correct" : "answer-status-wrong");
+
+        top.Add(questionTitle);
+        top.Add(status);
+
+        var question = new Label(SafeText(answer.QuestionText));
+        question.AddToClassList("student-answer-question");
+
+        var studentAnswer = new Label("Öğrenci Cevabı: " + SafeText(answer.StudentAnswer));
+        studentAnswer.AddToClassList("student-answer-text");
+
+        var correctAnswer = new Label("Doğru Cevap: " + SafeText(answer.CorrectAnswer));
+        correctAnswer.AddToClassList("student-answer-correct");
+
+        card.Add(top);
+        card.Add(question);
+        card.Add(studentAnswer);
+        card.Add(correctAnswer);
+
+        return card;
+    }
+
+    // ----------------------------------------------
+
+    // ---------------- CALENDAR ----------------
+
+    #region Calendar
+
+    [System.Serializable]
+    private class CalendarEventItem
+    {
+        public int Id;
+        public string Title;
+        public string Type;
+        public string Date;       // yyyy-MM-dd
+        public string Start;      // HH:mm
+        public string End;        // HH:mm
+        public string Location;
+        public string RelatedClass;
+        public string Desc;
+    }
+
+    [System.Serializable]
+    private class CalendarCategoryItem
+    {
+        public int Id;
+        public string Type;
+        public string Label;
+        public string Color;
+        public string TextColor;
+    }
+
+    [System.Serializable]
+    private class CalendarCategoryListWrapper
+    {
+        public CalendarCategoryItem[] items;
+    }
+
+    [System.Serializable]
+    private class CalendarEventListWrapper
+    {
+        public CalendarEventItem[] items;
+    }
+
+    [System.Serializable]
+    private class CalendarCreateCategoryRequest
+    {
+        public string Label;
+        public string Color;
+        public string TextColor;
+    }
+
+    [System.Serializable]
+    private class CalendarUpsertEventRequest
+    {
+        public string Title;
+        public string Type;
+        public string Date;
+        public string Start;
+        public string End;
+        public string Location;
+        public string RelatedClass;
+        public string Desc;
+    }
 
     private void BindCalendarPage()
     {
         calendarPage = root.Q<VisualElement>("CalendarPage");
+        if (calendarPage == null)
+            return;
+
+        calendarBtn = root.Q<Button>("CalendarBtn");
 
         calAddEventBtn = root.Q<Button>("CalAddEventBtn");
-        calTodayBtnTop = root.Q<Button>("CalTodayBtnTop");
-        calExportBtn = root.Q<Button>("CalExportBtn");
         calRefreshBtn = root.Q<Button>("CalRefreshBtn");
-
         calPrevBtn = root.Q<Button>("CalPrevBtn");
         calNextBtn = root.Q<Button>("CalNextBtn");
+        calTodayBtn = root.Q<Button>("CalTodayBtn");
+
+        calViewDayBtn = root.Q<Button>("CalViewDayBtn");
+        calViewWeekBtn = root.Q<Button>("CalViewWeekBtn");
+        calViewMonthBtn = root.Q<Button>("CalViewMonthBtn");
+        calViewAgendaBtn = root.Q<Button>("CalViewAgendaBtn");
+
         calMiniPrevBtn = root.Q<Button>("CalMiniPrevBtn");
         calMiniNextBtn = root.Q<Button>("CalMiniNextBtn");
+        calAddCategoryBtn = root.Q<Button>("CalAddCategoryBtn");
+        calQuickCreateBtn = root.Q<Button>("CalQuickCreateBtn");
+        calQuickCategoryBtn = root.Q<Button>("CalQuickCategoryBtn");
 
-        calMonthViewBtn = root.Q<Button>("CalMonthViewBtn");
-        calWeekViewBtn = root.Q<Button>("CalWeekViewBtn");
-        calDayViewBtn = root.Q<Button>("CalDayViewBtn");
-        calAgendaViewBtn = root.Q<Button>("CalAgendaViewBtn");
+        calToolbarMonthLabel = root.Q<Label>("CalToolbarMonthLabel");
+        calMiniMonthLabel = root.Q<Label>("CalMiniMonthLabel");
+        calDayHeaderLabel = root.Q<Label>("CalDayHeaderLabel");
+        calCategoryEmptyLabel = root.Q<Label>("CalCategoryEmptyLabel");
 
         calSearchInput = root.Q<TextField>("CalSearchInput");
         calFilterDropdown = root.Q<DropdownField>("CalFilterDropdown");
 
-        calCurrentMonthLabel = root.Q<Label>("CalCurrentMonthLabel");
-        calMiniMonthLabel = root.Q<Label>("CalMiniMonthLabel");
-
         calMiniGrid = root.Q<VisualElement>("CalMiniGrid");
-        calUpcomingList = root.Q<VisualElement>("CalUpcomingList");
+        calCategoryList = root.Q<VisualElement>("CalCategoryList");
         calMonthGrid = root.Q<VisualElement>("CalMonthGrid");
-
-        calMonthView = root.Q<VisualElement>("CalMonthView");
-        calWeekView = root.Q<VisualElement>("CalWeekView");
-        calDayView = root.Q<VisualElement>("CalDayView");
-        calAgendaView = root.Q<VisualElement>("CalAgendaView");
-
         calWeekHeader = root.Q<VisualElement>("CalWeekHeader");
         calWeekBody = root.Q<VisualElement>("CalWeekBody");
-        calDayHeader = root.Q<VisualElement>("CalDayHeader");
-        calDayBody = root.Q<VisualElement>("CalDayBody");
+        calDayTimeCol = root.Q<VisualElement>("CalDayTimeCol");
+        calDayEventsCol = root.Q<VisualElement>("CalDayEventsCol");
+        calAgendaContent = root.Q<VisualElement>("CalAgendaContent");
 
-        calAgendaList = root.Q<ScrollView>("CalAgendaList");
-        calAgendaItems = root.Q<VisualElement>("CalAgendaItems");
+        calMonthView = root.Q<VisualElement>("CalMonthView");
+        calWeekView = root.Q<ScrollView>("CalWeekView");
+        calDayView = root.Q<ScrollView>("CalDayView");
+        calAgendaView = root.Q<ScrollView>("CalAgendaView");
 
-        calEventModal = root.Q<VisualElement>("CalEventModal");
-        calCloseModalBtn = root.Q<Button>("CalCloseModalBtn");
-        calCancelEventBtn = root.Q<Button>("CalCancelEventBtn");
+        calAddModal = root.Q<VisualElement>("CalAddModal");
+        calAddModalCloseBtn = root.Q<Button>("CalAddModalCloseBtn");
+        calAddCancelBtn = root.Q<Button>("CalAddCancelBtn");
         calSaveEventBtn = root.Q<Button>("CalSaveEventBtn");
-        calDeleteEventBtn = root.Q<Button>("CalDeleteEventBtn");
+        calAddTitleInput = root.Q<TextField>("CalAddTitleInput");
+        calAddTypeDropdown = root.Q<DropdownField>("CalAddTypeDropdown");
+        calAddDateInput = root.Q<TextField>("CalAddDateInput");
+        calAddStartInput = root.Q<TextField>("CalAddStartInput");
+        calAddEndInput = root.Q<TextField>("CalAddEndInput");
+        calAddClassDropdown = root.Q<DropdownField>("CalAddClassDropdown");
+        calAddDescInput = root.Q<TextField>("CalAddDescInput");
 
-        calModalTitleLabel = root.Q<Label>("CalModalTitleLabel");
-        calEventTitleInput = root.Q<TextField>("CalEventTitleInput");
-        calEventTypeDropdown = root.Q<DropdownField>("CalEventTypeDropdown");
-        calEventDateInput = root.Q<TextField>("CalEventDateInput");
-        calEventTimeInput = root.Q<TextField>("CalEventTimeInput");
-        calEventDescriptionInput = root.Q<TextField>("CalEventDescriptionInput");
+        calCategoryModal = root.Q<VisualElement>("CalCategoryModal");
+        calCategoryModalCloseBtn = root.Q<Button>("CalCategoryModalCloseBtn");
+        calCategoryCancelBtn = root.Q<Button>("CalCategoryCancelBtn");
+        calSaveCategoryBtn = root.Q<Button>("CalSaveCategoryBtn");
+        calCategoryNameInput = root.Q<TextField>("CalCategoryNameInput");
+        calCategoryColorInput = root.Q<TextField>("CalCategoryColorInput");
+        calTextColorWhiteBtn = root.Q<Button>("CalTextColorWhiteBtn");
+        calTextColorBlackBtn = root.Q<Button>("CalTextColorBlackBtn");
+        BindCalendarPresetColorButtons();
+        BindCalendarTextColorButtons();
 
-        SetupCalendarDropdowns();
-        SeedSampleCalendarEvents();
+        calDetailModal = root.Q<VisualElement>("CalDetailModal");
+        calDetailCloseBtn = root.Q<Button>("CalDetailCloseBtn");
+        calDetailFooterCloseBtn = root.Q<Button>("CalDetailFooterCloseBtn");
+        calDetailEditBtn = root.Q<Button>("CalDetailEditBtn");
+        calDetailDeleteBtn = root.Q<Button>("CalDetailDeleteBtn");
+        calDetailTitleLabel = root.Q<Label>("CalDetailTitleLabel");
+        calDetailTypeLabel = root.Q<Label>("CalDetailTypeLabel");
+        calDetailDateLabel = root.Q<Label>("CalDetailDateLabel");
+        calDetailTimeLabel = root.Q<Label>("CalDetailTimeLabel");
+        calDetailLocationLabel = root.Q<Label>("CalDetailLocationLabel");
+        calDetailDescLabel = root.Q<Label>("CalDetailDescLabel");
 
-        if (calPrevBtn != null)
+        calCurrentYear = DateTime.Today.Year;
+        calCurrentMonth = DateTime.Today.Month - 1;
+        calSelectedDate = DateTime.Today;
+        calDayViewDate = DateTime.Today;
+
+        RefreshCalendarClassDropdown();
+        StartCoroutine(LoadCalendarData(false));
+
+        calAddEventBtn.clicked += () => OpenCalendarAddModal();
+        calRefreshBtn.clicked += () => StartCoroutine(LoadCalendarData(true));
+        calPrevBtn.clicked += () => NavigateCalendar(-1);
+        calNextBtn.clicked += () => NavigateCalendar(1);
+        calTodayBtn.clicked += GoCalendarToday;
+
+        calViewDayBtn.clicked += () => SwitchCalendarView("day");
+        calViewWeekBtn.clicked += () => SwitchCalendarView("week");
+        calViewMonthBtn.clicked += () => SwitchCalendarView("month");
+        calViewAgendaBtn.clicked += () => SwitchCalendarView("agenda");
+
+        calMiniPrevBtn.clicked += () =>
         {
-            calPrevBtn.clicked -= OnCalendarPrevClicked;
-            calPrevBtn.clicked += OnCalendarPrevClicked;
-        }
+            calCurrentMonth--;
+            if (calCurrentMonth < 0) { calCurrentMonth = 11; calCurrentYear--; }
+            RenderCalendarAll();
+        };
 
-        if (calNextBtn != null)
+        calMiniNextBtn.clicked += () =>
         {
-            calNextBtn.clicked -= OnCalendarNextClicked;
-            calNextBtn.clicked += OnCalendarNextClicked;
-        }
+            calCurrentMonth++;
+            if (calCurrentMonth > 11) { calCurrentMonth = 0; calCurrentYear++; }
+            RenderCalendarAll();
+        };
 
-        if (calMiniPrevBtn != null)
-        {
-            calMiniPrevBtn.clicked -= OnCalendarPrevClicked;
-            calMiniPrevBtn.clicked += OnCalendarPrevClicked;
-        }
+        calAddCategoryBtn.clicked += OpenCalendarCategoryModal;
+        calQuickCreateBtn.clicked += () => OpenCalendarAddModal();
+        calQuickCategoryBtn.clicked += OpenCalendarCategoryModal;
 
-        if (calMiniNextBtn != null)
-        {
-            calMiniNextBtn.clicked -= OnCalendarNextClicked;
-            calMiniNextBtn.clicked += OnCalendarNextClicked;
-        }
+        calAddModalCloseBtn.clicked += CloseCalendarAddModal;
+        calAddCancelBtn.clicked += CloseCalendarAddModal;
+        calSaveEventBtn.clicked += SaveCalendarEvent;
 
-        if (calTodayBtnTop != null)
-        {
-            calTodayBtnTop.clicked -= OnCalendarTodayClicked;
-            calTodayBtnTop.clicked += OnCalendarTodayClicked;
-        }
+        calCategoryModalCloseBtn.clicked += CloseCalendarCategoryModal;
+        calCategoryCancelBtn.clicked += CloseCalendarCategoryModal;
+        calSaveCategoryBtn.clicked += SaveCalendarCategory;
 
-        if (calMonthViewBtn != null)
-        {
-            calMonthViewBtn.clicked -= OnCalendarMonthViewClicked;
-            calMonthViewBtn.clicked += OnCalendarMonthViewClicked;
-        }
-
-        if (calWeekViewBtn != null)
-        {
-            calWeekViewBtn.clicked -= OnCalendarWeekViewClicked;
-            calWeekViewBtn.clicked += OnCalendarWeekViewClicked;
-        }
-
-        if (calDayViewBtn != null)
-        {
-            calDayViewBtn.clicked -= OnCalendarDayViewClicked;
-            calDayViewBtn.clicked += OnCalendarDayViewClicked;
-        }
-
-        if (calAgendaViewBtn != null)
-        {
-            calAgendaViewBtn.clicked -= OnCalendarAgendaViewClicked;
-            calAgendaViewBtn.clicked += OnCalendarAgendaViewClicked;
-        }
-
-        if (calAddEventBtn != null)
-        {
-            calAddEventBtn.clicked -= OpenCalendarModalForCreate;
-            calAddEventBtn.clicked += OpenCalendarModalForCreate;
-        }
-
-        if (calCloseModalBtn != null)
-        {
-            calCloseModalBtn.clicked -= CloseCalendarModal;
-            calCloseModalBtn.clicked += CloseCalendarModal;
-        }
-
-        if (calCancelEventBtn != null)
-        {
-            calCancelEventBtn.clicked -= CloseCalendarModal;
-            calCancelEventBtn.clicked += CloseCalendarModal;
-        }
-
-        if (calSaveEventBtn != null)
-        {
-            calSaveEventBtn.clicked -= OnCalendarSaveClicked;
-            calSaveEventBtn.clicked += OnCalendarSaveClicked;
-        }
-
-        if (calDeleteEventBtn != null)
-        {
-            calDeleteEventBtn.clicked -= OnCalendarDeleteClicked;
-            calDeleteEventBtn.clicked += OnCalendarDeleteClicked;
-        }
+        calDetailCloseBtn.clicked += CloseCalendarDetailModal;
+        calDetailFooterCloseBtn.clicked += CloseCalendarDetailModal;
+        calDetailEditBtn.clicked += EditCalendarDetailEvent;
+        calDetailDeleteBtn.clicked += DeleteCalendarDetailEvent;
 
         if (calSearchInput != null)
         {
-            calSearchInput.RegisterValueChangedCallback(_ => RenderCalendar());
+            calSearchInput.RegisterValueChangedCallback(evt =>
+            {
+                calSearchQuery = evt.newValue ?? "";
+                RenderCalendarAll();
+            });
         }
 
         if (calFilterDropdown != null)
         {
-            calFilterDropdown.RegisterValueChangedCallback(_ => RenderCalendar());
+            calFilterDropdown.RegisterValueChangedCallback(evt =>
+            {
+                calActiveFilter = string.IsNullOrWhiteSpace(evt.newValue) || evt.newValue == "Tüm Etkinlikler"
+                    ? "all"
+                    : evt.newValue;
+                RenderCalendarAll();
+            });
         }
 
-        if (calEventModal != null)
-            calEventModal.style.display = DisplayStyle.None;
+        if (calAddModal != null)
+        {
+            calAddModal.RegisterCallback<ClickEvent>(evt =>
+            {
+                if (evt.target == calAddModal)
+                    CloseCalendarAddModal();
+            });
+        }
 
-        SetCalendarView("month");
-        RenderCalendar();
+        if (calCategoryModal != null)
+        {
+            calCategoryModal.RegisterCallback<ClickEvent>(evt =>
+            {
+                if (evt.target == calCategoryModal)
+                    CloseCalendarCategoryModal();
+            });
+        }
+
+        if (calDetailModal != null)
+        {
+            calDetailModal.RegisterCallback<ClickEvent>(evt =>
+            {
+                if (evt.target == calDetailModal)
+                    CloseCalendarDetailModal();
+            });
+        }
+
+        RenderCalendarAll();
     }
 
-    private void SetupCalendarDropdowns()
+    private void SeedCalendarData()
     {
-        if (calFilterDropdown != null)
+        // Intentionally left blank so categories and events start empty.
+    }
+
+    private IEnumerator LoadCalendarData(bool forceRender)
+    {
+        if (router == null)
+            yield break;
+
+        yield return StartCoroutine(FetchCalendarCategories());
+        yield return StartCoroutine(FetchCalendarEvents());
+
+        RefreshCalendarTypeDropdown();
+        RefreshCalendarFilterDropdown();
+
+        if (forceRender)
+            RenderCalendarAll();
+    }
+
+    private IEnumerator FetchCalendarCategories()
+    {
+        if (router == null)
+            yield break;
+
+        string url = BuildCalendarCategoriesUrl();
+        using var req = AuthedGet(url);
+        yield return req.SendWebRequest();
+
+        if (req.result != UnityWebRequest.Result.Success)
         {
-            calFilterDropdown.choices = new List<string>
+            Debug.LogError($"[CALENDAR] CATEGORY FETCH FAILED {(int)req.responseCode} => {req.downloadHandler?.text}");
+            calendarCategories.Clear();
+            yield break;
+        }
+
+        string raw = req.downloadHandler != null ? req.downloadHandler.text : "[]";
+        var wrapped = JsonUtility.FromJson<CalendarCategoryListWrapper>("{\"items\":" + raw + "}");
+        calendarCategories.Clear();
+        if (wrapped?.items != null)
+            calendarCategories.AddRange(wrapped.items);
+    }
+
+    private IEnumerator FetchCalendarEvents()
+    {
+        if (router == null)
+            yield break;
+
+        string url = BuildCalendarEventsUrl();
+        using var req = AuthedGet(url);
+        yield return req.SendWebRequest();
+
+        if (req.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError($"[CALENDAR] EVENT FETCH FAILED {(int)req.responseCode} => {req.downloadHandler?.text}");
+            calendarEvents.Clear();
+            yield break;
+        }
+
+        string raw = req.downloadHandler != null ? req.downloadHandler.text : "[]";
+        var wrapped = JsonUtility.FromJson<CalendarEventListWrapper>("{\"items\":" + raw + "}");
+        calendarEvents.Clear();
+        if (wrapped?.items != null)
+            calendarEvents.AddRange(wrapped.items);
+    }
+
+    private string BuildCalendarCategoriesUrl()
+    {
+        return router.ApiBaseUrl + calendarCategoriesPath;
+    }
+
+    private string BuildCalendarEventsUrl()
+    {
+        return router.ApiBaseUrl + calendarEventsPath;
+    }
+
+    private void RefreshCalendarClassDropdown()
+    {
+        if (calAddClassDropdown == null)
+            return;
+
+        var choices = new List<string> { "Kişisel" };
+
+        if (lastItems != null)
+        {
+            foreach (var item in lastItems)
             {
-                "Tüm Etkinlikler",
-                "Ders",
-                "Sınav",
-                "Toplantı",
-                "Son Tarih",
-                "Simülasyon",
-                "Hatırlatma"
-            };
+                if (item == null || string.IsNullOrWhiteSpace(item.Name))
+                    continue;
+
+                string lesson = string.IsNullOrWhiteSpace(item.LessonName) ? "" : $" {item.LessonName}";
+                choices.Add($"{item.Name}{lesson}");
+            }
+        }
+
+        calAddClassDropdown.choices = choices;
+        calAddClassDropdown.index = 0;
+    }
+
+    private void RefreshCalendarTypeDropdown()
+    {
+        if (calAddTypeDropdown == null)
+            return;
+
+        var types = new List<string>();
+        foreach (var cat in calendarCategories)
+            types.Add(cat.Type);
+
+        if (types.Count == 0)
+            types.Add("Önce kategori ekleyin");
+
+        calAddTypeDropdown.choices = types;
+        calAddTypeDropdown.index = types.Count > 0 ? 0 : -1;
+    }
+
+    private void RefreshCalendarFilterDropdown()
+    {
+        if (calFilterDropdown == null)
+            return;
+
+        var choices = new List<string> { "Tüm Etkinlikler" };
+        foreach (var cat in calendarCategories)
+            choices.Add(cat.Type);
+
+        calFilterDropdown.choices = choices;
+
+        if (calActiveFilter == "all")
             calFilterDropdown.value = "Tüm Etkinlikler";
-        }
-
-        if (calEventTypeDropdown != null)
-        {
-            calEventTypeDropdown.choices = new List<string>
-            {
-                "Ders",
-                "Sınav",
-                "Toplantı",
-                "Son Tarih",
-                "Simülasyon",
-                "Hatırlatma"
-            };
-            calEventTypeDropdown.value = "Ders";
-        }
+        else if (choices.Contains(calActiveFilter))
+            calFilterDropdown.value = calActiveFilter;
+        else
+            calFilterDropdown.value = "Tüm Etkinlikler";
     }
 
-    private void SeedSampleCalendarEvents()
+    private void SwitchCalendarView(string view)
     {
-        if (sampleCalendarEvents.Count > 0) return;
+        calCurrentView = view;
 
-        sampleCalendarEvents.Add(new CalendarEventData
-        {
-            Title = "7C Fizik Lab",
-            Category = "Ders",
-            Date = new DateTime(2026, 3, 24),
-            TimeText = "10:00",
-            Description = "Fizik laboratuvar uygulaması"
-        });
+        SetCalendarViewButtonActive(calViewDayBtn, view == "day");
+        SetCalendarViewButtonActive(calViewWeekBtn, view == "week");
+        SetCalendarViewButtonActive(calViewMonthBtn, view == "month");
+        SetCalendarViewButtonActive(calViewAgendaBtn, view == "agenda");
 
-        sampleCalendarEvents.Add(new CalendarEventData
-        {
-            Title = "Matematik Ödev Kontrolü",
-            Category = "Hatırlatma",
-            Date = new DateTime(2026, 3, 24),
-            TimeText = "16:00",
-            Description = "Ödev kontrolü"
-        });
+        if (calMonthView != null) calMonthView.style.display = view == "month" ? DisplayStyle.Flex : DisplayStyle.None;
+        if (calWeekView != null) calWeekView.style.display = view == "week" ? DisplayStyle.Flex : DisplayStyle.None;
+        if (calDayView != null) calDayView.style.display = view == "day" ? DisplayStyle.Flex : DisplayStyle.None;
+        if (calAgendaView != null) calAgendaView.style.display = view == "agenda" ? DisplayStyle.Flex : DisplayStyle.None;
 
-        sampleCalendarEvents.Add(new CalendarEventData
-        {
-            Title = "5A Fen Quiz",
-            Category = "Sınav",
-            Date = new DateTime(2026, 3, 25),
-            TimeText = "09:00",
-            Description = "Kısa sınav"
-        });
-
-        sampleCalendarEvents.Add(new CalendarEventData
-        {
-            Title = "7C Fizik Dersi",
-            Category = "Ders",
-            Date = new DateTime(2026, 3, 25),
-            TimeText = "13:00",
-            Description = "Haftalık fizik dersi"
-        });
-
-        sampleCalendarEvents.Add(new CalendarEventData
-        {
-            Title = "Öğretmenler Kurulu",
-            Category = "Toplantı",
-            Date = new DateTime(2026, 3, 26),
-            TimeText = "14:30",
-            Description = "Kurul toplantısı"
-        });
-
-        sampleCalendarEvents.Add(new CalendarEventData
-        {
-            Title = "6B Geometri Sınavı",
-            Category = "Sınav",
-            Date = new DateTime(2026, 3, 27),
-            TimeText = "11:00",
-            Description = "Geometri yazılısı"
-        });
-    }
-
-    private void OnCalendarPrevClicked()
-    {
-        switch (currentCalendarView)
-        {
-            case "week":
-                calendarCurrentDate = calendarCurrentDate.AddDays(-7);
-                break;
-            case "day":
-                calendarCurrentDate = calendarCurrentDate.AddDays(-1);
-                break;
-            default:
-                calendarCurrentDate = calendarCurrentDate.AddMonths(-1);
-                break;
-        }
-
-        RenderCalendar();
-    }
-
-    private void OnCalendarNextClicked()
-    {
-        switch (currentCalendarView)
-        {
-            case "week":
-                calendarCurrentDate = calendarCurrentDate.AddDays(7);
-                break;
-            case "day":
-                calendarCurrentDate = calendarCurrentDate.AddDays(1);
-                break;
-            default:
-                calendarCurrentDate = calendarCurrentDate.AddMonths(1);
-                break;
-        }
-
-        RenderCalendar();
-    }
-
-    private void OnCalendarTodayClicked()
-    {
-        calendarCurrentDate = DateTime.Today;
-        RenderCalendar();
-    }
-
-    private void OnCalendarMonthViewClicked() => SetCalendarView("month");
-    private void OnCalendarWeekViewClicked() => SetCalendarView("week");
-    private void OnCalendarDayViewClicked() => SetCalendarView("day");
-    private void OnCalendarAgendaViewClicked() => SetCalendarView("agenda");
-
-    private void SetCalendarView(string view)
-    {
-        currentCalendarView = view;
-
-        SetDisplay(calMonthView, view == "month");
-        SetDisplay(calWeekView, view == "week");
-        SetDisplay(calDayView, view == "day");
-        SetDisplay(calAgendaView, view == "agenda");
-
-        SetCalendarViewButtonActive(calMonthViewBtn, view == "month");
-        SetCalendarViewButtonActive(calWeekViewBtn, view == "week");
-        SetCalendarViewButtonActive(calDayViewBtn, view == "day");
-        SetCalendarViewButtonActive(calAgendaViewBtn, view == "agenda");
-
-        RenderCalendar();
+        RenderCalendarAll();
     }
 
     private void SetCalendarViewButtonActive(Button btn, bool active)
     {
         if (btn == null) return;
-
-        if (active)
-        {
-            if (!btn.ClassListContains("active"))
-                btn.AddToClassList("active");
-        }
-        else
-        {
-            btn.RemoveFromClassList("active");
-        }
+        if (active) btn.AddToClassList("active");
+        else btn.RemoveFromClassList("active");
     }
 
-    private void RenderCalendar()
+    private void NavigateCalendar(int dir)
     {
-        UpdateCalendarMonthLabels();
-        RenderMiniCalendar();
-        RenderUpcomingEvents();
+        if (calCurrentView == "month" || calCurrentView == "agenda")
+        {
+            calCurrentMonth += dir;
+            if (calCurrentMonth > 11) { calCurrentMonth = 0; calCurrentYear++; }
+            if (calCurrentMonth < 0) { calCurrentMonth = 11; calCurrentYear--; }
+        }
+        else if (calCurrentView == "week")
+        {
+            if (!calWeekStartDate.HasValue)
+                calWeekStartDate = GetCalendarWeekStart(calSelectedDate ?? DateTime.Today);
 
-        switch (currentCalendarView)
+            calWeekStartDate = calWeekStartDate.Value.AddDays(dir * 7);
+            calCurrentYear = calWeekStartDate.Value.Year;
+            calCurrentMonth = calWeekStartDate.Value.Month - 1;
+        }
+        else if (calCurrentView == "day")
+        {
+            if (!calDayViewDate.HasValue)
+                calDayViewDate = calSelectedDate ?? DateTime.Today;
+
+            calDayViewDate = calDayViewDate.Value.AddDays(dir);
+            calCurrentYear = calDayViewDate.Value.Year;
+            calCurrentMonth = calDayViewDate.Value.Month - 1;
+        }
+
+        RenderCalendarAll();
+    }
+
+    private void GoCalendarToday()
+    {
+        var today = DateTime.Today;
+        calCurrentYear = today.Year;
+        calCurrentMonth = today.Month - 1;
+        calSelectedDate = today;
+        calDayViewDate = today;
+        calWeekStartDate = GetCalendarWeekStart(today);
+        RenderCalendarAll();
+    }
+
+    private void RenderCalendarAll()
+    {
+        RenderCalendarToolbar();
+        RenderCalendarMini();
+        RenderCalendarCategories();
+
+        switch (calCurrentView)
         {
             case "week":
-                RenderWeekView();
+                RenderCalendarWeekView();
                 break;
             case "day":
-                RenderDayView();
+                RenderCalendarDayView();
                 break;
             case "agenda":
-                RenderAgendaView();
+                RenderCalendarAgendaView();
                 break;
             default:
-                RenderMonthView();
+                RenderCalendarMonthView();
                 break;
         }
     }
 
-    private void UpdateCalendarMonthLabels()
+    private void RenderCalendarToolbar()
     {
-        string monthText = calendarCurrentDate.ToString("MMMM yyyy", trCulture);
-        monthText = CapitalizeFirst(monthText);
+        if (calToolbarMonthLabel == null)
+            return;
 
-        if (calCurrentMonthLabel != null)
-            calCurrentMonthLabel.text = monthText;
-
-        if (calMiniMonthLabel != null)
-            calMiniMonthLabel.text = monthText;
+        var monthDate = new DateTime(calCurrentYear, calCurrentMonth + 1, 1);
+        calToolbarMonthLabel.text = monthDate.ToString("MMMM yyyy", trCulture);
     }
 
-    private void RenderMiniCalendar()
+    private void RenderCalendarMini()
     {
-        if (calMiniGrid == null) return;
+        if (calMiniGrid == null)
+            return;
 
         calMiniGrid.Clear();
 
+        var monthDate = new DateTime(calCurrentYear, calCurrentMonth + 1, 1);
+        if (calMiniMonthLabel != null)
+            calMiniMonthLabel.text = monthDate.ToString("MMMM yyyy", trCulture);
+
         string[] weekdays = { "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz" };
-        foreach (var wd in weekdays)
+        foreach (var day in weekdays)
         {
-            var wdLabel = new Label(wd);
-            wdLabel.AddToClassList("cal-mini-weekday");
-            calMiniGrid.Add(wdLabel);
+            var lbl = new Label(day);
+            lbl.AddToClassList("cal-mini-day-label");
+            lbl.style.unityTextAlign = TextAnchor.MiddleCenter;
+            calMiniGrid.Add(lbl);
         }
 
-        DateTime firstOfMonth = new DateTime(calendarCurrentDate.Year, calendarCurrentDate.Month, 1);
-        int startOffset = ((int)firstOfMonth.DayOfWeek + 6) % 7;
-        DateTime gridStart = firstOfMonth.AddDays(-startOffset);
+        int startOffset = ((int)monthDate.DayOfWeek + 6) % 7;
+        var gridStart = monthDate.AddDays(-startOffset);
 
         for (int i = 0; i < 42; i++)
         {
-            DateTime date = gridStart.AddDays(i);
+            var date = gridStart.AddDays(i);
+            var btn = new Button();
+            btn.text = date.Day.ToString();
+            btn.AddToClassList("cal-mini-day");
 
-            var day = new Label(date.Day.ToString());
-            day.AddToClassList("cal-mini-day");
-
-            if (date.Month != calendarCurrentDate.Month)
-                day.AddToClassList("other-month");
+            if (date.Month != monthDate.Month)
+                btn.AddToClassList("outside");
 
             if (date.Date == DateTime.Today)
-                day.AddToClassList("today");
+                btn.AddToClassList("today");
 
-            calMiniGrid.Add(day);
+            if (calSelectedDate.HasValue && date.Date == calSelectedDate.Value.Date)
+                btn.AddToClassList("selected");
+
+            btn.clicked += () =>
+            {
+                calSelectedDate = date;
+                calDayViewDate = date;
+                calCurrentYear = date.Year;
+                calCurrentMonth = date.Month - 1;
+                RenderCalendarAll();
+            };
+
+            calMiniGrid.Add(btn);
         }
     }
 
-    private void RenderUpcomingEvents()
+    private void RenderCalendarCategories()
     {
-        if (calUpcomingList == null) return;
+        if (calCategoryList == null)
+            return;
 
-        calUpcomingList.Clear();
+        calCategoryList.Clear();
 
-        var filtered = GetFilteredCalendarEvents();
-        filtered.Sort((a, b) => a.Date.CompareTo(b.Date));
+        if (calCategoryEmptyLabel != null)
+            calCategoryEmptyLabel.style.display = calendarCategories.Count == 0 ? DisplayStyle.Flex : DisplayStyle.None;
 
-        int count = Mathf.Min(4, filtered.Count);
+        foreach (var cat in calendarCategories)
+        {
+            var btn = new Button();
+            btn.text = string.Empty;
+            btn.AddToClassList("cal-cat-chip");
 
-        for (int i = 0; i < count; i++)
-            calUpcomingList.Add(BuildUpcomingEventItem(filtered[i]));
+            var content = new VisualElement();
+            content.AddToClassList("cal-cat-chip-content");
+
+            var dot = new VisualElement();
+            dot.AddToClassList("cal-cat-chip-dot");
+            dot.style.backgroundColor = ParseHexColor(GetCalendarTypeColor(cat.Type));
+
+            var label = new Label(cat.Label ?? "-");
+            label.AddToClassList("cal-cat-chip-label");
+
+            content.Add(dot);
+            content.Add(label);
+            btn.Add(content);
+
+            if (calActiveFilter == cat.Type)
+                btn.AddToClassList("active");
+
+            btn.clicked += () =>
+            {
+                calActiveFilter = calActiveFilter == cat.Type ? "all" : cat.Type;
+                RefreshCalendarFilterDropdown();
+                RenderCalendarAll();
+            };
+
+            calCategoryList.Add(btn);
+        }
     }
 
-    private VisualElement BuildUpcomingEventItem(CalendarEventData item)
+    private List<CalendarEventItem> GetFilteredCalendarEvents()
     {
-        var wrap = new VisualElement();
-        wrap.AddToClassList("cal-upcoming-item");
+        var list = new List<CalendarEventItem>();
 
-        var title = new Label(item.Title);
-        title.AddToClassList("cal-upcoming-title");
+        foreach (var ev in calendarEvents)
+        {
+            if (ev == null) continue;
 
-        var meta = new Label($"{item.TimeText} • {item.Date.ToString("dd MMM", trCulture)}");
-        meta.AddToClassList("cal-upcoming-meta");
+            if (calActiveFilter != "all" && !string.Equals(ev.Type, calActiveFilter, StringComparison.OrdinalIgnoreCase))
+                continue;
 
-        wrap.Add(title);
-        wrap.Add(meta);
+            if (!string.IsNullOrWhiteSpace(calSearchQuery))
+            {
+                string hay = $"{ev.Title} {ev.Location} {ev.Desc}".ToLowerInvariant();
+                if (!hay.Contains(calSearchQuery.ToLowerInvariant()))
+                    continue;
+            }
 
-        return wrap;
+            list.Add(ev);
+        }
+
+        return list
+            .OrderBy(x => x.Date)
+            .ThenBy(x => x.Start)
+            .ToList();
     }
 
-    private void RenderMonthView()
+    private void RenderCalendarMonthView()
     {
-        if (calMonthGrid == null) return;
+        if (calMonthGrid == null)
+            return;
 
         calMonthGrid.Clear();
 
-        DateTime firstOfMonth = new DateTime(calendarCurrentDate.Year, calendarCurrentDate.Month, 1);
-        int startOffset = ((int)firstOfMonth.DayOfWeek + 6) % 7;
-        DateTime gridStart = firstOfMonth.AddDays(-startOffset);
-
-        var filteredEvents = GetFilteredCalendarEvents();
+        var monthDate = new DateTime(calCurrentYear, calCurrentMonth + 1, 1);
+        int startOffset = ((int)monthDate.DayOfWeek + 6) % 7;
+        var gridStart = monthDate.AddDays(-startOffset);
 
         for (int i = 0; i < 42; i++)
         {
-            DateTime date = gridStart.AddDays(i);
-
+            var date = gridStart.AddDays(i);
             var cell = new VisualElement();
             cell.AddToClassList("cal-day-cell");
 
-            if (date.Month != calendarCurrentDate.Month)
-                cell.AddToClassList("other-month");
+            if (date.Date == DateTime.Today)
+                cell.AddToClassList("today");
 
-            var dayNumber = new Label(date.Day.ToString());
-            dayNumber.AddToClassList("cal-day-number");
-            cell.Add(dayNumber);
+            if (calSelectedDate.HasValue && date.Date == calSelectedDate.Value.Date)
+                cell.AddToClassList("selected");
+
+            var number = new Label(date.Day.ToString());
+            number.AddToClassList("cal-day-number");
+            number.style.unityTextAlign = TextAnchor.MiddleCenter;
+            if (date.Month != monthDate.Month)
+                number.AddToClassList("outside");
+            if (date.Date == DateTime.Today)
+                number.AddToClassList("today");
+
+            cell.Add(number);
 
             var eventsWrap = new VisualElement();
             eventsWrap.AddToClassList("cal-day-events");
 
-            int added = 0;
-            foreach (var ev in filteredEvents)
+            var dayEvents = GetFilteredCalendarEvents()
+                .Where(x => x.Date == date.ToString("yyyy-MM-dd"))
+                .Take(3)
+                .ToList();
+
+            foreach (var ev in dayEvents)
             {
-                if (ev.Date.Date != date.Date) continue;
+                var chip = new Button();
+                chip.text = ev.Title;
+                chip.AddToClassList("cal-event-chip");
+                chip.style.backgroundColor = ParseHexColor(GetCalendarTypeColor(ev.Type));
+                chip.style.color = ParseHexColor(GetCalendarTypeTextColor(ev.Type));
+                chip.clicked += () => OpenCalendarDetailModal(ev);
+                eventsWrap.Add(chip);
+            }
 
-                if (added >= 3) break;
-
-                var pill = new Label(ev.Title);
-                pill.AddToClassList("cal-event-pill");
-                AddCalendarCategoryClass(pill, ev.Category);
-                eventsWrap.Add(pill);
-                added++;
+            int totalCount = GetFilteredCalendarEvents().Count(x => x.Date == date.ToString("yyyy-MM-dd"));
+            if (totalCount > 3)
+            {
+                var more = new Button();
+                more.text = $"+ {totalCount - 3} daha";
+                more.AddToClassList("cal-more-link");
+                more.clicked += () =>
+                {
+                    calSelectedDate = date;
+                    calDayViewDate = date;
+                    SwitchCalendarView("day");
+                };
+                eventsWrap.Add(more);
             }
 
             cell.Add(eventsWrap);
+
+            cell.RegisterCallback<ClickEvent>(_ =>
+            {
+                calSelectedDate = date;
+                calDayViewDate = date;
+                RenderCalendarAll();
+            });
+
             calMonthGrid.Add(cell);
         }
     }
 
-    private void RenderWeekView()
+    private void RenderCalendarWeekView()
     {
-        if (calWeekHeader == null || calWeekBody == null) return;
+        if (calWeekHeader == null || calWeekBody == null)
+            return;
 
         calWeekHeader.Clear();
         calWeekBody.Clear();
 
-        DateTime weekStart = GetStartOfWeek(calendarCurrentDate);
-        string[] weekdays = { "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz" };
+        if (!calWeekStartDate.HasValue)
+            calWeekStartDate = GetCalendarWeekStart(calSelectedDate ?? DateTime.Today);
+
+        var placeholder = new Label("");
+        placeholder.AddToClassList("cal-week-header-cell");
+        placeholder.AddToClassList("cal-week-time-placeholder");
+        calWeekHeader.Add(placeholder);
+
+        var weekStart = calWeekStartDate.Value;
+        for (int i = 0; i < 7; i++)
+        {
+            var d = weekStart.AddDays(i);
+            var headerCell = new Label($"{GetWeekDayShort(i)} {d.Day}");
+            headerCell.AddToClassList("cal-week-header-cell");
+            headerCell.style.unityTextAlign = TextAnchor.MiddleCenter;
+            calWeekHeader.Add(headerCell);
+        }
+
+        var timeCol = new VisualElement();
+        timeCol.AddToClassList("cal-week-time-col");
+        for (int h = 7; h <= 20; h++)
+        {
+            var t = new Label($"{h:00}:00");
+            t.AddToClassList("cal-week-time-slot");
+            timeCol.Add(t);
+        }
+        calWeekBody.Add(timeCol);
 
         for (int i = 0; i < 7; i++)
         {
-            DateTime date = weekStart.AddDays(i);
+            var d = weekStart.AddDays(i);
+            var dayCol = new VisualElement();
+            dayCol.AddToClassList("cal-week-day-col");
 
-            var label = new Label($"{weekdays[i]} {date:dd}");
-            label.AddToClassList("cal-week-header-cell");
-            calWeekHeader.Add(label);
-        }
-
-        var bodyLabel = new Label("Haftalık görünüm hazırlanıyor");
-        bodyLabel.AddToClassList("cal-placeholder-label");
-        calWeekBody.Add(bodyLabel);
-    }
-
-    private void RenderDayView()
-    {
-        if (calDayHeader == null || calDayBody == null) return;
-
-        calDayHeader.Clear();
-        calDayBody.Clear();
-
-        var header = new Label(CapitalizeFirst(calendarCurrentDate.ToString("dd MMMM yyyy dddd", trCulture)));
-        header.AddToClassList("cal-day-header-label");
-        calDayHeader.Add(header);
-
-        var events = GetFilteredCalendarEvents().FindAll(x => x.Date.Date == calendarCurrentDate.Date);
-
-        if (events.Count == 0)
-        {
-            var empty = new Label("Bu gün için etkinlik yok.");
-            empty.AddToClassList("cal-placeholder-label");
-            calDayBody.Add(empty);
-            return;
-        }
-
-        foreach (var ev in events)
-        {
-            calDayBody.Add(BuildAgendaItem(ev));
-        }
-    }
-
-    private void RenderAgendaView()
-    {
-        if (calAgendaItems == null) return;
-
-        calAgendaItems.Clear();
-
-        var filtered = GetFilteredCalendarEvents();
-        filtered.Sort((a, b) => a.Date.CompareTo(b.Date));
-
-        foreach (var ev in filtered)
-            calAgendaItems.Add(BuildAgendaItem(ev));
-    }
-
-    private VisualElement BuildAgendaItem(CalendarEventData item)
-    {
-        var row = new VisualElement();
-        row.AddToClassList("cal-agenda-item");
-
-        var left = new VisualElement();
-        left.AddToClassList("cal-agenda-left");
-
-        var title = new Label(item.Title);
-        title.AddToClassList("cal-agenda-title");
-
-        var subtitle = new Label($"{item.Date.ToString("dd MMMM yyyy", trCulture)} • {item.TimeText}");
-        subtitle.AddToClassList("cal-agenda-subtitle");
-
-        left.Add(title);
-        left.Add(subtitle);
-
-        var badge = new Label(item.Category);
-        badge.AddToClassList("cal-agenda-badge");
-
-        row.Add(left);
-        row.Add(badge);
-
-        return row;
-    }
-
-    private List<CalendarEventData> GetFilteredCalendarEvents()
-    {
-        var result = new List<CalendarEventData>();
-        string search = calSearchInput != null ? (calSearchInput.value ?? "").Trim().ToLowerInvariant() : "";
-        string filter = calFilterDropdown != null ? (calFilterDropdown.value ?? "Tüm Etkinlikler") : "Tüm Etkinlikler";
-
-        foreach (var item in sampleCalendarEvents)
-        {
-            if (item == null) continue;
-
-            if (filter != "Tüm Etkinlikler" && item.Category != filter)
-                continue;
-
-            if (!string.IsNullOrWhiteSpace(search))
+            for (int h = 7; h <= 20; h++)
             {
-                bool matches =
-                    (item.Title ?? "").ToLowerInvariant().Contains(search) ||
-                    (item.Category ?? "").ToLowerInvariant().Contains(search) ||
-                    (item.Description ?? "").ToLowerInvariant().Contains(search);
-
-                if (!matches)
-                    continue;
+                var slot = new VisualElement();
+                slot.AddToClassList("cal-week-slot");
+                dayCol.Add(slot);
             }
 
-            result.Add(item);
+            foreach (var ev in GetFilteredCalendarEvents().Where(x => x.Date == d.ToString("yyyy-MM-dd")))
+            {
+                var block = new VisualElement();
+                block.AddToClassList("cal-week-event");
+                block.style.backgroundColor = ParseHexColor(GetCalendarTypeColor(ev.Type));
+                block.style.color = ParseHexColor(GetCalendarTypeTextColor(ev.Type));
+
+                int startHour = ParseHour(ev.Start);
+                int startMinute = ParseMinute(ev.Start);
+                int endHour = ParseHour(ev.End);
+                int endMinute = ParseMinute(ev.End);
+
+                float top = (startHour - 7) * 50f + (startMinute / 60f) * 50f;
+                float height = Mathf.Max(20f, (((endHour - startHour) * 60f + (endMinute - startMinute)) / 60f) * 50f);
+
+                block.style.top = top;
+                block.style.height = height;
+
+                block.Add(new Label(ev.Title) { name = "WeekEventTitle" });
+                block.Add(new Label($"{ev.Start} - {ev.End}") { name = "WeekEventTime" });
+
+                block.RegisterCallback<ClickEvent>(_ => OpenCalendarDetailModal(ev));
+                dayCol.Add(block);
+            }
+
+            calWeekBody.Add(dayCol);
+        }
+    }
+
+    private void RenderCalendarDayView()
+    {
+        if (calDayHeaderLabel == null || calDayTimeCol == null || calDayEventsCol == null)
+            return;
+
+        var day = calDayViewDate ?? calSelectedDate ?? DateTime.Today;
+        calDayHeaderLabel.text = day.ToString("dddd, dd MMMM yyyy", trCulture);
+
+        calDayTimeCol.Clear();
+        calDayEventsCol.Clear();
+
+        for (int h = 7; h <= 20; h++)
+        {
+            var time = new Label($"{h:00}:00");
+            time.AddToClassList("cal-day-time-slot");
+            calDayTimeCol.Add(time);
+
+            var slot = new VisualElement();
+            slot.AddToClassList("cal-day-slot");
+            calDayEventsCol.Add(slot);
         }
 
-        return result;
-    }
-
-    private void AddCalendarCategoryClass(VisualElement el, string category)
-    {
-        if (el == null) return;
-
-        switch (category)
+        foreach (var ev in GetFilteredCalendarEvents().Where(x => x.Date == day.ToString("yyyy-MM-dd")))
         {
-            case "Sınav":
-                el.AddToClassList("exam");
-                break;
-            case "Toplantı":
-                el.AddToClassList("meeting");
-                break;
-            case "Son Tarih":
-                el.AddToClassList("deadline");
-                break;
+            var block = new VisualElement();
+            block.AddToClassList("cal-day-event");
+            block.style.backgroundColor = ParseHexColor(GetCalendarTypeColor(ev.Type));
+            block.style.color = ParseHexColor(GetCalendarTypeTextColor(ev.Type));
+
+            int startHour = ParseHour(ev.Start);
+            int startMinute = ParseMinute(ev.Start);
+            int endHour = ParseHour(ev.End);
+            int endMinute = ParseMinute(ev.End);
+
+            float top = (startHour - 7) * 56f + (startMinute / 60f) * 56f;
+            float height = Mathf.Max(28f, (((endHour - startHour) * 60f + (endMinute - startMinute)) / 60f) * 56f);
+
+            block.style.top = top;
+            block.style.height = height;
+
+            var title = new Label(ev.Title);
+            title.AddToClassList("cal-day-event-title");
+            var time = new Label($"{ev.Start} - {ev.End}");
+            time.AddToClassList("cal-day-event-time");
+            var loc = new Label(string.IsNullOrWhiteSpace(ev.Location) ? "-" : ev.Location);
+            loc.AddToClassList("cal-day-event-loc");
+
+            block.Add(title);
+            block.Add(time);
+            block.Add(loc);
+
+            block.RegisterCallback<ClickEvent>(_ => OpenCalendarDetailModal(ev));
+            calDayEventsCol.Add(block);
         }
     }
 
-    private void OpenCalendarModalForCreate()
+    private void RenderCalendarAgendaView()
     {
-        if (calEventModal == null) return;
+        if (calAgendaContent == null)
+            return;
 
-        if (calModalTitleLabel != null)
-            calModalTitleLabel.text = "Etkinlik Ekle";
+        calAgendaContent.Clear();
 
-        if (calEventTitleInput != null) calEventTitleInput.value = "";
-        if (calEventTypeDropdown != null) calEventTypeDropdown.value = "Ders";
-        if (calEventDateInput != null) calEventDateInput.value = DateTime.Today.ToString("dd.MM.yyyy");
-        if (calEventTimeInput != null) calEventTimeInput.value = "09:00";
-        if (calEventDescriptionInput != null) calEventDescriptionInput.value = "";
+        var grouped = GetFilteredCalendarEvents()
+            .GroupBy(x => x.Date)
+            .OrderBy(x => x.Key);
 
-        calEventModal.style.display = DisplayStyle.Flex;
-    }
-
-    private void CloseCalendarModal()
-    {
-        if (calEventModal == null) return;
-        calEventModal.style.display = DisplayStyle.None;
-    }
-
-    private void OnCalendarSaveClicked()
-    {
-        string title = calEventTitleInput != null ? (calEventTitleInput.value ?? "").Trim() : "";
-        string category = calEventTypeDropdown != null ? (calEventTypeDropdown.value ?? "Ders") : "Ders";
-        string dateText = calEventDateInput != null ? (calEventDateInput.value ?? "").Trim() : "";
-        string timeText = calEventTimeInput != null ? (calEventTimeInput.value ?? "").Trim() : "09:00";
-        string desc = calEventDescriptionInput != null ? (calEventDescriptionInput.value ?? "").Trim() : "";
-
-        if (string.IsNullOrWhiteSpace(title))
+        foreach (var group in grouped)
         {
-            Debug.LogWarning("[CALENDAR] Başlık boş olamaz.");
+            var grp = new VisualElement();
+            grp.AddToClassList("cal-agenda-date-group");
+
+            DateTime date;
+            DateTime.TryParse(group.Key, out date);
+
+            var lbl = new Label(date == default ? group.Key : date.ToString("dddd, dd MMMM yyyy", trCulture));
+            lbl.AddToClassList("cal-agenda-date-label");
+            grp.Add(lbl);
+
+            foreach (var ev in group)
+            {
+                var item = new VisualElement();
+                item.AddToClassList("cal-agenda-item");
+
+                var dot = new VisualElement();
+                dot.AddToClassList("cal-agenda-dot");
+                dot.style.backgroundColor = ParseHexColor(GetCalendarTypeColor(ev.Type));
+
+                var info = new VisualElement();
+                info.AddToClassList("cal-agenda-info");
+
+                var title = new Label(ev.Title);
+                title.AddToClassList("cal-agenda-title");
+
+                var meta = new Label($"{ev.Start} - {ev.End}" + (string.IsNullOrWhiteSpace(ev.Location) ? "" : $" · {ev.Location}"));
+                meta.AddToClassList("cal-agenda-meta");
+
+                info.Add(title);
+                info.Add(meta);
+
+                var badge = new Label(GetCalendarTypeLabel(ev.Type));
+                badge.AddToClassList("cal-agenda-badge");
+                badge.style.backgroundColor = ParseHexColor(GetCalendarTypeColor(ev.Type));
+                badge.style.color = ParseHexColor(GetCalendarTypeTextColor(ev.Type));
+
+                item.Add(dot);
+                item.Add(info);
+                item.Add(badge);
+
+                item.RegisterCallback<ClickEvent>(_ => OpenCalendarDetailModal(ev));
+                grp.Add(item);
+            }
+
+            calAgendaContent.Add(grp);
+        }
+    }
+
+    private void OpenCalendarAddModal(bool editMode = false)
+    {
+        if (calAddModal == null) return;
+
+        RefreshCalendarClassDropdown();
+        if (lastItems == null)
+            StartCoroutine(FetchMyClasses());
+
+        if (!editMode)
+        {
+            calEditingEventId = null;
+
+            if (calAddTitleInput != null) calAddTitleInput.value = string.Empty;
+            if (calAddDescInput != null) calAddDescInput.value = string.Empty;
+
+            if (calAddTypeDropdown != null && calAddTypeDropdown.choices != null && calAddTypeDropdown.choices.Count > 0)
+                calAddTypeDropdown.index = 0;
+
+            if (calAddClassDropdown != null)
+            {
+                if (calAddClassDropdown.choices != null && calAddClassDropdown.choices.Contains("Kişisel"))
+                    calAddClassDropdown.value = "Kişisel";
+                else if (calAddClassDropdown.choices != null && calAddClassDropdown.choices.Count > 0)
+                    calAddClassDropdown.index = 0;
+            }
+
+            if (calAddDateInput != null)
+                calAddDateInput.value = (calSelectedDate ?? DateTime.Today).ToString("yyyy-MM-dd");
+
+            if (calAddStartInput != null) calAddStartInput.value = "09:00";
+            if (calAddEndInput != null) calAddEndInput.value = "10:00";
+        }
+
+        calAddModal.RemoveFromClassList("hidden");
+    }
+
+    private void CloseCalendarAddModal()
+    {
+        if (calAddModal == null) return;
+        calAddModal.AddToClassList("hidden");
+    }
+
+    private void OpenCalendarCategoryModal()
+    {
+        if (calCategoryNameInput != null)
+            calCategoryNameInput.value = "";
+
+        calSelectedPresetColor = "";
+        RefreshCalendarPresetSelectionUI();
+
+        if (calCategoryColorInput != null)
+            calCategoryColorInput.value = "";
+
+        calSelectedTextColor = "#ffffff";
+        RefreshCalendarTextColorSelectionUI();
+
+        calCategoryModal?.RemoveFromClassList("hidden");
+    }
+
+    private void CloseCalendarCategoryModal()
+    {
+        calCategoryModal?.AddToClassList("hidden");
+    }
+
+    private void OpenCalendarDetailModal(CalendarEventItem ev)
+    {
+        if (ev == null || calDetailModal == null) return;
+
+        calCurrentDetailEvent = ev;
+        calDetailModal.RemoveFromClassList("hidden");
+
+        if (calDetailTitleLabel != null) calDetailTitleLabel.text = ev.Title;
+        if (calDetailTypeLabel != null)
+        {
+            calDetailTypeLabel.text = GetCalendarTypeLabel(ev.Type);
+            calDetailTypeLabel.style.backgroundColor = ParseHexColor(GetCalendarTypeColor(ev.Type));
+            calDetailTypeLabel.style.color = ParseHexColor(GetCalendarTypeTextColor(ev.Type));
+        }
+
+        if (calDetailDateLabel != null) calDetailDateLabel.text = ev.Date;
+        if (calDetailTimeLabel != null) calDetailTimeLabel.text = $"{ev.Start} - {ev.End}";
+        if (calDetailLocationLabel != null)
+            calDetailLocationLabel.text = string.IsNullOrWhiteSpace(ev.RelatedClass)
+                ? "Kişisel"
+                : ev.RelatedClass;
+        if (calDetailDescLabel != null) calDetailDescLabel.text = string.IsNullOrWhiteSpace(ev.Desc) ? "-" : ev.Desc;
+    }
+
+    private void CloseCalendarDetailModal()
+    {
+        calDetailModal?.AddToClassList("hidden");
+        calCurrentDetailEvent = null;
+    }
+
+    private void SaveCalendarEvent()
+    {
+        string title = calAddTitleInput?.value?.Trim() ?? "";
+        string type = calAddTypeDropdown?.value ?? "";
+        string date = calAddDateInput?.value?.Trim() ?? "";
+        string start = calAddStartInput?.value?.Trim() ?? "09:00";
+        string end = calAddEndInput?.value?.Trim() ?? "10:00";
+        string relatedClass = calAddClassDropdown?.value ?? "";
+        string desc = calAddDescInput?.value?.Trim() ?? "";
+
+        if (string.IsNullOrWhiteSpace(relatedClass) || relatedClass == "Seçiniz")
+            relatedClass = "Kişisel";
+
+        if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(date))
+        {
+            Debug.LogWarning("[CALENDAR] Başlık ve tarih zorunlu.");
             return;
         }
 
-        if (!DateTime.TryParseExact(dateText, "dd.MM.yyyy", trCulture, DateTimeStyles.None, out var parsedDate))
+        if (calendarCategories.Count == 0 || string.IsNullOrWhiteSpace(type) || type == "Önce kategori ekleyin")
         {
-            Debug.LogWarning("[CALENDAR] Tarih formatı dd.MM.yyyy olmalı.");
+            Debug.LogWarning("[CALENDAR] Etkinlik eklemeden önce kategori eklemelisiniz.");
             return;
         }
 
-        sampleCalendarEvents.Add(new CalendarEventData
+        var dto = new CalendarUpsertEventRequest
         {
             Title = title,
-            Category = category,
-            Date = parsedDate,
-            TimeText = string.IsNullOrWhiteSpace(timeText) ? "09:00" : timeText,
-            Description = desc
-        });
+            Type = type,
+            Date = date,
+            Start = string.IsNullOrWhiteSpace(start) ? "09:00" : start,
+            End = string.IsNullOrWhiteSpace(end) ? "10:00" : end,
+            Location = string.Empty,
+            RelatedClass = relatedClass,
+            Desc = desc
+        };
 
-        CloseCalendarModal();
-        RenderCalendar();
+        if (calEditingEventId.HasValue)
+            StartCoroutine(UpdateCalendarEvent(calEditingEventId.Value, dto));
+        else
+            StartCoroutine(CreateCalendarEvent(dto));
     }
 
-    private void OnCalendarDeleteClicked()
+    private void SaveCalendarCategory()
     {
-        CloseCalendarModal();
+        string label = calCategoryNameInput?.value?.Trim() ?? "";
+        string color = ResolveCalendarCategoryColor();
+        string textColor = ResolveCalendarCategoryTextColor(color);
+
+        if (string.IsNullOrWhiteSpace(label))
+        {
+            Debug.LogWarning("[CALENDAR] Kategori adı boş olamaz.");
+            return;
+        }
+
+        StartCoroutine(CreateCalendarCategory(new CalendarCreateCategoryRequest
+        {
+            Label = label,
+            Color = color,
+            TextColor = textColor
+        }));
     }
 
-    [Serializable]
-    private class CalendarEventData
+    private string ResolveCalendarCategoryColor()
     {
-        public string Title;
-        public string Category;
-        public DateTime Date;
-        public string TimeText;
-        public string Description;
+        string manual = calCategoryColorInput?.value?.Trim() ?? "";
+
+        if (!string.IsNullOrWhiteSpace(manual) && ColorUtility.TryParseHtmlString(manual, out _))
+            return manual;
+
+        if (!string.IsNullOrWhiteSpace(calSelectedPresetColor) && ColorUtility.TryParseHtmlString(calSelectedPresetColor, out _))
+            return calSelectedPresetColor;
+
+        return CalendarDefaultCategoryColors[0];
     }
 
-    // ----------------------------------------------
+    private string ResolveCalendarCategoryTextColor(string backgroundColor)
+    {
+        if (!string.IsNullOrWhiteSpace(calSelectedTextColor) && ColorUtility.TryParseHtmlString(calSelectedTextColor, out _))
+            return calSelectedTextColor;
+
+        return AutoTextColorFor(backgroundColor);
+    }
+
+    private void BindCalendarPresetColorButtons()
+    {
+        calCategoryPresetColorButtons.Clear();
+
+        for (int i = 0; i < CalendarDefaultCategoryColors.Length; i++)
+        {
+            int index = i;
+            string buttonName = $"CalPresetColor{(i + 1).ToString("00")}";
+            var button = root.Q<Button>(buttonName);
+            if (button == null)
+                continue;
+
+            string hex = CalendarDefaultCategoryColors[i];
+            button.clicked += () => SelectCalendarPresetColor(index, hex);
+            calCategoryPresetColorButtons.Add(button);
+        }
+    }
+
+    private void BindCalendarTextColorButtons()
+    {
+        if (calTextColorWhiteBtn != null)
+            calTextColorWhiteBtn.clicked += () => SelectCalendarTextColor("#ffffff");
+
+        if (calTextColorBlackBtn != null)
+            calTextColorBlackBtn.clicked += () => SelectCalendarTextColor("#111111");
+    }
+
+    private void SelectCalendarTextColor(string hex)
+    {
+        calSelectedTextColor = hex;
+        RefreshCalendarTextColorSelectionUI();
+    }
+
+    private void RefreshCalendarTextColorSelectionUI()
+    {
+        StyleTextColorButton(calTextColorWhiteBtn, string.Equals(calSelectedTextColor, "#ffffff", StringComparison.OrdinalIgnoreCase));
+        StyleTextColorButton(calTextColorBlackBtn, string.Equals(calSelectedTextColor, "#111111", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private void StyleTextColorButton(Button button, bool selected)
+    {
+        if (button == null)
+            return;
+
+        button.style.borderLeftWidth = selected ? 2 : 1;
+        button.style.borderRightWidth = selected ? 2 : 1;
+        button.style.borderTopWidth = selected ? 2 : 1;
+        button.style.borderBottomWidth = selected ? 2 : 1;
+        button.style.borderLeftColor = selected ? new Color(0.13f, 0.13f, 0.13f, 1f) : new Color(0.79f, 0.79f, 0.79f, 1f);
+        button.style.borderRightColor = selected ? new Color(0.13f, 0.13f, 0.13f, 1f) : new Color(0.79f, 0.79f, 0.79f, 1f);
+        button.style.borderTopColor = selected ? new Color(0.13f, 0.13f, 0.13f, 1f) : new Color(0.79f, 0.79f, 0.79f, 1f);
+        button.style.borderBottomColor = selected ? new Color(0.13f, 0.13f, 0.13f, 1f) : new Color(0.79f, 0.79f, 0.79f, 1f);
+    }
+
+    private void SelectCalendarPresetColor(int index, string hex)
+    {
+        calSelectedPresetColor = hex;
+        if (calCategoryColorInput != null)
+            calCategoryColorInput.value = hex;
+
+        RefreshCalendarPresetSelectionUI(index);
+    }
+
+    private void RefreshCalendarPresetSelectionUI(int selectedIndex = -1)
+    {
+        for (int i = 0; i < calCategoryPresetColorButtons.Count; i++)
+        {
+            var btn = calCategoryPresetColorButtons[i];
+            if (btn == null)
+                continue;
+
+            bool isSelected = i == selectedIndex;
+            btn.style.borderLeftWidth = isSelected ? 2 : 1;
+            btn.style.borderRightWidth = isSelected ? 2 : 1;
+            btn.style.borderTopWidth = isSelected ? 2 : 1;
+            btn.style.borderBottomWidth = isSelected ? 2 : 1;
+            btn.style.borderLeftColor = isSelected ? new Color(0.13f, 0.13f, 0.13f, 1f) : new Color(0.79f, 0.79f, 0.79f, 1f);
+            btn.style.borderRightColor = isSelected ? new Color(0.13f, 0.13f, 0.13f, 1f) : new Color(0.79f, 0.79f, 0.79f, 1f);
+            btn.style.borderTopColor = isSelected ? new Color(0.13f, 0.13f, 0.13f, 1f) : new Color(0.79f, 0.79f, 0.79f, 1f);
+            btn.style.borderBottomColor = isSelected ? new Color(0.13f, 0.13f, 0.13f, 1f) : new Color(0.79f, 0.79f, 0.79f, 1f);
+        }
+    }
+
+    private void DeleteCalendarDetailEvent()
+    {
+        if (calCurrentDetailEvent == null)
+            return;
+
+        StartCoroutine(DeleteCalendarEvent(calCurrentDetailEvent.Id));
+    }
+
+    private void EditCalendarDetailEvent()
+    {
+        if (calCurrentDetailEvent == null)
+            return;
+
+        var ev = calCurrentDetailEvent;
+        CloseCalendarDetailModal();
+        OpenCalendarAddModal(true);
+        calEditingEventId = ev.Id;
+
+        if (calAddTitleInput != null) calAddTitleInput.value = ev.Title;
+        if (calAddTypeDropdown != null) calAddTypeDropdown.value = ev.Type;
+        if (calAddDateInput != null) calAddDateInput.value = ev.Date;
+        if (calAddStartInput != null) calAddStartInput.value = ev.Start;
+        if (calAddEndInput != null) calAddEndInput.value = ev.End;
+        if (calAddClassDropdown != null)
+            calAddClassDropdown.value = string.IsNullOrWhiteSpace(ev.RelatedClass) ? "Kişisel" : ev.RelatedClass;
+        if (calAddDescInput != null) calAddDescInput.value = ev.Desc;
+    }
+
+    private IEnumerator CreateCalendarCategory(CalendarCreateCategoryRequest dto)
+    {
+        if (router == null)
+            yield break;
+
+        string url = BuildCalendarCategoriesUrl();
+        string json = JsonUtility.ToJson(dto);
+
+        using var req = new UnityWebRequest(url, "POST");
+        req.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json));
+        req.downloadHandler = new DownloadHandlerBuffer();
+        req.SetRequestHeader("Content-Type", "application/json");
+        if (!string.IsNullOrEmpty(router.AccessToken))
+            req.SetRequestHeader("Authorization", "Bearer " + router.AccessToken);
+
+        yield return req.SendWebRequest();
+
+        if (req.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError($"[CALENDAR] CATEGORY CREATE FAILED {(int)req.responseCode} => {req.downloadHandler?.text}");
+            yield break;
+        }
+
+        CloseCalendarCategoryModal();
+        yield return StartCoroutine(LoadCalendarData(false));
+        RenderCalendarAll();
+    }
+
+    private IEnumerator CreateCalendarEvent(CalendarUpsertEventRequest dto)
+    {
+        if (router == null)
+            yield break;
+
+        string url = BuildCalendarEventsUrl();
+        string json = JsonUtility.ToJson(dto);
+
+        using var req = new UnityWebRequest(url, "POST");
+        req.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json));
+        req.downloadHandler = new DownloadHandlerBuffer();
+        req.SetRequestHeader("Content-Type", "application/json");
+        if (!string.IsNullOrEmpty(router.AccessToken))
+            req.SetRequestHeader("Authorization", "Bearer " + router.AccessToken);
+
+        yield return req.SendWebRequest();
+
+        if (req.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError($"[CALENDAR] EVENT CREATE FAILED {(int)req.responseCode} => {req.downloadHandler?.text}");
+            yield break;
+        }
+
+        calEditingEventId = null;
+        CloseCalendarAddModal();
+        yield return StartCoroutine(FetchCalendarEvents());
+        RenderCalendarAll();
+    }
+
+    private IEnumerator UpdateCalendarEvent(int eventId, CalendarUpsertEventRequest dto)
+    {
+        if (router == null)
+            yield break;
+
+        string url = BuildCalendarEventsUrl() + "/" + eventId;
+        string json = JsonUtility.ToJson(dto);
+
+        using var req = new UnityWebRequest(url, "PUT");
+        req.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json));
+        req.downloadHandler = new DownloadHandlerBuffer();
+        req.SetRequestHeader("Content-Type", "application/json");
+        if (!string.IsNullOrEmpty(router.AccessToken))
+            req.SetRequestHeader("Authorization", "Bearer " + router.AccessToken);
+
+        yield return req.SendWebRequest();
+
+        if (req.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError($"[CALENDAR] EVENT UPDATE FAILED {(int)req.responseCode} => {req.downloadHandler?.text}");
+            yield break;
+        }
+
+        calEditingEventId = null;
+        CloseCalendarAddModal();
+        yield return StartCoroutine(FetchCalendarEvents());
+        RenderCalendarAll();
+    }
+
+    private IEnumerator DeleteCalendarEvent(int eventId)
+    {
+        if (router == null)
+            yield break;
+
+        string url = BuildCalendarEventsUrl() + "/" + eventId;
+        using var req = new UnityWebRequest(url, "DELETE");
+        req.downloadHandler = new DownloadHandlerBuffer();
+        if (!string.IsNullOrEmpty(router.AccessToken))
+            req.SetRequestHeader("Authorization", "Bearer " + router.AccessToken);
+
+        yield return req.SendWebRequest();
+
+        if (req.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError($"[CALENDAR] EVENT DELETE FAILED {(int)req.responseCode} => {req.downloadHandler?.text}");
+            yield break;
+        }
+
+        CloseCalendarDetailModal();
+        yield return StartCoroutine(FetchCalendarEvents());
+        RenderCalendarAll();
+    }
+
+    private DateTime GetCalendarWeekStart(DateTime date)
+    {
+        int diff = ((int)date.DayOfWeek + 6) % 7;
+        return date.Date.AddDays(-diff);
+    }
+
+    private string GetWeekDayShort(int index)
+    {
+        string[] days = { "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz" };
+        return days[Mathf.Clamp(index, 0, days.Length - 1)];
+    }
+
+    private string GetCalendarTypeColor(string type)
+    {
+        var cat = calendarCategories.FirstOrDefault(x => x.Type == type);
+        return cat != null && !string.IsNullOrWhiteSpace(cat.Color) ? cat.Color : "#7f8c8d";
+    }
+
+    private string GetCalendarTypeTextColor(string type)
+    {
+        var cat = calendarCategories.FirstOrDefault(x => x.Type == type);
+        if (cat != null && !string.IsNullOrWhiteSpace(cat.TextColor) && ColorUtility.TryParseHtmlString(cat.TextColor, out _))
+            return cat.TextColor;
+
+        return AutoTextColorFor(GetCalendarTypeColor(type));
+    }
+
+    private string GetCalendarTypeLabel(string type)
+    {
+        var cat = calendarCategories.FirstOrDefault(x => x.Type == type);
+        return cat != null && !string.IsNullOrWhiteSpace(cat.Label) ? cat.Label : "Kategori";
+    }
+
+    private string AutoTextColorFor(string backgroundHex)
+    {
+        if (!ColorUtility.TryParseHtmlString(backgroundHex, out var bg))
+            return "#ffffff";
+
+        float luminance = 0.2126f * bg.r + 0.7152f * bg.g + 0.0722f * bg.b;
+        return luminance > 0.62f ? "#111111" : "#ffffff";
+    }
+
+    private string MakeCalendarTypeKey(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return "kategori";
+
+        string key = input.Trim().ToLowerInvariant();
+        key = key.Replace("ı", "i").Replace("ğ", "g").Replace("ü", "u").Replace("ş", "s").Replace("ö", "o").Replace("ç", "c");
+        key = new string(key.Where(c => char.IsLetterOrDigit(c) || c == ' ' || c == '-').ToArray());
+        key = string.Join("-", key.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
+        return string.IsNullOrWhiteSpace(key) ? "kategori" : key;
+    }
+
+    private int ParseHour(string time)
+    {
+        if (string.IsNullOrWhiteSpace(time)) return 9;
+        var parts = time.Split(':');
+        return parts.Length > 0 && int.TryParse(parts[0], out var h) ? h : 9;
+    }
+
+    private int ParseMinute(string time)
+    {
+        if (string.IsNullOrWhiteSpace(time)) return 0;
+        var parts = time.Split(':');
+        return parts.Length > 1 && int.TryParse(parts[1], out var m) ? m : 0;
+    }
+
+    private Color ParseHexColor(string hex)
+    {
+        if (ColorUtility.TryParseHtmlString(hex, out var c))
+            return c;
+
+        return new Color32(127, 140, 141, 255);
+    }
+
+    #endregion
 
     // ---------------- HELPERS ----------------
 
@@ -4911,6 +6691,13 @@ public class TeacherDashboardController : MonoBehaviour
 
         return req;
     }
+
+    private void OnGoSimulationClicked()
+    {
+        SceneManager.LoadScene("SolarSystemScene", LoadSceneMode.Single);
+    }
+
+    
 
     // ---------------- DTOs ----------------
 
@@ -4962,6 +6749,10 @@ public class TeacherDashboardController : MonoBehaviour
         public string StartDate;
         public int DurationDays;
         public string CreatedAt;
+        public int CompletedStudentCount;
+        public int IncompleteStudentCount;
+        public int ClassStudentCount;
+        public int CompletionPercent;
     }
 
     [Serializable]
@@ -5008,6 +6799,18 @@ public class TeacherDashboardController : MonoBehaviour
         public string Status;
     }
 
+    private class TeacherJoinRequestNotificationItem
+    {
+        public int ClassId;
+        public string ClassName;
+        public int UserId;
+        public string Name;
+        public string Surname;
+        public string Email;
+        public string RequestedAt;
+        public string Status;
+    }
+
     [Serializable]
     private class JoinRequestListWrapper
     {
@@ -5022,6 +6825,8 @@ public class TeacherDashboardController : MonoBehaviour
         public string Surname;
         public string Email;
         public string JoinedAt;
+
+        public int SuccessRatePercent;
     }
 
     [Serializable]
@@ -5112,6 +6917,51 @@ public class TeacherDashboardController : MonoBehaviour
     }
 
     [Serializable]
+    private class SettingsApiMessageDto
+    {
+        public string message;
+    }
+
+    [Serializable]
+    private class SettingsUserUpdatePayloadDto
+    {
+        public int Id;
+        public string Name;
+        public string Surname;
+        public string Email;
+        public string PasswordHash;
+        public string PasswordSalt;
+        public int RoleId;
+        public string CreatedAt;
+        public string LastLogin;
+        public bool IsActive;
+        public string ProfilePictureUrl;
+        public string Phone;
+        public string BirthDate;
+    }
+
+    [Serializable]
+    private class TeacherRoleRequestStateDto
+    {
+        public bool HasRequest;
+        public int Id;
+        public string Status;
+        public string Note;
+        public string DecisionNote;
+        public string RequestedAtUtc;
+        public string ReviewedAtUtc;
+        public int ReviewedByUserId;
+    }
+
+    [Serializable]
+    private class RoleChangeNotificationDto
+    {
+        public string Id;
+        public string Message;
+        public DateTime Timestamp;
+    }
+
+    [Serializable]
     private class WeeklySessionHoursDto
     {
         public WeeklySessionDayDto[] items;
@@ -5123,5 +6973,40 @@ public class TeacherDashboardController : MonoBehaviour
         public int dayIndex;
         public string dayLabel;
         public float hours;
+    }
+
+    [Serializable]
+    private class CompletedStudentResultDto
+    {
+        public int ResultId;
+        public int StudentId;
+        public string StudentName;
+        public string StudentSurname;
+        public int CorrectCount;
+        public int WrongCount;
+        public int TotalQuestionCount;
+        public int Score;
+        public string CompletedAt;
+    }
+
+    [Serializable]
+    private class CompletedStudentResultListWrapper
+    {
+        public CompletedStudentResultDto[] items;
+    }
+
+    [Serializable]
+    private class StudentAnswerDto
+    {
+        public string QuestionText;
+        public string StudentAnswer;
+        public string CorrectAnswer;
+        public bool IsCorrect;
+    }
+
+    [Serializable]
+    private class StudentAnswerListWrapper
+    {
+        public StudentAnswerDto[] items;
     }
 }

@@ -95,6 +95,22 @@ using (var scope = app.Services.CreateScope())
 
     db.Database.Migrate();
 
+    db.Database.ExecuteSqlRaw(@"
+        CREATE TABLE IF NOT EXISTS `teacher_role_requests` (
+            `Id` INT NOT NULL AUTO_INCREMENT,
+            `UserId` INT NOT NULL,
+            `Status` VARCHAR(20) NOT NULL,
+            `Note` VARCHAR(1000) NULL,
+            `DecisionNote` VARCHAR(1000) NULL,
+            `RequestedAtUtc` DATETIME(6) NOT NULL,
+            `ReviewedAtUtc` DATETIME(6) NULL,
+            `ReviewedByUserId` INT NULL,
+            CONSTRAINT `PK_teacher_role_requests` PRIMARY KEY (`Id`),
+            CONSTRAINT `FK_teacher_role_requests_users_UserId`
+                FOREIGN KEY (`UserId`) REFERENCES `users` (`Id`) ON DELETE CASCADE
+        ) CHARACTER SET utf8mb4;
+    ");
+
     if (!db.Experiments.Any())
     {
         db.Experiments.AddRange(ExperimentSeed.GetSeeds());

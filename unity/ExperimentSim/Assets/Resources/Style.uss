@@ -267,7 +267,7 @@ TextField {
     margin-bottom: 40px;
 }
 
-.form-grid .input-group { width: 50%; }
+.form-grid .input-group { width: 49%; }
 
 .input-group {
     margin-bottom: 6px;

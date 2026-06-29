@@ -37,6 +37,15 @@ namespace ExperimentSimulation.EntityLayer.Concrete
         public ICollection<ContentTask> CreatedContentTasks { get; set; } = new List<ContentTask>();
         public ICollection<ContentTaskComment> ContentTaskComments { get; set; } = new List<ContentTaskComment>();
         public ICollection<ContentTaskRevisionRequest> ContentTaskRevisionRequests { get; set; } = new List<ContentTaskRevisionRequest>();
+        public ICollection<TeacherRoleRequest> TeacherRoleRequests { get; set; } = new List<TeacherRoleRequest>();
         public ICollection<TodoItem> TodoItems { get; set; } = new List<TodoItem>();
+        public ICollection<CalendarCategory> CalendarCategories { get; set; } = new List<CalendarCategory>();
+        public ICollection<CalendarEvent> CalendarEvents { get; set; } = new List<CalendarEvent>();
+
+        public ICollection<AssignmentResult> AssignmentResults { get; set; } = new List<AssignmentResult>();
+
+        public ICollection<AssignmentAnswer> AssignmentAnswers { get; set; } = new List<AssignmentAnswer>();
+
+
     }
 }

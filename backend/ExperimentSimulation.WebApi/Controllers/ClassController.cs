@@ -59,6 +59,8 @@ namespace ExperimentSimulation.WebApi.Controllers
             public string Surname { get; set; } = null!;
             public string Email { get; set; } = null!;
             public DateTime? JoinedAt { get; set; }
+
+            public int SuccessRatePercent { get; set; }
         }
 
         public class StudentProfileHistoryItemDto
@@ -140,6 +142,7 @@ namespace ExperimentSimulation.WebApi.Controllers
             await DeactivateExpiredAssignmentsAsync();
 
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             if (string.IsNullOrWhiteSpace(userIdStr) || !int.TryParse(userIdStr, out int userId))
                 return Unauthorized(new { message = "Token içinde user id yok." });
 
@@ -158,24 +161,41 @@ namespace ExperimentSimulation.WebApi.Controllers
                         Id = c.Id,
                         Code = c.Code,
                         Name = c.Name,
+
                         TeacherName = _context.UserClasses
-                            .Where(x => x.ClassId == c.Id && x.MemberRole == ROLE_TEACHER && x.Status == STATUS_APPROVED)
+                            .Where(x =>
+                                x.ClassId == c.Id &&
+                                x.MemberRole == ROLE_TEACHER &&
+                                x.Status == STATUS_APPROVED)
                             .Select(x => x.User.Name + " " + x.User.Surname)
                             .FirstOrDefault(),
+
                         GradeLevel = c.GradeLevel,
                         LessonName = c.LessonName,
+
                         IsActive = c.IsActive,
                         CreatedAt = c.CreatedAt,
                         JoinedAt = null,
                         Status = UserClass.StatusApproved,
 
                         StudentCount = _context.UserClasses
-                .Count(uc => uc.ClassId == c.Id && uc.MemberRole == ROLE_STUDENT && uc.Status == STATUS_APPROVED)
-                        ,
-                        AssignmentCount = _context.Assignments.Count(a => a.ClassId == c.Id && a.IsActive),
+                            .Count(uc =>
+                                uc.ClassId == c.Id &&
+                                uc.MemberRole == ROLE_STUDENT &&
+                                uc.Status == STATUS_APPROVED),
+
+                        AssignmentCount = _context.Assignments
+    .Count(a => a.ClassId == c.Id),
+
+                        // Bunu sonra foreach ile gerçek değere çekeceğiz.
                         SuccessRatePercent = 0
                     })
                     .ToListAsync();
+
+                foreach (var cls in all)
+                {
+                    cls.SuccessRatePercent = await CalculateClassSuccessRateFromStudentsAsync(cls.Id);
+                }
 
                 return Ok(all);
             }
@@ -186,32 +206,54 @@ namespace ExperimentSimulation.WebApi.Controllers
                     uc.UserId == userId &&
                     (
                         uc.MemberRole == "Teacher" ||
-                        (uc.MemberRole == "Student" &&
-                         (uc.Status == UserClass.StatusApproved || uc.Status == UserClass.StatusPending))
+                        (
+                            uc.MemberRole == "Student" &&
+                            (
+                                uc.Status == UserClass.StatusApproved ||
+                                uc.Status == UserClass.StatusPending
+                            )
+                        )
                     ))
                 .Select(uc => new MyClassDto
                 {
                     Id = uc.Class.Id,
                     Code = uc.Class.Code,
                     Name = uc.Class.Name,
+
                     TeacherName = _context.UserClasses
-                        .Where(x => x.ClassId == uc.ClassId && x.MemberRole == ROLE_TEACHER && x.Status == STATUS_APPROVED)
+                        .Where(x =>
+                            x.ClassId == uc.ClassId &&
+                            x.MemberRole == ROLE_TEACHER &&
+                            x.Status == STATUS_APPROVED)
                         .Select(x => x.User.Name + " " + x.User.Surname)
                         .FirstOrDefault(),
+
                     GradeLevel = uc.Class.GradeLevel,
                     LessonName = uc.Class.LessonName,
+
                     IsActive = uc.Class.IsActive,
                     CreatedAt = uc.Class.CreatedAt,
                     JoinedAt = uc.JoinedAt,
                     Status = uc.Status,
 
                     StudentCount = _context.UserClasses
-                .Count(x => x.ClassId == uc.ClassId && x.MemberRole == ROLE_STUDENT && x.Status == STATUS_APPROVED)
-                    ,
-                    AssignmentCount = _context.Assignments.Count(a => a.ClassId == uc.ClassId && a.IsActive),
+                        .Count(x =>
+                            x.ClassId == uc.ClassId &&
+                            x.MemberRole == ROLE_STUDENT &&
+                            x.Status == STATUS_APPROVED),
+
+                    AssignmentCount = _context.Assignments
+    .Count(a => a.ClassId == uc.ClassId),
+
+                    // Bunu sonra foreach ile gerçek değere çekeceğiz.
                     SuccessRatePercent = 0
                 })
                 .ToListAsync();
+
+            foreach (var cls in my)
+            {
+                cls.SuccessRatePercent = await CalculateClassSuccessRateFromStudentsAsync(cls.Id);
+            }
 
             return Ok(my);
         }
@@ -466,23 +508,29 @@ namespace ExperimentSimulation.WebApi.Controllers
                 return Forbid();
 
             var students = await _context.UserClasses
-                .AsNoTracking()
-                .Include(uc => uc.User)
-                .Where(uc =>
-                    uc.ClassId == classId &&
-                    uc.MemberRole == "Student" &&
-                    uc.Status == UserClass.StatusApproved)
-                .OrderBy(uc => uc.User.Name)
-                .ThenBy(uc => uc.User.Surname)
-                .Select(uc => new ClassStudentDto
-                {
-                    UserId = uc.UserId,
-                    Name = uc.User.Name,
-                    Surname = uc.User.Surname,
-                    Email = uc.User.Email,
-                    JoinedAt = uc.JoinedAt
-                })
-                .ToListAsync();
+    .AsNoTracking()
+    .Include(uc => uc.User)
+    .Where(uc =>
+        uc.ClassId == classId &&
+        uc.MemberRole == "Student" &&
+        uc.Status == UserClass.StatusApproved)
+    .OrderBy(uc => uc.User.Name)
+    .ThenBy(uc => uc.User.Surname)
+    .Select(uc => new ClassStudentDto
+    {
+        UserId = uc.UserId,
+        Name = uc.User.Name,
+        Surname = uc.User.Surname,
+        Email = uc.User.Email,
+        JoinedAt = uc.JoinedAt,
+        SuccessRatePercent = 0
+    })
+    .ToListAsync();
+
+            foreach (var student in students)
+            {
+                student.SuccessRatePercent = await CalculateStudentSuccessRateAsync(classId, student.UserId);
+            }
 
             return Ok(students);
         }
@@ -495,6 +543,7 @@ namespace ExperimentSimulation.WebApi.Controllers
                 return Unauthorized(new { message = "Token içinde user id yok." });
 
             bool isAdmin = User.IsInRole("Admin");
+
             bool isTeacherOfClass = await _context.UserClasses
                 .AsNoTracking()
                 .AnyAsync(uc =>
@@ -537,11 +586,59 @@ namespace ExperimentSimulation.WebApi.Controllers
                 .AsNoTracking()
                 .CountAsync(a => a.ClassId == classId);
 
-            // NOTE: Student-level assignment/experiment completion records are not modeled yet.
-            // To avoid synthetic/default data, return only verifiable values.
-            int completedAssignments = 0;
-            int completedExperiments = 0;
-            int performance = 0;
+            var results = await _context.AssignmentResults
+                .AsNoTracking()
+                .Include(r => r.Assignment)
+                    .ThenInclude(a => a.Experiment)
+                .Where(r =>
+                    r.StudentId == studentId &&
+                    r.Assignment.ClassId == classId &&
+                    r.IsCompleted)
+                .OrderByDescending(r => r.CompletedAt)
+                .ToListAsync();
+
+            int completedAssignments = results
+                .Select(r => r.AssignmentId)
+                .Distinct()
+                .Count();
+
+            int completedExperiments = results
+                .Where(r => r.Assignment != null)
+                .Select(r => r.Assignment.ExperimentId)
+                .Distinct()
+                .Count();
+
+            int performance = results.Count > 0
+                ? (int)Math.Round(results.Average(r => r.Score))
+                : 0;
+
+            var assignmentHistory = results
+                .Select(r => new StudentProfileHistoryItemDto
+                {
+                    Title = r.Assignment != null && !string.IsNullOrWhiteSpace(r.Assignment.Title)
+                        ? r.Assignment.Title
+                        : "Ödev",
+
+                    Value = $"{r.CorrectCount} doğru / {r.WrongCount} yanlış • %{r.Score}",
+
+                    Date = r.CompletedAt
+                })
+                .ToList();
+
+            var experimentHistory = results
+                .Select(r => new StudentProfileHistoryItemDto
+                {
+                    Title = r.Assignment != null &&
+                            r.Assignment.Experiment != null &&
+                            !string.IsNullOrWhiteSpace(r.Assignment.Experiment.ExperimentName)
+                        ? r.Assignment.Experiment.ExperimentName
+                        : "Deney",
+
+                    Value = $"{r.CorrectCount} doğru / {r.WrongCount} yanlış • %{r.Score}",
+
+                    Date = r.CompletedAt
+                })
+                .ToList();
 
             var sessions = await _context.UserSessionActivities
                 .AsNoTracking()
@@ -550,9 +647,11 @@ namespace ExperimentSimulation.WebApi.Controllers
                 .ToListAsync();
 
             var activeDates = new HashSet<DateTime>();
+
             foreach (var s in sessions)
             {
                 var end = s.LogoutAt ?? s.LastSeenAt;
+
                 if (end < s.LoginAt)
                     end = s.LoginAt;
 
@@ -562,6 +661,7 @@ namespace ExperimentSimulation.WebApi.Controllers
 
             int currentStreakDays = 0;
             var cursor = DateTime.UtcNow.Date;
+
             while (activeDates.Contains(cursor))
             {
                 currentStreakDays++;
@@ -574,21 +674,6 @@ namespace ExperimentSimulation.WebApi.Controllers
                     ? "Orta"
                     : "Düşük";
 
-            var assignmentHistory = await _context.Assignments
-                .AsNoTracking()
-                .Where(a => a.ClassId == classId)
-                .OrderByDescending(a => a.CreatedAt)
-                .Take(10)
-                .Select(a => new StudentProfileHistoryItemDto
-                {
-                    Title = a.Title,
-                    Value = a.IsActive ? "Atandı" : "Kapandı",
-                    Date = a.CreatedAt
-                })
-                .ToListAsync();
-
-            var experimentHistory = new List<StudentProfileHistoryItemDto>();
-
             var dto = new StudentProfileDto
             {
                 StudentId = student.Id,
@@ -598,12 +683,15 @@ namespace ExperimentSimulation.WebApi.Controllers
                 CreatedAt = student.CreatedAt,
                 LastLogin = student.LastLogin,
                 JoinedAt = membership.JoinedAt,
+
                 PerformancePercent = performance,
                 CompletedAssignments = completedAssignments,
                 TotalAssignments = totalAssignments,
                 CompletedExperiments = completedExperiments,
+
                 ParticipationLevel = participation,
                 CurrentStreakDays = currentStreakDays,
+
                 AssignmentHistory = assignmentHistory,
                 ExperimentHistory = experimentHistory
             };
@@ -982,6 +1070,48 @@ namespace ExperimentSimulation.WebApi.Controllers
 
             var all = await BuildClassActivityItems(classId, userId, studentScope: false);
             return all.Any(a => a.ActivityId == activityId);
+        }
+
+        private async Task<int> CalculateStudentSuccessRateAsync(int classId, int studentId)
+        {
+            var scores = await _context.AssignmentResults
+                .AsNoTracking()
+                .Where(r =>
+                    r.StudentId == studentId &&
+                    r.IsCompleted &&
+                    r.Assignment.ClassId == classId)
+                .Select(r => r.Score)
+                .ToListAsync();
+
+            if (scores.Count == 0)
+                return 0;
+
+            return (int)Math.Round(scores.Average());
+        }
+
+        private async Task<int> CalculateClassSuccessRateFromStudentsAsync(int classId)
+        {
+            var studentIds = await _context.UserClasses
+                .AsNoTracking()
+                .Where(uc =>
+                    uc.ClassId == classId &&
+                    uc.MemberRole == "Student" &&
+                    uc.Status == UserClass.StatusApproved)
+                .Select(uc => uc.UserId)
+                .ToListAsync();
+
+            if (studentIds.Count == 0)
+                return 0;
+
+            int totalRate = 0;
+
+            foreach (var studentId in studentIds)
+            {
+                int studentRate = await CalculateStudentSuccessRateAsync(classId, studentId);
+                totalRate += studentRate;
+            }
+
+            return (int)Math.Round(totalRate / (double)studentIds.Count);
         }
 
         private async Task<List<ClassActivityDto>> BuildClassActivityItems(int classId, int currentUserId, bool studentScope)

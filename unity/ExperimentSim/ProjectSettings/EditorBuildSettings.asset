@@ -6,8 +6,17 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
+    path: Assets/Scenes/DashboardScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/Scenes/SimulationMenuScene.unity
+    guid: f8ce7fe1d67927a4db28c196ad821dd6
+  - enabled: 1
+    path: Assets/Scenes/SolarSystemScene.unity
+    guid: d7da0aeed532a9341abfca900f079c38
+  - enabled: 1
+    path: Assets/Scenes/SolarEclipseScene.unity
+    guid: 33731b46bcd3e0947afc5475eb3c6af5
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

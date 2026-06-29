@@ -50,6 +50,7 @@
                     <ui:VisualElement name="RolePermissionSubMenu" class="sub-menu">
                         <ui:Button name="RolesBtn" class="sub-menu-item" text="Roller" />
                         <ui:Button name="PermissionsBtn" class="sub-menu-item" text="İzinler" />
+                        <ui:Button name="TeacherRequestsBtn" class="sub-menu-item" text="Öğretmen Olma İstekleri" />
                     </ui:VisualElement>
                 </ui:VisualElement>
 
@@ -70,6 +71,12 @@
                         <ui:Button name="MissionsDataBtn" class="sub-menu-item" text="Görev Verileri" />
                     </ui:VisualElement>
                 </ui:VisualElement>
+
+                <ui:Button name="CalendarBtn" class="menu-item">
+                    <ui:VisualElement name="CalendarIcon" class="menu-icon icon-calendar" />
+                    <ui:Label name="CalendarLabel" class="menu-text"
+                        text="Takvim" />
+                </ui:Button>
 
                 <!-- aktivite -->
                 <ui:Button name="ActivityBtn" class="menu-item">
@@ -421,6 +428,20 @@
                 <ui:VisualElement name="PermissionsPage" class="page admin-background">
                     <ui:Label text="İzinler" class="main-title" />
                     <ui:Label text="İzin yönetimi burada olacak..." class="main-subtitle" />
+                </ui:VisualElement>
+
+                <!-- öğretmen başvuruları -->
+                <ui:VisualElement name="TeacherRequestsPage" class="page admin-background">
+                    <ui:Label text="Öğretmen Olma İstekleri" class="main-title" />
+                    <ui:Label text="Bağımsız kullanıcıların öğretmen rolü başvurularını onaylayın veya reddedin."
+                        class="main-subtitle" />
+
+                    <ui:VisualElement class="toolbar">
+                        <ui:Button name="TeacherRequestsRefreshBtn" text="Yenile" class="primary-btn" />
+                        <ui:Label name="TeacherRequestsStatusLabel" class="status-label" text="" />
+                    </ui:VisualElement>
+
+                    <ui:ScrollView name="TeacherRequestsList" class="users-list" />
                 </ui:VisualElement>
 
                 <!-- görev ata -->
@@ -1410,6 +1431,340 @@
 
                 </ui:VisualElement>
 
+                                <!-- TAKVİM -->
+                <ui:VisualElement name="CalendarPage" class="page cal-page">
+
+                    <ui:VisualElement class="cal-page-wrapper">
+
+                        <!-- Header -->
+                        <ui:VisualElement class="cal-page-header">
+                            <ui:VisualElement class="cal-page-header-left">
+                                <ui:Label text="Takvim" class="cal-page-title" />
+                                <ui:Label
+                                    text="Ders programlarını, sınav tarihlerini, toplantıları ve akademik etkinlikleri yönetin."
+                                    class="cal-page-subtitle" />
+                            </ui:VisualElement>
+
+                            <ui:VisualElement class="cal-page-header-actions">
+                                <ui:Button name="CalAddEventBtn" class="cal-btn cal-btn-primary"
+                                    text="Etkinlik Ekle" />
+                                <ui:Button name="CalRefreshBtn" class="cal-btn cal-btn-outline"
+                                    text="Yenile" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+
+                        <!-- Toolbar -->
+                        <ui:VisualElement class="cal-toolbar">
+                            <ui:VisualElement class="cal-toolbar-nav">
+                                <ui:Button name="CalPrevBtn" class="cal-btn-icon" text="‹" />
+                                <ui:Label name="CalToolbarMonthLabel" text="Mart 2026"
+                                    class="cal-toolbar-month" style="-unity-text-align: middle-center;"/>
+                                <ui:Button name="CalNextBtn" class="cal-btn-icon" text="›" />
+                                <ui:Button name="CalTodayBtn" class="cal-btn cal-btn-outline"
+                                    text="Bugün" />
+                            </ui:VisualElement>
+
+                            <ui:VisualElement class="cal-toolbar-views">
+                                <ui:Button name="CalViewDayBtn" class="cal-view-btn" text="Gün" />
+                                <ui:Button name="CalViewWeekBtn" class="cal-view-btn" text="Hafta" />
+                                <ui:Button name="CalViewMonthBtn" class="cal-view-btn active"
+                                    text="Ay" />
+                                <ui:Button name="CalViewAgendaBtn" class="cal-view-btn"
+                                    text="Ajanda" />
+                            </ui:VisualElement>
+
+                            <ui:VisualElement class="cal-toolbar-right">
+                                <ui:VisualElement class="assignment-search cal-calendar-search">
+                                    <ui:VisualElement class="icon icon-search" />
+                                    <ui:TextField name="CalSearchInput" />
+                                </ui:VisualElement>
+
+                                <ui:DropdownField
+                                    name="CalFilterDropdown"
+                                    class="cal-filter-select"
+                                    choices="Tüm Etkinlikler"
+                                    index="0" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+
+                        <!-- Body -->
+                        <ui:VisualElement class="cal-body">
+
+                            <!-- Left -->
+                            <ui:ScrollView name="CalSidePanel" class="cal-side-panel"
+                                mode="Vertical">
+
+                                <!-- Mini Calendar -->
+                                <ui:VisualElement class="cal-side-card">
+                                    <ui:VisualElement class="cal-mini-header">
+                                        <ui:Button name="CalMiniPrevBtn" class="cal-mini-nav"
+                                            text="‹" />
+                                        <ui:Label name="CalMiniMonthLabel" text="Mart 2026" style="-unity-text-align: middle-center;" />
+                                        <ui:Button name="CalMiniNextBtn" class="cal-mini-nav"
+                                            text="›" />
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement name="CalMiniGrid" class="cal-mini-grid" />
+                                </ui:VisualElement>
+
+                                <!-- Categories -->
+                                <ui:VisualElement class="cal-side-card">
+                                    <ui:Label text="Etkinlik Kategorileri"
+                                        class="cal-side-card-title" />
+                                    <ui:VisualElement name="CalCategoryList" class="cal-cat-list" />
+                                    <ui:Label
+                                        name="CalCategoryEmptyLabel"
+                                        text="Henüz kategori yok. Kategori ekleyin."
+                                        class="cal-cat-empty" />
+                                    <ui:Button name="CalAddCategoryBtn"
+                                        class="cal-btn cal-btn-outline cal-full-btn"
+                                        text="Kategori Ekle" />
+                                </ui:VisualElement>
+
+                                <!-- Quick Actions -->
+                                <ui:VisualElement class="cal-side-card">
+                                    <ui:Label text="Hızlı İşlemler" class="cal-side-card-title" />
+
+                                    <ui:VisualElement class="cal-quick-actions">
+                                        <ui:Button name="CalQuickCreateBtn"
+                                            class="cal-btn cal-btn-primary cal-full-btn"
+                                            text="Etkinlik Oluştur" />
+                                        <ui:Button name="CalQuickCategoryBtn"
+                                            class="cal-btn cal-btn-outline cal-full-btn"
+                                            text="Kategori Ekle" />
+                                    </ui:VisualElement>
+                                </ui:VisualElement>
+
+                            </ui:ScrollView>
+
+                            <!-- Main Panel -->
+                            <ui:ScrollView class="cal-main-panel"
+                                mode="Vertical"
+                                horizontal-scroller-visibility="Hidden"
+                                vertical-scroller-visibility="Auto">
+
+                                
+
+                                <!-- MONTH VIEW -->
+                                <ui:VisualElement name="CalMonthView" class="cal-month-view active">
+                                    <ui:VisualElement class="cal-weekday-header">
+                                        <ui:Label text="Pzt" class="cal-weekday-cell" />
+                                        <ui:Label text="Sal" class="cal-weekday-cell" />
+                                        <ui:Label text="Çar" class="cal-weekday-cell" />
+                                        <ui:Label text="Per" class="cal-weekday-cell" />
+                                        <ui:Label text="Cum" class="cal-weekday-cell" />
+                                        <ui:Label text="Cmt" class="cal-weekday-cell" />
+                                        <ui:Label text="Paz" class="cal-weekday-cell" />
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement name="CalMonthGrid" class="cal-month-grid" />
+                                </ui:VisualElement>
+
+                                <!-- WEEK VIEW -->
+                                <ui:ScrollView name="CalWeekView" class="cal-week-view hidden"
+                                    mode="Vertical">
+                                    <ui:VisualElement name="CalWeekHeader" class="cal-week-header" />
+                                    <ui:VisualElement name="CalWeekBody" class="cal-week-body" />
+                                </ui:ScrollView>
+
+                                <!-- DAY VIEW -->
+                                <ui:ScrollView name="CalDayView" class="cal-day-view hidden"
+                                    mode="Vertical">
+                                    <ui:Label name="CalDayHeaderLabel" text="-"
+                                        class="cal-day-header" />
+                                    <ui:VisualElement class="cal-day-timeline">
+                                        <ui:VisualElement name="CalDayTimeCol"
+                                            class="cal-day-time-col" />
+                                        <ui:VisualElement name="CalDayEventsCol"
+                                            class="cal-day-events-col" />
+                                    </ui:VisualElement>
+                                </ui:ScrollView>
+
+                                <!-- AGENDA VIEW -->
+                                <ui:ScrollView name="CalAgendaView" class="cal-agenda-view hidden"
+                                    mode="Vertical">
+                                    <ui:VisualElement name="CalAgendaContent" />
+                                </ui:ScrollView>
+
+                            </ui:ScrollView>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+
+                    <!-- ADD EVENT MODAL -->
+                    <ui:VisualElement name="CalAddModal" class="cal-modal-backdrop hidden">
+                        <ui:VisualElement class="cal-modal">
+                            <ui:VisualElement class="cal-modal-header">
+                                <ui:Label text="Etkinlik Ekle" />
+                                <ui:Button name="CalAddModalCloseBtn" class="cal-modal-close"
+                                    text="×" />
+                            </ui:VisualElement>
+
+                            <ui:ScrollView class="cal-modal-body" mode="Vertical">
+
+                                <ui:VisualElement class="cal-form-row">
+                                    <ui:Label text="Etkinlik Başlığı" />
+                                    <ui:TextField name="CalAddTitleInput" />
+                                </ui:VisualElement>
+
+                                <ui:VisualElement class="cal-form-inline">
+                                    <ui:VisualElement class="cal-form-row">
+                                        <ui:Label text="Etkinlik Türü" />
+                                        <ui:DropdownField name="CalAddTypeDropdown" />
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement class="cal-form-row">
+                                        <ui:Label text="Tarih (yyyy-MM-dd)" />
+                                        <ui:TextField name="CalAddDateInput" />
+                                    </ui:VisualElement>
+                                </ui:VisualElement>
+
+                                <ui:VisualElement class="cal-form-inline">
+                                    <ui:VisualElement class="cal-form-row">
+                                        <ui:Label text="Başlangıç Saati (HH:mm)" />
+                                        <ui:TextField name="CalAddStartInput" />
+                                    </ui:VisualElement>
+
+                                    <ui:VisualElement class="cal-form-row">
+                                        <ui:Label text="Bitiş Saati (HH:mm)" />
+                                        <ui:TextField name="CalAddEndInput" />
+                                    </ui:VisualElement>
+                                </ui:VisualElement>
+
+                                <ui:VisualElement class="cal-form-row">
+                                    <ui:Label text="İlgili Sınıf" />
+                                    <ui:DropdownField name="CalAddClassDropdown" />
+                                </ui:VisualElement>
+
+                                <ui:VisualElement class="cal-form-row">
+                                    <ui:Label text="Açıklama" />
+                                    <ui:TextField name="CalAddDescInput" multiline="true" />
+                                </ui:VisualElement>
+
+                            </ui:ScrollView>
+
+                            <ui:VisualElement class="cal-modal-footer">
+                                <ui:Button name="CalAddCancelBtn" class="cal-btn cal-btn-outline"
+                                    text="İptal" />
+                                <ui:Button name="CalSaveEventBtn" class="cal-btn cal-btn-primary"
+                                    text="Kaydet" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+
+                    <!-- ADD CATEGORY MODAL -->
+                    <ui:VisualElement name="CalCategoryModal" class="cal-modal-backdrop hidden">
+                        <ui:VisualElement class="cal-modal">
+                            <ui:VisualElement class="cal-modal-header">
+                                <ui:Label text="Kategori Ekle" />
+                                <ui:Button name="CalCategoryModalCloseBtn" class="cal-modal-close"
+                                    text="×" />
+                            </ui:VisualElement>
+
+                            <ui:VisualElement class="cal-modal-body">
+                                <ui:VisualElement class="cal-form-row">
+                                    <ui:Label text="Kategori Adı" />
+                                    <ui:TextField name="CalCategoryNameInput" />
+                                </ui:VisualElement>
+
+                                <ui:VisualElement class="cal-form-row">
+                                    <ui:Label text="Hazır Renkler" />
+                                    <ui:VisualElement
+                                        style="flex-direction: row; gap: 8px; flex-wrap: wrap; margin-top: 4px;">
+                                        <ui:Button name="CalPresetColor01" text=""
+                                            style="width: 24px; height: 24px; background-color: #2e86c1; border-top-left-radius: 12px; border-top-right-radius: 12px; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; border-left-color: #c9c9c9; border-right-color: #c9c9c9; border-top-color: #c9c9c9; border-bottom-color: #c9c9c9;" />
+                                        <ui:Button name="CalPresetColor02" text=""
+                                            style="width: 24px; height: 24px; background-color: #16a085; border-top-left-radius: 12px; border-top-right-radius: 12px; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; border-left-color: #c9c9c9; border-right-color: #c9c9c9; border-top-color: #c9c9c9; border-bottom-color: #c9c9c9;" />
+                                        <ui:Button name="CalPresetColor03" text=""
+                                            style="width: 24px; height: 24px; background-color: #27ae60; border-top-left-radius: 12px; border-top-right-radius: 12px; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; border-left-color: #c9c9c9; border-right-color: #c9c9c9; border-top-color: #c9c9c9; border-bottom-color: #c9c9c9;" />
+                                        <ui:Button name="CalPresetColor04" text=""
+                                            style="width: 24px; height: 24px; background-color: #f39c12; border-top-left-radius: 12px; border-top-right-radius: 12px; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; border-left-color: #c9c9c9; border-right-color: #c9c9c9; border-top-color: #c9c9c9; border-bottom-color: #c9c9c9;" />
+                                        <ui:Button name="CalPresetColor05" text=""
+                                            style="width: 24px; height: 24px; background-color: #e74c3c; border-top-left-radius: 12px; border-top-right-radius: 12px; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; border-left-color: #c9c9c9; border-right-color: #c9c9c9; border-top-color: #c9c9c9; border-bottom-color: #c9c9c9;" />
+                                        <ui:Button name="CalPresetColor06" text=""
+                                            style="width: 24px; height: 24px; background-color: #8e44ad; border-top-left-radius: 12px; border-top-right-radius: 12px; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; border-left-color: #c9c9c9; border-right-color: #c9c9c9; border-top-color: #c9c9c9; border-bottom-color: #c9c9c9;" />
+                                        <ui:Button name="CalPresetColor07" text=""
+                                            style="width: 24px; height: 24px; background-color: #34495e; border-top-left-radius: 12px; border-top-right-radius: 12px; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; border-left-color: #c9c9c9; border-right-color: #c9c9c9; border-top-color: #c9c9c9; border-bottom-color: #c9c9c9;" />
+                                    </ui:VisualElement>
+                                </ui:VisualElement>
+
+                                <ui:VisualElement class="cal-form-row">
+                                    <ui:Label text="Renk (hex)" />
+                                    <ui:TextField name="CalCategoryColorInput" value="" />
+                                </ui:VisualElement>
+
+                                <ui:VisualElement class="cal-form-row">
+                                    <ui:Label text="Yazı Rengi" />
+                                    <ui:VisualElement style="flex-direction: row; gap: 8px; margin-top: 4px;">
+                                        <ui:Button name="CalTextColorWhiteBtn" text="Aa"
+                                            style="width: 44px; height: 24px; background-color: #ffffff; color: #111111; border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; border-left-color: #c9c9c9; border-right-color: #c9c9c9; border-top-color: #c9c9c9; border-bottom-color: #c9c9c9;" />
+                                        <ui:Button name="CalTextColorBlackBtn" text="Aa"
+                                            style="width: 44px; height: 24px; background-color: #111111; color: #ffffff; border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; border-left-color: #c9c9c9; border-right-color: #c9c9c9; border-top-color: #c9c9c9; border-bottom-color: #c9c9c9;" />
+                                    </ui:VisualElement>
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+
+                            <ui:VisualElement class="cal-modal-footer">
+                                <ui:Button name="CalCategoryCancelBtn"
+                                    class="cal-btn cal-btn-outline" text="İptal" />
+                                <ui:Button name="CalSaveCategoryBtn" class="cal-btn cal-btn-primary"
+                                    text="Kaydet" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+
+                    <!-- DETAIL MODAL -->
+                    <ui:VisualElement name="CalDetailModal" class="cal-modal-backdrop hidden">
+                        <ui:VisualElement class="cal-modal">
+                            <ui:VisualElement class="cal-modal-header">
+                                <ui:Label name="CalDetailTitleLabel" text="Etkinlik Detayı" />
+                                <ui:Button name="CalDetailCloseBtn" class="cal-modal-close" text="×" />
+                            </ui:VisualElement>
+
+                            <ui:VisualElement class="cal-modal-body">
+                                <ui:VisualElement class="cal-detail-row">
+                                    <ui:Label text="Tür" class="cal-detail-label" />
+                                    <ui:Label name="CalDetailTypeLabel" text="-"
+                                        class="cal-detail-type-badge" />
+                                </ui:VisualElement>
+
+                                <ui:VisualElement class="cal-detail-row">
+                                    <ui:Label text="Tarih" class="cal-detail-label" />
+                                    <ui:Label name="CalDetailDateLabel" text="-"
+                                        class="cal-detail-value" />
+                                </ui:VisualElement>
+
+                                <ui:VisualElement class="cal-detail-row">
+                                    <ui:Label text="Saat" class="cal-detail-label" />
+                                    <ui:Label name="CalDetailTimeLabel" text="-"
+                                        class="cal-detail-value" />
+                                </ui:VisualElement>
+
+                                <ui:VisualElement class="cal-detail-row">
+                                    <ui:Label text="Konum" class="cal-detail-label" />
+                                    <ui:Label name="CalDetailLocationLabel" text="-"
+                                        class="cal-detail-value" />
+                                </ui:VisualElement>
+
+                                <ui:VisualElement class="cal-detail-row">
+                                    <ui:Label text="Açıklama" class="cal-detail-label" />
+                                    <ui:Label name="CalDetailDescLabel" text="-"
+                                        class="cal-detail-value" />
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+
+                            <ui:VisualElement class="cal-modal-footer">
+                                <ui:Button name="CalDetailEditBtn" class="cal-btn cal-btn-primary"
+                                    text="Düzenle" />
+                                <ui:Button name="CalDetailDeleteBtn" class="cal-btn cal-btn-danger"
+                                    text="Sil" />
+                                <ui:Button name="CalDetailFooterCloseBtn"
+                                    class="cal-btn cal-btn-outline" text="Kapat" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+
+                </ui:VisualElement>
+
                 <!-- aktivite -->
                 <ui:VisualElement name="ActivityPage" class="page">
 
@@ -1571,6 +1926,48 @@
                     <ui:Label text="Simülasyonu Başlat" class="main-title" />
                     <ui:Label text="Başlat butonuna basınca simülasyon sahnesi açılacak."
                         class="main-subtitle" />
+                </ui:VisualElement>
+
+                <ui:VisualElement name="SettingsModal" class="modal-backdrop hidden">
+                    <ui:VisualElement class="modal settings-modal-card">
+                        <ui:VisualElement class="modal-header">
+                            <ui:Label text="Hesap Ayarları" />
+                            <ui:Button name="SettingsModalCloseBtn" class="modal-close" text="×" />
+                        </ui:VisualElement>
+
+                        <ui:ScrollView class="modal-body settings-modal-body" mode="Vertical">
+                            <ui:Label text="Profil Bilgileri" class="settings-section-title" />
+
+                            <ui:VisualElement class="settings-grid">
+                                <ui:VisualElement class="form-row settings-form-row">
+                                    <ui:Label text="Ad" />
+                                    <ui:TextField name="SettingsNameInput" />
+                                </ui:VisualElement>
+
+                                <ui:VisualElement class="form-row settings-form-row">
+                                    <ui:Label text="Soyad" />
+                                    <ui:TextField name="SettingsSurnameInput" />
+                                </ui:VisualElement>
+
+                                <ui:VisualElement class="form-row settings-form-row settings-form-row-wide">
+                                    <ui:Label text="E-Posta" />
+                                    <ui:TextField name="SettingsEmailInput" />
+                                </ui:VisualElement>
+
+                                <ui:VisualElement class="form-row settings-form-row settings-form-row-wide">
+                                    <ui:Label text="Telefon (opsiyonel)" />
+                                    <ui:TextField name="SettingsPhoneInput" />
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+
+                            <ui:Label name="SettingsStatusLabel" text="" class="settings-status-label hidden" />
+                        </ui:ScrollView>
+
+                        <ui:VisualElement class="modal-footer">
+                            <ui:Button name="SettingsCancelBtn" class="btn-secondary" text="Kapat" />
+                            <ui:Button name="SettingsSaveProfileBtn" class="btn-primary" text="Profili Kaydet" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
                 </ui:VisualElement>
 
             </ui:VisualElement>

@@ -61,6 +61,198 @@ namespace ExperimentSimulation.DataAccessLayer.Migrations
                     b.ToTable("assignments", (string)null);
                 });
 
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.AssignmentAnswer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AssignmentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("AssignmentResultId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CorrectAnswer")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("varchar(4000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsCorrect")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("QuestionText")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)");
+
+                    b.Property<string>("StudentAnswer")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("varchar(4000)");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignmentResultId");
+
+                    b.HasIndex("StudentId");
+
+                    b.HasIndex("AssignmentId", "StudentId");
+
+                    b.ToTable("assignment_answers", (string)null);
+                });
+
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.AssignmentResult", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AssignmentId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CompletedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("CorrectCount")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalQuestionCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WrongCount")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StudentId");
+
+                    b.HasIndex("AssignmentId", "StudentId")
+                        .IsUnique();
+
+                    b.ToTable("AssignmentResults");
+                });
+
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.CalendarCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("varchar(16)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("varchar(120)");
+
+                    b.Property<string>("TextColor")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("varchar(16)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("varchar(80)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "Type")
+                        .IsUnique();
+
+                    b.ToTable("calendar_categories", (string)null);
+                });
+
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.CalendarEvent", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Desc")
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)");
+
+                    b.Property<string>("End")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("varchar(5)");
+
+                    b.Property<string>("Location")
+                        .HasMaxLength(160)
+                        .HasColumnType("varchar(160)");
+
+                    b.Property<string>("RelatedClass")
+                        .HasMaxLength(160)
+                        .HasColumnType("varchar(160)");
+
+                    b.Property<string>("Start")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("varchar(5)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("UserId", "Date");
+
+                    b.ToTable("calendar_events", (string)null);
+                });
+
             modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.Class", b =>
                 {
                     b.Property<int>("Id")
@@ -271,6 +463,9 @@ namespace ExperimentSimulation.DataAccessLayer.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<string>("ExperimentKey")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("ExperimentName")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -284,6 +479,9 @@ namespace ExperimentSimulation.DataAccessLayer.Migrations
 
                     b.Property<string>("LessonName")
                         .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("SceneName")
                         .HasColumnType("longtext");
 
                     b.Property<string>("UnitName")
@@ -345,6 +543,50 @@ namespace ExperimentSimulation.DataAccessLayer.Migrations
                             Description = "System admin",
                             Name = "Admin"
                         });
+                });
+
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.TeacherRoleRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DecisionNote")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
+                    b.Property<DateTime>("RequestedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("ReviewedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("ReviewedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasDefaultValue("Pending");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RequestedAtUtc");
+
+                    b.HasIndex("UserId", "Status");
+
+                    b.ToTable("teacher_role_requests", (string)null);
                 });
 
             modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.TodoItem", b =>
@@ -576,6 +818,82 @@ namespace ExperimentSimulation.DataAccessLayer.Migrations
                     b.Navigation("Experiment");
                 });
 
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.AssignmentAnswer", b =>
+                {
+                    b.HasOne("ExperimentSimulation.EntityLayer.Concrete.Assignment", "Assignment")
+                        .WithMany()
+                        .HasForeignKey("AssignmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ExperimentSimulation.EntityLayer.Concrete.AssignmentResult", "AssignmentResult")
+                        .WithMany("Answers")
+                        .HasForeignKey("AssignmentResultId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ExperimentSimulation.EntityLayer.Concrete.User", "Student")
+                        .WithMany("AssignmentAnswers")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Assignment");
+
+                    b.Navigation("AssignmentResult");
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.AssignmentResult", b =>
+                {
+                    b.HasOne("ExperimentSimulation.EntityLayer.Concrete.Assignment", "Assignment")
+                        .WithMany("Results")
+                        .HasForeignKey("AssignmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ExperimentSimulation.EntityLayer.Concrete.User", "Student")
+                        .WithMany("AssignmentResults")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Assignment");
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.CalendarCategory", b =>
+                {
+                    b.HasOne("ExperimentSimulation.EntityLayer.Concrete.User", "User")
+                        .WithMany("CalendarCategories")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.CalendarEvent", b =>
+                {
+                    b.HasOne("ExperimentSimulation.EntityLayer.Concrete.CalendarCategory", "Category")
+                        .WithMany("Events")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ExperimentSimulation.EntityLayer.Concrete.User", "User")
+                        .WithMany("CalendarEvents")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.ContentTask", b =>
                 {
                     b.HasOne("ExperimentSimulation.EntityLayer.Concrete.User", "AssigneeUser")
@@ -631,6 +949,17 @@ namespace ExperimentSimulation.DataAccessLayer.Migrations
                     b.Navigation("ContentTask");
 
                     b.Navigation("RequestedByUser");
+                });
+
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.TeacherRoleRequest", b =>
+                {
+                    b.HasOne("ExperimentSimulation.EntityLayer.Concrete.User", "User")
+                        .WithMany("TeacherRoleRequests")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.TodoItem", b =>
@@ -696,6 +1025,21 @@ namespace ExperimentSimulation.DataAccessLayer.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.Assignment", b =>
+                {
+                    b.Navigation("Results");
+                });
+
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.AssignmentResult", b =>
+                {
+                    b.Navigation("Answers");
+                });
+
+            modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.CalendarCategory", b =>
+                {
+                    b.Navigation("Events");
+                });
+
             modelBuilder.Entity("ExperimentSimulation.EntityLayer.Concrete.Class", b =>
                 {
                     b.Navigation("Assignments");
@@ -724,6 +1068,14 @@ namespace ExperimentSimulation.DataAccessLayer.Migrations
                 {
                     b.Navigation("AssignedContentTasks");
 
+                    b.Navigation("AssignmentAnswers");
+
+                    b.Navigation("AssignmentResults");
+
+                    b.Navigation("CalendarCategories");
+
+                    b.Navigation("CalendarEvents");
+
                     b.Navigation("ContentTaskComments");
 
                     b.Navigation("ContentTaskRevisionRequests");
@@ -731,6 +1083,8 @@ namespace ExperimentSimulation.DataAccessLayer.Migrations
                     b.Navigation("CreatedContentTasks");
 
                     b.Navigation("SessionActivities");
+
+                    b.Navigation("TeacherRoleRequests");
 
                     b.Navigation("TodoItems");
 

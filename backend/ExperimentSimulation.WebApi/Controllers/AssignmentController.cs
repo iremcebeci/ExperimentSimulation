@@ -40,6 +40,20 @@ namespace ExperimentSimulation.WebApi.Controllers
             public DateTime StartDate { get; set; }
             public int DurationDays { get; set; }
             public DateTime CreatedAt { get; set; }
+
+            public int CorrectCount { get; set; }
+            public int WrongCount { get; set; }
+            public int TotalQuestionCount { get; set; }
+            public int Score { get; set; }
+            public bool IsCompleted { get; set; }
+
+            public string? SceneName { get; set; }
+            public string? ExperimentKey { get; set; }
+
+            public int CompletedStudentCount { get; set; }
+            public int IncompleteStudentCount { get; set; }
+            public int ClassStudentCount { get; set; }
+            public int CompletionPercent { get; set; }
         }
 
         // GET /api/Assignment/my
@@ -49,6 +63,7 @@ namespace ExperimentSimulation.WebApi.Controllers
             await DeactivateExpiredAssignmentsAsync();
 
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             if (string.IsNullOrWhiteSpace(userIdStr) || !int.TryParse(userIdStr, out int userId))
                 return Unauthorized(new { message = "Token içinde user id yok." });
 
@@ -76,7 +91,78 @@ namespace ExperimentSimulation.WebApi.Controllers
                     ExperimentName = a.Experiment != null ? (a.Experiment.ExperimentName ?? "-") : "-",
                     StartDate = a.StartDate,
                     DurationDays = a.DurationDays,
-                    CreatedAt = a.CreatedAt
+                    CreatedAt = a.CreatedAt,
+
+                    SceneName = a.Experiment != null ? a.Experiment.SceneName : null,
+                    ExperimentKey = a.Experiment != null ? a.Experiment.ExperimentKey : null,
+
+                    CorrectCount = _context.AssignmentResults
+                        .Where(r => r.AssignmentId == a.Id && r.StudentId == userId)
+                        .Select(r => r.CorrectCount)
+                        .FirstOrDefault(),
+
+                    WrongCount = _context.AssignmentResults
+                        .Where(r => r.AssignmentId == a.Id && r.StudentId == userId)
+                        .Select(r => r.WrongCount)
+                        .FirstOrDefault(),
+
+                    TotalQuestionCount = _context.AssignmentResults
+                        .Where(r => r.AssignmentId == a.Id && r.StudentId == userId)
+                        .Select(r => r.TotalQuestionCount)
+                        .FirstOrDefault(),
+
+                    Score = _context.AssignmentResults
+                        .Where(r => r.AssignmentId == a.Id && r.StudentId == userId)
+                        .Select(r => r.Score)
+                        .FirstOrDefault(),
+
+                    IsCompleted = _context.AssignmentResults
+                        .Any(r => r.AssignmentId == a.Id && r.StudentId == userId && r.IsCompleted),
+
+                    ClassStudentCount = _context.UserClasses
+    .Where(uc =>
+        uc.ClassId == a.ClassId &&
+        uc.Status == UserClass.StatusApproved &&
+        uc.MemberRole == "Student")
+    .Count(),
+
+                    CompletedStudentCount = _context.AssignmentResults
+    .Where(r => r.AssignmentId == a.Id && r.IsCompleted)
+    .Count(),
+
+                    IncompleteStudentCount =
+    _context.UserClasses
+        .Where(uc =>
+            uc.ClassId == a.ClassId &&
+            uc.Status == UserClass.StatusApproved &&
+            uc.MemberRole == "Student")
+        .Count()
+    -
+    _context.AssignmentResults
+        .Where(r => r.AssignmentId == a.Id && r.IsCompleted)
+        .Count(),
+
+                    CompletionPercent =
+    _context.UserClasses
+        .Where(uc =>
+            uc.ClassId == a.ClassId &&
+            uc.Status == UserClass.StatusApproved &&
+            uc.MemberRole == "Student")
+        .Count() <= 0
+        ? 0
+        : (int)Math.Round(
+            _context.AssignmentResults
+                .Where(r => r.AssignmentId == a.Id && r.IsCompleted)
+                .Count()
+            /
+            (double)_context.UserClasses
+                .Where(uc =>
+                    uc.ClassId == a.ClassId &&
+                    uc.Status == UserClass.StatusApproved &&
+                    uc.MemberRole == "Student")
+                .Count()
+            * 100
+        )
                 })
                 .ToListAsync();
 
@@ -92,6 +178,7 @@ namespace ExperimentSimulation.WebApi.Controllers
                 .ToListAsync();
 
             bool hasChanges = false;
+
             foreach (var item in activeItems)
             {
                 if (item == null)
@@ -99,6 +186,7 @@ namespace ExperimentSimulation.WebApi.Controllers
 
                 int duration = item.DurationDays <= 0 ? 1 : item.DurationDays;
                 var endExclusive = item.StartDate.Date.AddDays(duration);
+
                 if (today >= endExclusive)
                 {
                     item.IsActive = false;
@@ -115,6 +203,7 @@ namespace ExperimentSimulation.WebApi.Controllers
         public async Task<IActionResult> Create([FromBody] CreateAssignmentDto dto)
         {
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             if (string.IsNullOrWhiteSpace(userIdStr) || !int.TryParse(userIdStr, out int userId))
                 return Unauthorized(new { message = "Token içinde user id yok." });
 
@@ -140,6 +229,7 @@ namespace ExperimentSimulation.WebApi.Controllers
                 return Forbid();
 
             var cls = await _context.Classes.FirstOrDefaultAsync(c => c.Id == dto.ClassId);
+
             if (cls == null)
                 return NotFound(new { message = "Sınıf bulunamadı." });
 
@@ -175,7 +265,16 @@ namespace ExperimentSimulation.WebApi.Controllers
                 ExperimentName = experiment.ExperimentName ?? "-",
                 StartDate = entity.StartDate,
                 DurationDays = entity.DurationDays,
-                CreatedAt = entity.CreatedAt
+                CreatedAt = entity.CreatedAt,
+
+                SceneName = experiment.SceneName,
+                ExperimentKey = experiment.ExperimentKey,
+
+                CorrectCount = 0,
+                WrongCount = 0,
+                TotalQuestionCount = 0,
+                Score = 0,
+                IsCompleted = false
             });
         }
     }

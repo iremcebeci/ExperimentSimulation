@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ExperimentSimulation.DataAccessLayer.Concrete
 {
-    public class Context:DbContext
+    public class Context : DbContext
     {
         public Context(DbContextOptions<Context> options) : base(options)
         {
@@ -29,6 +29,10 @@ namespace ExperimentSimulation.DataAccessLayer.Concrete
         public DbSet<Class> Classes { get; set; }
         public DbSet<UserClass> UserClasses { get; set; }
         public DbSet<Assignment> Assignments { get; set; }
+
+        public DbSet<AssignmentResult> AssignmentResults { get; set; }
+        public DbSet<AssignmentAnswer> AssignmentAnswers { get; set; }
+
         public DbSet<ContentTask> ContentTasks { get; set; }
         public DbSet<ContentTaskComment> ContentTaskComments { get; set; }
         public DbSet<ContentTaskRevisionRequest> ContentTaskRevisionRequests { get; set; }
@@ -37,6 +41,9 @@ namespace ExperimentSimulation.DataAccessLayer.Concrete
 
         public DbSet<Experiment> Experiments { get; set; }
         public DbSet<UserSessionActivity> UserSessionActivities { get; set; }
+        public DbSet<CalendarCategory> CalendarCategories { get; set; }
+        public DbSet<CalendarEvent> CalendarEvents { get; set; }
+        public DbSet<TeacherRoleRequest> TeacherRoleRequests { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -47,12 +54,17 @@ namespace ExperimentSimulation.DataAccessLayer.Concrete
             modelBuilder.Entity<Class>().ToTable("class");
             modelBuilder.Entity<UserClass>().ToTable("userclass");
             modelBuilder.Entity<Assignment>().ToTable("assignments");
+            modelBuilder.Entity<AssignmentAnswer>().ToTable("assignment_answers");
+
             modelBuilder.Entity<ContentTask>().ToTable("content_tasks");
             modelBuilder.Entity<ContentTaskComment>().ToTable("content_task_comments");
             modelBuilder.Entity<ContentTaskRevisionRequest>().ToTable("content_task_revision_requests");
             modelBuilder.Entity<TodoItem>().ToTable("todo_items");
             modelBuilder.Entity<TodoSubtask>().ToTable("todo_subtasks");
             modelBuilder.Entity<UserSessionActivity>().ToTable("user_session_activities");
+            modelBuilder.Entity<CalendarCategory>().ToTable("calendar_categories");
+            modelBuilder.Entity<CalendarEvent>().ToTable("calendar_events");
+            modelBuilder.Entity<TeacherRoleRequest>().ToTable("teacher_role_requests");
 
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
@@ -72,6 +84,78 @@ namespace ExperimentSimulation.DataAccessLayer.Concrete
 
             modelBuilder.Entity<UserSessionActivity>()
                 .HasIndex(a => new { a.UserId, a.LoginAt });
+
+            modelBuilder.Entity<CalendarCategory>()
+                .Property(c => c.Type)
+                .HasMaxLength(80)
+                .IsRequired();
+
+            modelBuilder.Entity<CalendarCategory>()
+                .Property(c => c.Label)
+                .HasMaxLength(120)
+                .IsRequired();
+
+            modelBuilder.Entity<CalendarCategory>()
+                .Property(c => c.Color)
+                .HasMaxLength(16)
+                .IsRequired();
+
+            modelBuilder.Entity<CalendarCategory>()
+                .Property(c => c.TextColor)
+                .HasMaxLength(16)
+                .IsRequired();
+
+            modelBuilder.Entity<CalendarCategory>()
+                .HasOne(c => c.User)
+                .WithMany(u => u.CalendarCategories)
+                .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<CalendarCategory>()
+                .HasIndex(c => new { c.UserId, c.Type })
+                .IsUnique();
+
+            modelBuilder.Entity<CalendarEvent>()
+                .Property(e => e.Title)
+                .HasMaxLength(200)
+                .IsRequired();
+
+            modelBuilder.Entity<CalendarEvent>()
+                .Property(e => e.Start)
+                .HasMaxLength(5)
+                .IsRequired();
+
+            modelBuilder.Entity<CalendarEvent>()
+                .Property(e => e.End)
+                .HasMaxLength(5)
+                .IsRequired();
+
+            modelBuilder.Entity<CalendarEvent>()
+                .Property(e => e.Location)
+                .HasMaxLength(160);
+
+            modelBuilder.Entity<CalendarEvent>()
+                .Property(e => e.RelatedClass)
+                .HasMaxLength(160);
+
+            modelBuilder.Entity<CalendarEvent>()
+                .Property(e => e.Desc)
+                .HasMaxLength(2000);
+
+            modelBuilder.Entity<CalendarEvent>()
+                .HasOne(e => e.User)
+                .WithMany(u => u.CalendarEvents)
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<CalendarEvent>()
+                .HasOne(e => e.Category)
+                .WithMany(c => c.Events)
+                .HasForeignKey(e => e.CategoryId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<CalendarEvent>()
+                .HasIndex(e => new { e.UserId, e.Date });
 
             modelBuilder.Entity<Assignment>()
                 .HasOne(a => a.Class)
@@ -177,6 +261,31 @@ namespace ExperimentSimulation.DataAccessLayer.Concrete
             modelBuilder.Entity<ContentTaskRevisionRequest>()
                 .HasIndex(r => new { r.ContentTaskId, r.CreatedAtUtc });
 
+            modelBuilder.Entity<TeacherRoleRequest>()
+                .Property(r => r.Status)
+                .HasMaxLength(20)
+                .HasDefaultValue(TeacherRoleRequest.StatusPending);
+
+            modelBuilder.Entity<TeacherRoleRequest>()
+                .Property(r => r.Note)
+                .HasMaxLength(1000);
+
+            modelBuilder.Entity<TeacherRoleRequest>()
+                .Property(r => r.DecisionNote)
+                .HasMaxLength(1000);
+
+            modelBuilder.Entity<TeacherRoleRequest>()
+                .HasOne(r => r.User)
+                .WithMany(u => u.TeacherRoleRequests)
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<TeacherRoleRequest>()
+                .HasIndex(r => new { r.UserId, r.Status });
+
+            modelBuilder.Entity<TeacherRoleRequest>()
+                .HasIndex(r => r.RequestedAtUtc);
+
             modelBuilder.Entity<TodoItem>()
                 .Property(t => t.Title)
                 .HasMaxLength(240)
@@ -258,6 +367,61 @@ namespace ExperimentSimulation.DataAccessLayer.Concrete
             modelBuilder.Entity<Class>()
                 .HasIndex(c => c.Code)
                 .IsUnique();
+
+            modelBuilder.Entity<AssignmentResult>()
+                .HasOne(x => x.Assignment)
+                .WithMany(x => x.Results)
+                .HasForeignKey(x => x.AssignmentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<AssignmentResult>()
+                .HasOne(x => x.Student)
+                .WithMany(x => x.AssignmentResults)
+                .HasForeignKey(x => x.StudentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<AssignmentResult>()
+                .HasIndex(x => new { x.AssignmentId, x.StudentId })
+                .IsUnique();
+
+            modelBuilder.Entity<AssignmentAnswer>()
+                .Property(x => x.QuestionText)
+                .HasMaxLength(2000)
+                .IsRequired();
+
+            modelBuilder.Entity<AssignmentAnswer>()
+                .Property(x => x.StudentAnswer)
+                .HasMaxLength(4000)
+                .IsRequired();
+
+            modelBuilder.Entity<AssignmentAnswer>()
+                .Property(x => x.CorrectAnswer)
+                .HasMaxLength(4000)
+                .IsRequired();
+
+            modelBuilder.Entity<AssignmentAnswer>()
+                .HasOne(x => x.AssignmentResult)
+                .WithMany(x => x.Answers)
+                .HasForeignKey(x => x.AssignmentResultId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<AssignmentAnswer>()
+                .HasOne(x => x.Assignment)
+                .WithMany()
+                .HasForeignKey(x => x.AssignmentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<AssignmentAnswer>()
+                .HasOne(x => x.Student)
+                .WithMany(x => x.AssignmentAnswers)
+                .HasForeignKey(x => x.StudentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<AssignmentAnswer>()
+                .HasIndex(x => x.AssignmentResultId);
+
+            modelBuilder.Entity<AssignmentAnswer>()
+                .HasIndex(x => new { x.AssignmentId, x.StudentId });
         }
     }
 }
