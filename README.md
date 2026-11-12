@@ -16,7 +16,7 @@ Unity ile geliştirilen üç boyutlu bilim simülasyonlarını; ASP.NET Core tab
 
 </div>
 
-![Scienyx — Güneş ve Ay tutulmalarını anlatan etkileşimli bilim simülasyonu](docs/screenshots/scienyx-cover.webp)
+![Scienyx — Güneş ve Ay tutulmalarını anlatan etkileşimli bilim simülasyonu](docs/screenshots/scienyx-cover.jpg)
 
 ---
 
@@ -84,11 +84,11 @@ Projede bu kaynaktan **gezegen ve ilgili gök cisimlerinin konum verileri çekil
 
 | Giriş ekranı | Öğretmen kontrol paneli |
 | :---: | :---: |
-| ![Scienyx giriş ekranı](docs/screenshots/login.webp) | ![Öğretmen kontrol paneli](docs/screenshots/teacher-dashboard.webp) |
+| ![Scienyx giriş ekranı](docs/screenshots/login.jpg) | ![Öğretmen kontrol paneli](docs/screenshots/teacher-dashboard.jpg) |
 | **Yönetici kontrol paneli** | **Sınıf yönetimi** |
-| ![Yönetici kontrol paneli](docs/screenshots/admin-dashboard.webp) | ![Sınıf yönetimi](docs/screenshots/class-management.webp) |
+| ![Yönetici kontrol paneli](docs/screenshots/admin-dashboard.jpg) | ![Sınıf yönetimi](docs/screenshots/class-management.jpg) |
 | **Öğrenci ödevleri** | **Güneş sistemi keşfi** |
-| ![Öğrenci ödev ekranı](docs/screenshots/student-assignments.webp) | ![Dünya odaklı simülasyon görünümü](docs/screenshots/solar-system-earth.webp) |
+| ![Öğrenci ödev ekranı](docs/screenshots/student-assignments.jpg) | ![Dünya odaklı simülasyon görünümü](docs/screenshots/solar-system-earth.png) |
 
 </details>
 
@@ -97,7 +97,7 @@ Projede bu kaynaktan **gezegen ve ilgili gök cisimlerinin konum verileri çekil
 
 | Güneş tutulması anlatımı | Ay tutulması ve gölge bölgeleri |
 | :---: | :---: |
-| ![Güneş tutulması açıklama sahnesi](docs/screenshots/eclipse-explainer.webp) | ![Ay tutulmasında gölge bölgeleri](docs/screenshots/lunar-eclipse.webp) |
+| ![Güneş tutulması açıklama sahnesi](docs/screenshots/eclipse-explainer.jpg) | ![Ay tutulmasında gölge bölgeleri](docs/screenshots/lunar-eclipse.jpg) |
 
 </details>
 
