@@ -4,8 +4,6 @@
 
 ### Etkileşimli Bilim Simülasyonları ve Eğitim Yönetim Platformu
 
-**Keşfederek öğren. Deneyimleyerek öğret.**
-
 Unity ile geliştirilen üç boyutlu bilim simülasyonlarını; ASP.NET Core tabanlı, katmanlı bir backend üzerinden sınıf, ödev ve öğrenci ilerlemesi yönetimiyle bir araya getiren akademik yazılım projesi.
 
 [![Unity](https://img.shields.io/badge/Unity-6.3_LTS-000000?logo=unity&logoColor=white)](https://unity.com/)
@@ -15,8 +13,6 @@ Unity ile geliştirilen üç boyutlu bilim simülasyonlarını; ASP.NET Core tab
 [![MySQL](https://img.shields.io/badge/MySQL-Database-4479A1?logo=mysql&logoColor=white)](https://www.mysql.com/)
 [![NASA JPL](https://img.shields.io/badge/NASA%2FJPL-Horizons-0B3D91)](https://ssd.jpl.nasa.gov/horizons/)
 [![Durum](https://img.shields.io/badge/Durum-Akademik_Prototip-243567)](#proje-durumu)
-
-[Genel Bakış](#genel-bakis) · [Özellikler](#temel-ozellikler) · [NASA Verileri](#nasa-jpl-horizons-verileri) · [Mimari](#sistem-mimarisi) · [Görseller](#ekran-goruntuleri) · [Kurulum](#kurulum-ve-calistirma) · [Akademik Süreç](#akademik-surec)
 
 </div>
 
@@ -205,65 +201,6 @@ Swagger dokümantasyonunda görüntülenen bazı uç noktalar:
 
 Bu tablo API'nin **tamamını değil, seçilmiş örneklerini** içerir. Geliştirme ortamında OpenAPI etkinleştirildiğinde API, Swagger UI üzerinden incelenebilir.
 
-<a id="kurulum-ve-calistirma"></a>
-## Kurulum ve Çalıştırma
-
-> Bu adımlar, kaynak kodu yerel ortamında çalıştırmak isteyen geliştiriciler içindir. MySQL servisinin çalışıyor olması ve projeye uygun bağlantı ayarlarının yapılması gerekir.
-
-### Gereksinimler
-
-- **.NET SDK 8** ve Visual Studio veya uyumlu bir C# geliştirme ortamı. `.slnx` dosyasını doğrudan `dotnet` komutuyla kullanmak için **SDK 9.0.200 veya üzeri** gerekebilir.
-- **Unity Hub** ve uyumlu bir **Unity 6** sürümü (görseller Unity 6.3 LTS ile alınmıştır).
-- EF Core sağlayıcısıyla uyumlu **MySQL Server**.
-- **Git**.
-
-### 1. Depoyu klonlayın
-
-```bash
-git clone https://github.com/iremcebeci/ExperimentSimulation.git
-cd ExperimentSimulation
-```
-
-### 2. Backend yapılandırmasını tamamlayın
-
-`Program.cs` ve `DbContext` tarafından beklenen **veritabanı bağlantı bilgilerini** ve **kimlik doğrulama ayarlarını** geliştirme ortamınıza uygun biçimde tanımlayın. Gerçek veritabanı şifrelerini veya JWT gizli anahtarlarını Git deposuna eklemeyin; ortam değişkenleri, yerel yapılandırma veya .NET User Secrets kullanın.
-
-Bağımlılıkları geri yükleyin:
-
-```bash
-dotnet restore backend/ExperimentSimulation.WebApi/ExperimentSimulation.WebApi.csproj
-```
-
-EF Core migration dosyaları veri erişim katmanında, başlangıç uygulaması ise Web API projesindedir. Veritabanı güncellemesi için:
-
-```bash
-dotnet ef database update --project backend/ExperimentSimulation.DataAccessLayer --startup-project backend/ExperimentSimulation.WebApi
-```
-
-`dotnet ef` komutu tanınmıyorsa projeyle uyumlu EF Core CLI aracını yükleyin. Migration'ların çalışması için doğru veritabanı kimlik bilgileri ve tasarım zamanında oluşturulabilen bir `DbContext` gerekir.
-
-### 3. API'yi başlatın
-
-```bash
-dotnet run --project backend/ExperimentSimulation.WebApi
-```
-
-Geliştirme ortamında etkinse Swagger dokümantasyonuna aşağıdaki adres şablonundan erişebilirsiniz:
-
-```text
-http://localhost:<api-port>/swagger
-```
-
-### 4. Unity projesini açın
-
-1. **Unity Hub** uygulamasını açın ve **Add project from disk** seçeneğini kullanın.
-2. `unity/ExperimentSim/` klasörünü seçin.
-3. Projeyi uyumlu bir **Unity 6** sürümüyle açın.
-4. Unity istemcisindeki API temel adresini çalışan yerel backend adresine göre yapılandırın (ilgili istemci ayarları veya script'ler üzerinden).
-5. İlgili sahneyi açıp **Play Mode** ile çalıştırın.
-
-> Depoda herkese açık bir API sunucusu veya hazır çalıştırılabilir sürüm bulunduğu varsayılmamalıdır. Yerel çalıştırma, projeye özel ek ayarlar gerektirebilir.
-
 ## Örnek Eğitim Süreci
 
 ```mermaid
@@ -309,18 +246,3 @@ Yönlendirilmiş Çalışma I kapsamında hazırlanan ilk proje raporunun yayım
 Görseller, geliştirilmiş arayüzleri, backend'den gelen eğitim verilerini ve bilimsel simülasyon sahnelerini göstermektedir. Üretim ortamında kullanım öncesinde tüm özelliklerin uçtan uca test edilmesi, hata yönetimi, grafik verilerinin doğrulanması, otomatik testler, dağıtım dokümantasyonu ve astronomik modelin doğruluk değerlendirmesi gibi alanlarda ek çalışma yapılabilir.
 
 Anlatım sahnelerinde **yapay zekâ ile oluşturulmuş ses dosyaları ve bunlara eşlik eden altyazılar** kullanılmıştır. Bu özellik, uygulamanın içinde çalışan üretken yapay zekâ modeli veya yapay zekâ destekli backend bulunduğu iddiası değildir.
-
-## Depo Bilgileri
-
-- **Kaynak kod:** [iremcebeci/ExperimentSimulation](https://github.com/iremcebeci/ExperimentSimulation)
-- **Platform:** Unity masaüstü istemcisi + ASP.NET Core Web API
-- **Astronomik veri kaynağı:** [NASA/JPL Horizons](https://ssd.jpl.nasa.gov/horizons/)
-- **Amaç:** Eğitim yazılımı geliştirme ve teknik portföy
-
----
-
-<div align="center">
-
-**Scienyx — Bilimi her simülasyonda biraz daha keşfedilebilir kılmak.**
-
-</div>
